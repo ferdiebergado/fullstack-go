@@ -4,28 +4,23 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"sync"
-	"time"
 
+	"github.com/ferdiebergado/fullstack-go/internal/config"
+	"github.com/ferdiebergado/fullstack-go/pkg/env"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 )
 
-func RunServer(router *myhttp.Router)  {
-	port, ok := os.LookupEnv("APP_PORT")
-
-	if !ok {
-		fmt.Fprintln(os.Stderr, "APP_PORT not set")
-		os.Exit(1)
-	}
+func RunServer(router *myhttp.Router) {
+	port := env.GetEnv("APP_PORT")
 
 	// Create the server.
 	server := &http.Server{
 		Addr:         ":" + port,
 		Handler:      router,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  time.Minute,
+		ReadTimeout:  config.ServerReadTimeout,
+		WriteTimeout: config.ServerWriteTimeout,
+		IdleTimeout:  config.ServerIdleTimeout,
 	}
 
 	// Run the server with graceful shutdown.

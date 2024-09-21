@@ -12,7 +12,6 @@ func NewApp() *myhttp.Router {
 
 	// Use logging and error handling middleware.
 	router.Use(myhttp.LoggingMiddleware)
-	router.Use(myhttp.ResponseMiddleware)
 	router.Use(myhttp.ErrorHandlerMiddleware)
 
 	// Register routes.

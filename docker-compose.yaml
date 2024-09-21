@@ -1,0 +1,57 @@
+services:
+  ptms:
+    build:
+      context: .
+      dockerfile: ./dev.dockerfile
+      args:
+        - APP_PORT=${APP_PORT}
+    container_name: ptms_app
+    environment:
+      - APP_KEY=${APP_KEY}
+      - APP_ENV=${APP_ENV}
+      - APP_PORT=${APP_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      # - REDIS_URL=${REDIS_URL}
+    volumes:
+      - .:/app:Z
+    ports:
+      - 8888:8888
+    depends_on:
+      - db
+      # - redis
+
+  db:
+    image: postgres:15.8-bookworm
+    container_name: ptms_db
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ptmsdb_data:/var/lib/postgresql/data:Z
+      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf:Z
+
+  # redis:
+  #   image: redis:7.4-bookworm
+  #   container_name: redis_cache
+  #   restart: always
+  #   volumes:
+  #     - redis_data:/data:Z
+
+  nginx:
+    image: nginx:1.26.2-bookworm
+    container_name: ptms_proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:Z
+      - ./assets:/app:Z
+    depends_on:
+      - app
+
+volumes:
+  ptmsdb_data:
+  # redis_data:
