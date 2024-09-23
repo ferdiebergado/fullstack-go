@@ -12,20 +12,20 @@ import (
 )
 
 func OpenDb() *sql.DB {
-	const dbUrlStr = "postgres://%s:%s@%s:%s/%s?sslmode=disable"
+	const driver = "pgx"
+	const connStr = "postgres://%s:%s@%s:%s/%s?sslmode=disable"
 
 	fmt.Println("Connecting to the database...")
 
-	dbUser := env.GetEnv("DB_USER")
-	dbPass := env.GetEnv("DB_PASS")
-	dbHost := env.GetEnv("DB_HOST")
-	dbPort := env.GetEnv("DB_PORT")
-	dbName := env.GetEnv("DB_NAME")
-	dbDriver := env.GetEnv("DB_DRIVER")
+	user := env.GetEnv("DB_USER")
+	password := env.GetEnv("DB_PASS")
+	host := env.GetEnv("DB_HOST")
+	port := env.GetEnv("DB_PORT")
+	database := env.GetEnv("DB_NAME")
 
-	dsn := fmt.Sprintf(dbUrlStr, dbUser, dbPass, dbHost, dbPort, dbName)
+	dsn := fmt.Sprintf(connStr, user, password, host, port, database)
 
-	db, err := sql.Open(dbDriver, dsn)
+	db, err := sql.Open(driver, dsn)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
