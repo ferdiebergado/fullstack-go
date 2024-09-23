@@ -10,7 +10,7 @@ import (
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		sw := &statusWriter{ResponseWriter: w}
+		sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
 		next.ServeHTTP(sw, r)
 		duration := time.Since(start)
 		statusCode := sw.status
@@ -30,7 +30,7 @@ func ErrorHandlerMiddleware(next http.Handler) http.Handler {
 
 		// Catch 404 errors by checking if no handler is found.
 		originalWriter := w
-		w = &statusWriter{ResponseWriter: originalWriter}
+		w = &statusWriter{ResponseWriter: originalWriter, status: http.StatusOK}
 		next.ServeHTTP(w, r)
 
 		if w.(*statusWriter).status == 0 {
