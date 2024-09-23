@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/ferdiebergado/fullstack-go/internal/config"
+	"github.com/ferdiebergado/fullstack-go/config"
 	"github.com/ferdiebergado/fullstack-go/pkg/env"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 )
