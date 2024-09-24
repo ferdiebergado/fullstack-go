@@ -1,11 +1,11 @@
-package http
+package templates
 
 import (
 	"bytes"
+	"embed"
 	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
 )
 
 const (
@@ -13,8 +13,12 @@ const (
 	layoutFile  = "layout.html"
 )
 
-func HTMLResponse(w http.ResponseWriter, templateFile string) {
-	templates, err := template.ParseFiles(filepath.Join(templateDir, layoutFile), filepath.Join(templateDir, templateFile))
+//go:embed **/*.html
+var templatesFS embed.FS
+
+func Render(w http.ResponseWriter, templateFile string) {
+
+	templates, err := template.ParseFS(templatesFS, layoutFile, templateFile)
 
 	if err != nil {
 		log.Printf("Parse html files: %v\n", err)

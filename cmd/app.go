@@ -2,8 +2,10 @@ package main
 
 import (
 	"net/http"
+	"path/filepath"
 
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/templates"
 )
 
 func NewApp() *myhttp.Router {
@@ -16,7 +18,7 @@ func NewApp() *myhttp.Router {
 
 	// Register routes.
 	router.Handle("/activities", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		myhttp.HTMLResponse(w, "activities/index.html")
+		templates.Render(w, "activities/index.html")
 	}))
 
 	// Register a route that triggers a 403 Forbidden error.
@@ -35,10 +37,10 @@ func NewApp() *myhttp.Router {
 			return
 		}
 
-		myhttp.HTMLResponse(w, "index.html")
+		templates.Render(w, "index.html")
 	}))
 
-	router.Handle("/assets", http.StripPrefix("/assets", http.FileServer(http.Dir("assets"))))
+	router.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 
 	return router
 }
