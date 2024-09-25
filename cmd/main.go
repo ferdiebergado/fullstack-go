@@ -21,7 +21,7 @@ func main() {
 
 	defer database.Close()
 
-	router := NewApp()
+	router := NewApp(database)
 
 	RunServer(router)
 }
