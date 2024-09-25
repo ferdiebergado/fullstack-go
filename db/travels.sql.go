@@ -28,12 +28,12 @@ RETURNING
 `
 
 type CreateTravelParams struct {
-	StartDate  time.Time
-	EndDate    time.Time
-	Status     int16
-	Remarks    sql.NullString
-	Metadata   json.RawMessage
-	ActivityID int32
+	StartDate  time.Time       `json:"start_date"`
+	EndDate    time.Time       `json:"end_date"`
+	Status     int16           `json:"status"`
+	Remarks    sql.NullString  `json:"remarks"`
+	Metadata   json.RawMessage `json:"metadata"`
+	ActivityID int32           `json:"activity_id"`
 }
 
 func (q *Queries) CreateTravel(ctx context.Context, arg CreateTravelParams) (Travel, error) {
@@ -140,26 +140,26 @@ ORDER BY t.start_date DESC
 `
 
 type FindTravelByActivityTitleRow struct {
-	ID          int32
-	StartDate   time.Time
-	EndDate     time.Time
-	Status      int16
-	Remarks     sql.NullString
-	Metadata    json.RawMessage
-	ActivityID  int32
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	IsDeleted   bool
-	ID_2        int32
-	Title       string
-	StartDate_2 time.Time
-	EndDate_2   time.Time
-	Venue       sql.NullString
-	Host        sql.NullString
-	Metadata_2  json.RawMessage
-	CreatedAt_2 time.Time
-	UpdatedAt_2 time.Time
-	IsDeleted_2 bool
+	ID          int32           `json:"id"`
+	StartDate   time.Time       `json:"start_date"`
+	EndDate     time.Time       `json:"end_date"`
+	Status      int16           `json:"status"`
+	Remarks     sql.NullString  `json:"remarks"`
+	Metadata    json.RawMessage `json:"metadata"`
+	ActivityID  int32           `json:"activity_id"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+	IsDeleted   bool            `json:"is_deleted"`
+	ID_2        int32           `json:"id_2"`
+	Title       string          `json:"title"`
+	StartDate_2 time.Time       `json:"start_date_2"`
+	EndDate_2   time.Time       `json:"end_date_2"`
+	Venue       sql.NullString  `json:"venue"`
+	Host        sql.NullString  `json:"host"`
+	Metadata_2  json.RawMessage `json:"metadata_2"`
+	CreatedAt_2 time.Time       `json:"created_at_2"`
+	UpdatedAt_2 time.Time       `json:"updated_at_2"`
+	IsDeleted_2 bool            `json:"is_deleted_2"`
 }
 
 func (q *Queries) FindTravelByActivityTitle(ctx context.Context, activityID int32) ([]FindTravelByActivityTitleRow, error) {
@@ -297,13 +297,13 @@ WHERE
 `
 
 type UpdateTravelParams struct {
-	StartDate  time.Time
-	EndDate    time.Time
-	Status     int16
-	Remarks    sql.NullString
-	ActivityID int32
-	Metadata   json.RawMessage
-	ID         int32
+	StartDate  time.Time       `json:"start_date"`
+	EndDate    time.Time       `json:"end_date"`
+	Status     int16           `json:"status"`
+	Remarks    sql.NullString  `json:"remarks"`
+	ActivityID int32           `json:"activity_id"`
+	Metadata   json.RawMessage `json:"metadata"`
+	ID         int32           `json:"id"`
 }
 
 func (q *Queries) UpdateTravel(ctx context.Context, arg UpdateTravelParams) error {

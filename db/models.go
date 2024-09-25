@@ -11,58 +11,58 @@ import (
 )
 
 type Activity struct {
-	ID        int32
-	Title     string
-	StartDate time.Time
-	EndDate   time.Time
-	Venue     sql.NullString
-	Host      sql.NullString
-	Metadata  json.RawMessage
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	IsDeleted bool
+	ID        int32           `json:"id"`
+	Title     string          `json:"title"`
+	StartDate time.Time       `json:"start_date"`
+	EndDate   time.Time       `json:"end_date"`
+	Venue     sql.NullString  `json:"venue"`
+	Host      sql.NullString  `json:"host"`
+	Metadata  json.RawMessage `json:"metadata"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	IsDeleted bool            `json:"is_deleted"`
 }
 
 type Office struct {
-	ID        int32
-	Name      string
-	Metadata  json.RawMessage
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	IsDeleted bool
+	ID        int32           `json:"id"`
+	Name      string          `json:"name"`
+	Metadata  json.RawMessage `json:"metadata"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	IsDeleted bool            `json:"is_deleted"`
 }
 
 type Personnel struct {
-	ID         int32
-	Lastname   string
-	Firstname  string
-	Mi         sql.NullString
-	PositionID int16
-	OfficeID   sql.NullInt16
-	Metadata   json.RawMessage
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	IsDeleted  bool
+	ID         int32           `json:"id"`
+	Lastname   string          `json:"lastname"`
+	Firstname  string          `json:"firstname"`
+	Mi         sql.NullString  `json:"mi"`
+	PositionID int16           `json:"position_id"`
+	OfficeID   sql.NullInt16   `json:"office_id"`
+	Metadata   json.RawMessage `json:"metadata"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
+	IsDeleted  bool            `json:"is_deleted"`
 }
 
 type Position struct {
-	ID        int32
-	Title     string
-	Metadata  json.RawMessage
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	IsDeleted bool
+	ID        int32           `json:"id"`
+	Title     string          `json:"title"`
+	Metadata  json.RawMessage `json:"metadata"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	IsDeleted bool            `json:"is_deleted"`
 }
 
 type Travel struct {
-	ID         int32
-	StartDate  time.Time
-	EndDate    time.Time
-	Status     int16
-	Remarks    sql.NullString
-	Metadata   json.RawMessage
-	ActivityID int32
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	IsDeleted  bool
+	ID         int32           `json:"id"`
+	StartDate  time.Time       `json:"start_date"`
+	EndDate    time.Time       `json:"end_date"`
+	Status     int16           `json:"status"`
+	Remarks    sql.NullString  `json:"remarks"`
+	Metadata   json.RawMessage `json:"metadata"`
+	ActivityID int32           `json:"activity_id"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
+	IsDeleted  bool            `json:"is_deleted"`
 }

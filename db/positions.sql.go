@@ -19,8 +19,8 @@ RETURNING
 `
 
 type CreatePositionParams struct {
-	Title    string
-	Metadata json.RawMessage
+	Title    string          `json:"title"`
+	Metadata json.RawMessage `json:"metadata"`
 }
 
 func (q *Queries) CreatePosition(ctx context.Context, arg CreatePositionParams) (Position, error) {
@@ -143,9 +143,9 @@ WHERE
 `
 
 type UpdatePositionParams struct {
-	Title    string
-	Metadata json.RawMessage
-	ID       int32
+	Title    string          `json:"title"`
+	Metadata json.RawMessage `json:"metadata"`
+	ID       int32           `json:"id"`
 }
 
 func (q *Queries) UpdatePosition(ctx context.Context, arg UpdatePositionParams) error {

@@ -28,12 +28,12 @@ RETURNING
 `
 
 type CreateActivityParams struct {
-	Title     string
-	StartDate time.Time
-	EndDate   time.Time
-	Venue     sql.NullString
-	Host      sql.NullString
-	Metadata  json.RawMessage
+	Title     string          `json:"title"`
+	StartDate time.Time       `json:"start_date"`
+	EndDate   time.Time       `json:"end_date"`
+	Venue     sql.NullString  `json:"venue"`
+	Host      sql.NullString  `json:"host"`
+	Metadata  json.RawMessage `json:"metadata"`
 }
 
 func (q *Queries) CreateActivity(ctx context.Context, arg CreateActivityParams) (Activity, error) {
@@ -221,13 +221,13 @@ WHERE
 `
 
 type UpdateActivityParams struct {
-	Title     string
-	StartDate time.Time
-	EndDate   time.Time
-	Venue     sql.NullString
-	Host      sql.NullString
-	Metadata  json.RawMessage
-	ID        int32
+	Title     string          `json:"title"`
+	StartDate time.Time       `json:"start_date"`
+	EndDate   time.Time       `json:"end_date"`
+	Venue     sql.NullString  `json:"venue"`
+	Host      sql.NullString  `json:"host"`
+	Metadata  json.RawMessage `json:"metadata"`
+	ID        int32           `json:"id"`
 }
 
 func (q *Queries) UpdateActivity(ctx context.Context, arg UpdateActivityParams) error {

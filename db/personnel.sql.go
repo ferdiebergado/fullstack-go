@@ -27,12 +27,12 @@ RETURNING
 `
 
 type CreatePersonnelParams struct {
-	Lastname   string
-	Firstname  string
-	Mi         sql.NullString
-	PositionID int16
-	OfficeID   sql.NullInt16
-	Metadata   json.RawMessage
+	Lastname   string          `json:"lastname"`
+	Firstname  string          `json:"firstname"`
+	Mi         sql.NullString  `json:"mi"`
+	PositionID int16           `json:"position_id"`
+	OfficeID   sql.NullInt16   `json:"office_id"`
+	Metadata   json.RawMessage `json:"metadata"`
 }
 
 func (q *Queries) CreatePersonnel(ctx context.Context, arg CreatePersonnelParams) (Personnel, error) {
@@ -220,13 +220,13 @@ WHERE
 `
 
 type UpdatePersonnelParams struct {
-	Lastname   string
-	Firstname  string
-	Mi         sql.NullString
-	PositionID int16
-	OfficeID   sql.NullInt16
-	Metadata   json.RawMessage
-	ID         int32
+	Lastname   string          `json:"lastname"`
+	Firstname  string          `json:"firstname"`
+	Mi         sql.NullString  `json:"mi"`
+	PositionID int16           `json:"position_id"`
+	OfficeID   sql.NullInt16   `json:"office_id"`
+	Metadata   json.RawMessage `json:"metadata"`
+	ID         int32           `json:"id"`
 }
 
 func (q *Queries) UpdatePersonnel(ctx context.Context, arg UpdatePersonnelParams) error {

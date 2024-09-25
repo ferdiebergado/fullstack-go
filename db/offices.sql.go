@@ -19,8 +19,8 @@ RETURNING
 `
 
 type CreateOfficeParams struct {
-	Name     string
-	Metadata json.RawMessage
+	Name     string          `json:"name"`
+	Metadata json.RawMessage `json:"metadata"`
 }
 
 func (q *Queries) CreateOffice(ctx context.Context, arg CreateOfficeParams) (Office, error) {
@@ -143,9 +143,9 @@ WHERE
 `
 
 type UpdateOfficeParams struct {
-	Name     string
-	Metadata json.RawMessage
-	ID       int32
+	Name     string          `json:"name"`
+	Metadata json.RawMessage `json:"metadata"`
+	ID       int32           `json:"id"`
 }
 
 func (q *Queries) UpdateOffice(ctx context.Context, arg UpdateOfficeParams) error {
