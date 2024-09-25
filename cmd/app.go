@@ -24,7 +24,12 @@ func NewApp(conn *sql.DB) *myhttp.Router {
 	router.Use(myhttp.ErrorHandlerMiddleware)
 
 	// Register routes.
-	router.Handle("/activities", http.HandlerFunc(activityHandler.ActivityIndex))
+	router.Handle("GET /activities", http.HandlerFunc(activityHandler.ActivityIndex))
+	router.Handle("GET /activities/create", http.HandlerFunc(activityHandler.CreateActivity))
+	router.Handle("GET /activities/{id}", http.HandlerFunc(activityHandler.ViewActivity))
+	router.Handle("GET /activities/{id}/edit", http.HandlerFunc(activityHandler.EditActivity))
+	router.Handle("POST /activities/{id}/edit", http.HandlerFunc(activityHandler.UpdateActivity))
+	router.Handle("POST /activities", http.HandlerFunc(activityHandler.SaveActivity))
 
 	// Register a route that triggers a 403 Forbidden error.
 	router.Handle("/forbidden", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

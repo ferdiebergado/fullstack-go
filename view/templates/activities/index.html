@@ -1,17 +1,36 @@
-{{ block "title" .}}Activities{{ end }}
+{{- /* gotype: github.com/ferdiebergado/fullstack-go/db/models.Activity */ -}}
+{{ block "title" .}}PTMS - Activities{{ end }}
 {{ block "header" .}}Activities{{ end }}
 {{ block "content" .}}
-<table border="1" style="width: 50%;">
+<a href="/activities/create">Add new...</a>
+<table border="1">
     <thead>
         <tr>
             <th>Title</th>
+            <th>Start Date</th>
+            <th>End Date</th>
             <th>Venue</th>
+            <th>Host</th>
+            <td>Actions</td>
         </tr>
     </thead>
     <tbody>
+        {{ if .Activities }}
+        {{ range .Activities }}
+        <tr>
+            <td>{{ .Title }}</td>
+            <td>{{ .StartDate.Format "2006-02-01" }}</td>
+            <td>{{ .EndDate.Format "2006-02-01" }}</td>
+            <td>{{ .Venue.String }}</td>
+            <td>{{ .Host.String }}</td>
+            <td><a href="/activities/{{ .ID }}">View</a> <a href="/activities/{{ .ID }}/edit">Edit</a></td>
+        </tr>
+        {{ end }}
+        {{ else }}
         <tr>
             <td colspan="2">No data.</td>
         </tr>
+        {{ end }}
     </tbody>
 </table>
 {{ end }}

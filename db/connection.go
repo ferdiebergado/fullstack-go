@@ -43,3 +43,11 @@ func OpenDb() *sql.DB {
 
 	return db
 }
+
+// StringToNullString converts a string to sql.NullString.
+func StringToNullString(s string) sql.NullString {
+	if s == "" {
+		return sql.NullString{String: "", Valid: false} // Set to NULL
+	}
+	return sql.NullString{String: s, Valid: true} // Set to the actual string
+}
