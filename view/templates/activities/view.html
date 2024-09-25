@@ -17,4 +17,7 @@
     <input type="text" name="host" id="host" value="{{ .Host.String }}" readonly>
     <button type="submit">Back</button>
 </form>
+<form action="/activities/{{ .ID }}/delete" method="post">
+    <button type="submit">Delete</button>
+</form>
 {{ end }}

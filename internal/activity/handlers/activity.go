@@ -124,7 +124,7 @@ func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		log.Printf("update activity: %v\n", err)
-		http.Error(w, "failed to update activity", http.StatusInternalServerError)
+		http.Error(w, "failed to update activity", http.StatusBadRequest)
 		return
 	}
 
@@ -150,7 +150,22 @@ func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Printf("save activity: %v\n", err)
-		http.Error(w, "failed to create activity", http.StatusInternalServerError)
+		http.Error(w, "failed to create activity", http.StatusBadRequest)
+		return
+	}
+
+	http.Redirect(w, r, "/activities", http.StatusSeeOther)
+}
+
+func (a *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request) {
+
+	activity := a.FindActivity(w, r)
+
+	err := a.Queries.DeleteActivity(r.Context(), activity.ID)
+
+	if err != nil {
+		log.Printf("delete activity: %v\n", err)
+		http.Error(w, "failed to delete activity", http.StatusBadRequest)
 		return
 	}
 
