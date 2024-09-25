@@ -106,7 +106,13 @@ func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 
 	activity := a.FindActivity(w, r)
 
-	r.ParseForm()
+	err := r.ParseForm()
+
+	if err != nil {
+		log.Printf("parse form: %v\n", err)
+		http.Error(w, "failed to parse the form", http.StatusBadRequest)
+		return
+	}
 
 	formDates := a.ParseFormDates(w, r)
 
@@ -120,7 +126,7 @@ func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 		ID:        activity.ID,
 	}
 
-	err := a.Queries.UpdateActivity(r.Context(), params)
+	err = a.Queries.UpdateActivity(r.Context(), params)
 
 	if err != nil {
 		log.Printf("update activity: %v\n", err)
@@ -132,7 +138,13 @@ func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 }
 
 func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	err := r.ParseForm()
+
+	if err != nil {
+		log.Printf("parse form: %v\n", err)
+		http.Error(w, "failed to parse the form", http.StatusBadRequest)
+		return
+	}
 
 	// TODO: validate form values
 	formDates := a.ParseFormDates(w, r)
@@ -146,7 +158,7 @@ func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 		Metadata:  json.RawMessage(`{}`),
 	}
 
-	_, err := a.Queries.CreateActivity(r.Context(), params)
+	_, err = a.Queries.CreateActivity(r.Context(), params)
 
 	if err != nil {
 		log.Printf("save activity: %v\n", err)
