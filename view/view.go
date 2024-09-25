@@ -1,4 +1,4 @@
-package templates
+package view
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path/filepath"
 )
 
 const (
@@ -13,12 +14,14 @@ const (
 	layoutFile  = "layout.html"
 )
 
-//go:embed **/*.html
+//go:embed templates/*
 var templatesFS embed.FS
 
-func Render(w http.ResponseWriter, templateFile string) {
+func RenderTemplate(w http.ResponseWriter, templateFile string, data interface{}) {
+	layoutPath := filepath.Join(templateDir, layoutFile)
+	templatePath := filepath.Join(templateDir, templateFile)
 
-	templates, err := template.ParseFS(templatesFS, layoutFile, templateFile)
+	t, err := template.ParseFS(templatesFS, layoutPath, templatePath)
 
 	if err != nil {
 		log.Printf("Parse html files: %v\n", err)
@@ -28,7 +31,7 @@ func Render(w http.ResponseWriter, templateFile string) {
 
 	var buf bytes.Buffer
 
-	if err := templates.ExecuteTemplate(&buf, layoutFile, nil); err != nil {
+	if err := t.ExecuteTemplate(&buf, layoutFile, data); err != nil {
 		log.Printf("Execute template: %v\n", err)
 		http.Error(w, "Template execution error", http.StatusInternalServerError)
 		return
