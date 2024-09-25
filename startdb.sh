@@ -1,37 +1,19 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 if [ -e $DB_PASS ]; then
     echo "DB_PASS not set"
     exit 1
 fi
 
-if [ -e $DB_NAME ]; then
-    echo "DB_NAME not set"
-    exit 1
-fi
+container=$(command -v docker)
+podman=$(command -v podman)
 
-container_name=${1:-ptms_db}
-postgres_image='postgres:16-alpine3.20'
+if [ -n $podman ]; then 
+    container=$podman
+fi 
 
-# container=$(command -v docker)
-# podman=$(command -v podman)
-
-# if [ -n $podman ]; then 
-#     container=$podman
-# fi 
-
-docker run -d --rm --network host --name $container_name  \
+$container run -ti --rm -p 5432:5432 --name ptms_postgres  \
     -e POSTGRES_PASSWORD="$DB_PASS" \
     -v ./postgresql.conf:/etc/postgresql/postgresql.conf:Z \
-    $postgres_image \
+    postgres:16-alpine3.20 \
     -c 'config_file=/etc/postgresql/postgresql.conf'
-
-echo "Waiting for db to start up..."
-
-sleep 5
-
-echo "Creating database..."
-
-docker exec -it $container_name psql -U postgres -w -c "CREATE DATABASE $DB_NAME;"
-
-docker logs -f $container_name
