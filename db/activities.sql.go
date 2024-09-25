@@ -169,11 +169,53 @@ func (q *Queries) FindActivityByTitle(ctx context.Context) ([]Activity, error) {
 }
 
 const listActivities = `-- name: ListActivities :many
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM activities ORDER BY start_date DESC
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted
+FROM activities
+WHERE
+    is_deleted = 'N'
+ORDER BY start_date DESC
 `
 
 func (q *Queries) ListActivities(ctx context.Context) ([]Activity, error) {
 	rows, err := q.db.QueryContext(ctx, listActivities)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Activity
+	for rows.Next() {
+		var i Activity
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.StartDate,
+			&i.EndDate,
+			&i.Venue,
+			&i.Host,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.IsDeleted,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAllActivities = `-- name: ListAllActivities :many
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM activities ORDER BY start_date DESC
+`
+
+func (q *Queries) ListAllActivities(ctx context.Context) ([]Activity, error) {
+	rows, err := q.db.QueryContext(ctx, listAllActivities)
 	if err != nil {
 		return nil, err
 	}

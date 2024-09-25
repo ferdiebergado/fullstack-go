@@ -13,7 +13,11 @@ RETURNING
     *;
 
 -- name: ListActivities :many
-SELECT * FROM activities ORDER BY start_date DESC;
+SELECT *
+FROM activities
+WHERE
+    is_deleted = 'N'
+ORDER BY start_date DESC;
 
 -- name: FindActivity :one
 SELECT * FROM activities WHERE id = $1;
@@ -39,3 +43,6 @@ SELECT * FROM activities WHERE title LIKE '%$1%';
 
 -- name: FindActivityByStartDate :many
 SELECT * FROM activities WHERE start_date = $1;
+
+-- name: ListAllActivities :many
+SELECT * FROM activities ORDER BY start_date DESC;
