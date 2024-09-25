@@ -19,6 +19,11 @@ type Data struct {
 	Activities []db.Activity
 }
 
+type FormDates struct {
+	startDate time.Time
+	endDate   time.Time
+}
+
 func (a *ActivityHandler) ActivityIndex(w http.ResponseWriter, r *http.Request) {
 	activities, err := a.Queries.ListActivities(r.Context())
 
@@ -73,19 +78,14 @@ func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 	view.RenderTemplate(w, "activities/edit.html", activity)
 }
 
-func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
-
-	activity := a.FindActivity(w, r)
-
-	r.ParseForm()
-
+func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request) *FormDates {
 	// TODO: validate form values
 	startDate, err := time.Parse(time.DateOnly, r.FormValue("start_date"))
 
 	if err != nil {
 		log.Printf("parse start date: %v\n", err)
 		http.Error(w, "invalid start date", http.StatusBadRequest)
-		return
+		return nil
 	}
 
 	endDate, err := time.Parse(time.DateOnly, r.FormValue("end_date"))
@@ -93,20 +93,34 @@ func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		log.Printf("parse end date: %v\n", err)
 		http.Error(w, "invalid end date", http.StatusBadRequest)
-		return
+		return nil
 	}
+
+	return &FormDates{
+		startDate: startDate,
+		endDate:   endDate,
+	}
+}
+
+func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
+
+	activity := a.FindActivity(w, r)
+
+	r.ParseForm()
+
+	formDates := a.ParseFormDates(w, r)
 
 	params := db.UpdateActivityParams{
 		Title:     r.FormValue("title"),
-		StartDate: startDate,
-		EndDate:   endDate,
+		StartDate: formDates.startDate,
+		EndDate:   formDates.endDate,
 		Venue:     db.StringToNullString(r.FormValue("venue")),
 		Host:      db.StringToNullString(r.FormValue("host")),
 		Metadata:  json.RawMessage(`{}`),
 		ID:        activity.ID,
 	}
 
-	err = a.Queries.UpdateActivity(r.Context(), params)
+	err := a.Queries.UpdateActivity(r.Context(), params)
 
 	if err != nil {
 		log.Printf("update activity: %v\n", err)
@@ -121,32 +135,18 @@ func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	// TODO: validate form values
-	startDate, err := time.Parse(time.DateOnly, r.FormValue("start_date"))
-
-	if err != nil {
-		log.Printf("parse start date: %v\n", err)
-		http.Error(w, "invalid start date", http.StatusBadRequest)
-		return
-	}
-
-	endDate, err := time.Parse(time.DateOnly, r.FormValue("end_date"))
-
-	if err != nil {
-		log.Printf("parse end date: %v\n", err)
-		http.Error(w, "invalid end date", http.StatusBadRequest)
-		return
-	}
+	formDates := a.ParseFormDates(w, r)
 
 	params := db.CreateActivityParams{
 		Title:     r.FormValue("title"),
-		StartDate: startDate,
-		EndDate:   endDate,
+		StartDate: formDates.startDate,
+		EndDate:   formDates.endDate,
 		Venue:     db.StringToNullString(r.FormValue("venue")),
 		Host:      db.StringToNullString(r.FormValue("host")),
 		Metadata:  json.RawMessage(`{}`),
 	}
 
-	_, err = a.Queries.CreateActivity(r.Context(), params)
+	_, err := a.Queries.CreateActivity(r.Context(), params)
 
 	if err != nil {
 		log.Printf("save activity: %v\n", err)
