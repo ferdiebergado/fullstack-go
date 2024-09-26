@@ -20,8 +20,8 @@ type Data struct {
 }
 
 type FormDates struct {
-	startDate time.Time
-	endDate   time.Time
+	startDate db.DateOnlyTime
+	endDate   db.DateOnlyTime
 }
 
 func (a *ActivityHandler) ActivityIndex(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +80,9 @@ func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 
 func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request) *FormDates {
 	// TODO: validate form values
-	startDate, err := time.Parse(time.DateOnly, r.FormValue("start_date"))
+	var startDate, endDate db.DateOnlyTime
+
+	t, err := time.Parse(time.DateOnly, r.FormValue("start_date"))
 
 	if err != nil {
 		log.Printf("parse start date: %v\n", err)
@@ -88,13 +90,17 @@ func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request)
 		return nil
 	}
 
-	endDate, err := time.Parse(time.DateOnly, r.FormValue("end_date"))
+	startDate.Time = t
+
+	t, err = time.Parse(time.DateOnly, r.FormValue("end_date"))
 
 	if err != nil {
 		log.Printf("parse end date: %v\n", err)
 		http.Error(w, "invalid end date", http.StatusBadRequest)
 		return nil
 	}
+
+	endDate.Time = t
 
 	return &FormDates{
 		startDate: startDate,

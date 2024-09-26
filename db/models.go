@@ -13,10 +13,10 @@ import (
 type Activity struct {
 	ID        int32           `json:"id"`
 	Title     string          `json:"title"`
-	StartDate time.Time       `json:"start_date"`
-	EndDate   time.Time       `json:"end_date"`
-	Venue     sql.NullString  `json:"venue"`
-	Host      sql.NullString  `json:"host"`
+	StartDate DateOnlyTime    `json:"start_date"`
+	EndDate   DateOnlyTime    `json:"end_date"`
+	Venue     NullString      `json:"venue"`
+	Host      NullString      `json:"host"`
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
@@ -56,10 +56,10 @@ type Position struct {
 
 type Travel struct {
 	ID         int32           `json:"id"`
-	StartDate  time.Time       `json:"start_date"`
-	EndDate    time.Time       `json:"end_date"`
+	StartDate  DateOnlyTime    `json:"start_date"`
+	EndDate    DateOnlyTime    `json:"end_date"`
 	Status     int16           `json:"status"`
-	Remarks    sql.NullString  `json:"remarks"`
+	Remarks    NullString      `json:"remarks"`
 	Metadata   json.RawMessage `json:"metadata"`
 	ActivityID int32           `json:"activity_id"`
 	CreatedAt  time.Time       `json:"created_at"`
