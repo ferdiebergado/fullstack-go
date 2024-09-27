@@ -13,12 +13,14 @@ sql:
         overrides:
           - db_type: "date"
             go_type:
-              type: "DateOnlyTime"
+              type: "Date"
           - db_type: "text"
             nullable: true
             go_type:
-              type: "NullString"
+              type: "string"
+              pointer: true
           - db_type: "pg_catalog.varchar"
             nullable: true
             go_type:
-              type: "NullString"
+              type: "string"
+              pointer: true
