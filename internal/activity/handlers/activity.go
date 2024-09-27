@@ -79,9 +79,9 @@ func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request) *FormDates {
-	// TODO: validate form values
 	var startDate, endDate db.DateOnlyTime
 
+	// TODO: validate form values
 	t, err := time.Parse(time.DateOnly, r.FormValue("start_date"))
 
 	if err != nil {
@@ -90,7 +90,7 @@ func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request)
 		return nil
 	}
 
-	startDate.Time = t
+	startDate.Time=t
 
 	t, err = time.Parse(time.DateOnly, r.FormValue("end_date"))
 
@@ -100,12 +100,38 @@ func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request)
 		return nil
 	}
 
-	endDate.Time = t
+	endDate.Time=t
 
 	return &FormDates{
 		startDate: startDate,
 		endDate:   endDate,
 	}
+}
+
+func (a *ActivityHandler) UpdateActivityJson(w http.ResponseWriter, r *http.Request) {
+	// Read the body of the request
+	defer r.Body.Close()
+	var data db.UpdateActivityParams
+
+	// Decode the JSON body into the struct
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		log.Printf("decode json body: %v\n", err)
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("DATA: %v\n",data)
+
+	err = a.Queries.UpdateActivity(r.Context(), data)
+
+	if err != nil {
+		log.Printf("update activity: %v\n", err)
+		http.Error(w, "failed to update activity", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {

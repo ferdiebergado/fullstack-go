@@ -8,7 +8,7 @@ document.getElementById('activity_form').addEventListener('submit', async functi
 
     try {
         const response = await fetch(this.action, {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },

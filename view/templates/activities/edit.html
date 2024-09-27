@@ -2,7 +2,7 @@
 {{ block "title" .}}PTMS - Edit Activity{{ end }}
 {{ block "header" .}}Edit Activity{{ end }}
 {{ block "content" .}}
-<form id="activity_form" action="/activities/{{ .ID }}/edit" method="post">
+<form id="activity_form" action="/api/activities/{{ .ID }}" method="put">
     <label for="title">Title</label>
     <input type="text" name="title" id="title" value="{{ .Title }}" required autofocus>
     <label for="start_date">Start Date</label>
