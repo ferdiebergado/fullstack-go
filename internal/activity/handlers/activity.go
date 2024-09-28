@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ferdiebergado/fullstack-go/db"
@@ -54,25 +55,29 @@ func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 	data := &Data{Activities: activities}
 
 	acceptHeader := r.Header.Get("Accept")
+	acceptedTypes := strings.Split(acceptHeader, ",")
 
-	if acceptHeader == "application/json" {
+	// Trim spaces and check each accepted media type
+	for _, mediaType := range acceptedTypes {
+		mediaType = strings.TrimSpace(mediaType)
 
-		err = view.RenderJson(w, r, http.StatusOK, data)
+		if mediaType == "application/json" {
 
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			err = view.RenderJson(w, r, http.StatusOK, data)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusNotFound)
+			}
+			return
+		} else if mediaType == "text/html" {
+			view.RenderTemplate(w, "activities/index.html", data)
 			return
 		}
-
-	} else if acceptHeader == "text/html" {
-		view.RenderTemplate(w, "activities/index.html", data)
-	} else {
-		// Default response or handle other Accept types
-		// w.Header().Set("Content-Type", "text/plain")
-		// w.Write([]byte("Default response in plain text"))
-		w.WriteHeader(http.StatusBadRequest)
 	}
 
+	// Default fallback if no match
+	// w.Header().Set("Content-Type", "text/plain")
+	// w.Write([]byte("Default response in plain text"))
+	w.WriteHeader(http.StatusBadRequest)
 }
 
 func (a *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
