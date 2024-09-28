@@ -32,7 +32,15 @@ tasks:
   generate:
     aliases: ["gen"]
     cmds:
-      - sqlc generate
+      - export DSN="{{.DSN}}"; sqlc generate
+    requires:
+      vars: [DSN]
+  security:
+    aliases: ["sec"]
+    cmd: gosec ./...
+  critic:
+    aliases: ["crit"]
+    cmd: gocritic check ./...
   tools:
     cmds:
       - go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
@@ -40,6 +48,8 @@ tasks:
           [
             "github.com/sqlc-dev/sqlc/cmd/sqlc@latest",
             "github.com/air-verse/air@v1.52.2",
+            "github.com/securego/gosec/v2/cmd/gosec@latest",
+            "github.com/go-critic/go-critic/cmd/gocritic@latest",
           ]
         cmd: go install {{.ITEM}}
   dev:
