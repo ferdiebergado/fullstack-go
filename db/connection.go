@@ -15,7 +15,7 @@ func OpenDb() *sql.DB {
 	const driver = "pgx"
 	const connStr = "postgres://%s:%s@%s:%s/%s?sslmode=disable"
 
-	fmt.Println("Connecting to the database...")
+	fmt.Print("Connecting to the database... ")
 
 	user := env.GetEnv("DB_USER")
 	password := env.GetEnv("DB_PASS")
@@ -39,7 +39,7 @@ func OpenDb() *sql.DB {
 		os.Exit(1)
 	}
 
-	fmt.Println("Connected to the database.")
+	fmt.Println("connected.")
 
 	return db
 }
