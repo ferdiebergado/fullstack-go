@@ -21,6 +21,7 @@ func NewApp(conn *sql.DB) *myhttp.Router {
 
 	// Use logging and error handling middleware.
 	router.Use(myhttp.LoggingMiddleware)
+	router.Use(myhttp.StripTrailingSlash)
 	router.Use(myhttp.ErrorHandlerMiddleware)
 
 	// Register routes.
