@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+dotenv: [".env"]
+
+vars:
+  CONTAINER_NAME: ptms_postgres
+  CONTAINER_IMAGE: postgres:16-alpine3.20
+  DSN: postgres://$DB_USER:$DB_PASS@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable
+  MIGRATIONS_DIR: db/migrations
+
+tasks:
+  postgres:
+    aliases: ["db"]
+    cmds:
+      - $CONTAINER run -ti --rm --network host --name {{.CONTAINER_NAME}} -e POSTGRES_PASSWORD="$DB_PASS" -v ./postgresql.conf:/etc/postgresql/postgresql.conf:Z {{.CONTAINER_IMAGE}} -c 'config_file=/etc/postgresql/postgresql.conf'
+    requires:
+      vars: [CONTAINER, DB_PASS]
+  migrate_create:
+    cmds:
+      - migrate create -ext sql -dir {{.MIGRATIONS_DIR}} -seq {{.CLI_ARGS}}
+  migrate:
+    cmds:
+      - migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} up {{.CLI_ARGS}}
+    requires:
+      vars: [DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]
+  rollback:
+    cmds:
+      - migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} down {{.CLI_ARGS}}
+    requires:
+      vars: [DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]
+  generate:
+    aliases: ["gen"]
+    cmds:
+      - sqlc generate
+  tools:
+    cmds:
+      - go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+      - for:
+          [
+            "github.com/sqlc-dev/sqlc/cmd/sqlc@latest",
+            "github.com/air-verse/air@v1.52.2",
+          ]
+        cmd: go install {{.ITEM}}
+  dev:
+    cmds:
+      - air
