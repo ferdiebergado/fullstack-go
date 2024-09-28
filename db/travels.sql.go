@@ -27,10 +27,10 @@ RETURNING
 `
 
 type CreateTravelParams struct {
-	StartDate  DateOnlyTime    `json:"start_date"`
-	EndDate    DateOnlyTime    `json:"end_date"`
+	StartDate  Date            `json:"start_date"`
+	EndDate    Date            `json:"end_date"`
 	Status     int16           `json:"status"`
-	Remarks    NullString      `json:"remarks"`
+	Remarks    *string         `json:"remarks"`
 	Metadata   json.RawMessage `json:"metadata"`
 	ActivityID int32           `json:"activity_id"`
 }
@@ -140,10 +140,10 @@ ORDER BY t.start_date DESC
 
 type FindTravelByActivityTitleRow struct {
 	ID          int32           `json:"id"`
-	StartDate   DateOnlyTime    `json:"start_date"`
-	EndDate     DateOnlyTime    `json:"end_date"`
+	StartDate   Date            `json:"start_date"`
+	EndDate     Date            `json:"end_date"`
 	Status      int16           `json:"status"`
-	Remarks     NullString      `json:"remarks"`
+	Remarks     *string         `json:"remarks"`
 	Metadata    json.RawMessage `json:"metadata"`
 	ActivityID  int32           `json:"activity_id"`
 	CreatedAt   time.Time       `json:"created_at"`
@@ -151,10 +151,10 @@ type FindTravelByActivityTitleRow struct {
 	IsDeleted   bool            `json:"is_deleted"`
 	ID_2        int32           `json:"id_2"`
 	Title       string          `json:"title"`
-	StartDate_2 DateOnlyTime    `json:"start_date_2"`
-	EndDate_2   DateOnlyTime    `json:"end_date_2"`
-	Venue       NullString      `json:"venue"`
-	Host        NullString      `json:"host"`
+	StartDate_2 Date            `json:"start_date_2"`
+	EndDate_2   Date            `json:"end_date_2"`
+	Venue       *string         `json:"venue"`
+	Host        *string         `json:"host"`
 	Metadata_2  json.RawMessage `json:"metadata_2"`
 	CreatedAt_2 time.Time       `json:"created_at_2"`
 	UpdatedAt_2 time.Time       `json:"updated_at_2"`
@@ -209,7 +209,7 @@ const findTravelByStartDate = `-- name: FindTravelByStartDate :many
 SELECT id, start_date, end_date, status, remarks, metadata, activity_id, created_at, updated_at, is_deleted FROM travels WHERE start_date = $1
 `
 
-func (q *Queries) FindTravelByStartDate(ctx context.Context, startDate DateOnlyTime) ([]Travel, error) {
+func (q *Queries) FindTravelByStartDate(ctx context.Context, startDate Date) ([]Travel, error) {
 	rows, err := q.db.QueryContext(ctx, findTravelByStartDate, startDate)
 	if err != nil {
 		return nil, err
@@ -296,10 +296,10 @@ WHERE
 `
 
 type UpdateTravelParams struct {
-	StartDate  DateOnlyTime    `json:"start_date"`
-	EndDate    DateOnlyTime    `json:"end_date"`
+	StartDate  Date            `json:"start_date"`
+	EndDate    Date            `json:"end_date"`
 	Status     int16           `json:"status"`
-	Remarks    NullString      `json:"remarks"`
+	Remarks    *string         `json:"remarks"`
 	ActivityID int32           `json:"activity_id"`
 	Metadata   json.RawMessage `json:"metadata"`
 	ID         int32           `json:"id"`

@@ -27,10 +27,10 @@ RETURNING
 
 type CreateActivityParams struct {
 	Title     string          `json:"title"`
-	StartDate DateOnlyTime    `json:"start_date"`
-	EndDate   DateOnlyTime    `json:"end_date"`
-	Venue     NullString      `json:"venue"`
-	Host      NullString      `json:"host"`
+	StartDate Date            `json:"start_date"`
+	EndDate   Date            `json:"end_date"`
+	Venue     *string         `json:"venue"`
+	Host      *string         `json:"host"`
 	Metadata  json.RawMessage `json:"metadata"`
 }
 
@@ -94,7 +94,7 @@ const findActivityByStartDate = `-- name: FindActivityByStartDate :many
 SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM activities WHERE start_date = $1
 `
 
-func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate DateOnlyTime) ([]Activity, error) {
+func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) ([]Activity, error) {
 	rows, err := q.db.QueryContext(ctx, findActivityByStartDate, startDate)
 	if err != nil {
 		return nil, err
@@ -262,10 +262,10 @@ WHERE
 
 type UpdateActivityParams struct {
 	Title     string          `json:"title"`
-	StartDate DateOnlyTime    `json:"start_date"`
-	EndDate   DateOnlyTime    `json:"end_date"`
-	Venue     NullString      `json:"venue"`
-	Host      NullString      `json:"host"`
+	StartDate Date            `json:"start_date"`
+	EndDate   Date            `json:"end_date"`
+	Venue     *string         `json:"venue"`
+	Host      *string         `json:"host"`
 	Metadata  json.RawMessage `json:"metadata"`
 	ID        int32           `json:"id"`
 }
