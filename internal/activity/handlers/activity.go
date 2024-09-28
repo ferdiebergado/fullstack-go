@@ -19,7 +19,7 @@ type ActivityHandler struct {
 }
 
 type Data struct {
-	Activities []db.Activity
+	Activities []db.ActiveActivity
 }
 
 type FormDates struct {
@@ -41,11 +41,45 @@ func (a *ActivityHandler) ActivityIndex(w http.ResponseWriter, r *http.Request) 
 	view.RenderTemplate(w, "activities/index.html", data)
 }
 
+func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
+
+	activities, err := a.Queries.ListActivities(r.Context())
+
+	if err != nil {
+		log.Printf("list activities: %v\n", err)
+		http.Error(w, "failed to get activities", http.StatusInternalServerError)
+		return
+	}
+
+	data := &Data{Activities: activities}
+
+	acceptHeader := r.Header.Get("Accept")
+
+	if acceptHeader == "application/json" {
+
+		err = view.RenderJson(w, r, http.StatusOK, data)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+	} else if acceptHeader == "text/html" {
+		view.RenderTemplate(w, "activities/index.html", data)
+	} else {
+		// Default response or handle other Accept types
+		// w.Header().Set("Content-Type", "text/plain")
+		// w.Write([]byte("Default response in plain text"))
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+}
+
 func (a *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
 	view.RenderTemplate(w, "activities/create.html", nil)
 }
 
-func (a *ActivityHandler) FindActivity(ctx context.Context, idStr string) (*db.Activity, error) {
+func (a *ActivityHandler) FindActiveActivity(ctx context.Context, idStr string) (*db.ActiveActivity, error) {
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		log.Printf("parse path value: %v\n", err)
@@ -63,8 +97,7 @@ func (a *ActivityHandler) FindActivity(ctx context.Context, idStr string) (*db.A
 
 func (a *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 
-	// Extract ID from the path
-	activity, err := a.FindActivity(r.Context(), r.PathValue("id"))
+	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -72,12 +105,15 @@ func (a *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// view.RenderTemplate(w, "activities/view.html", activity)
-	view.RenderJson(w, r, http.StatusOK, activity)
+	err = view.RenderJson(w, r, http.StatusOK, activity)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+	}
 }
 
 func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
-	// Extract ID from the path
-	activity, err := a.FindActivity(r.Context(), r.PathValue("id"))
+	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -114,7 +150,7 @@ func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request)
 }
 
 func (a *ActivityHandler) UpdateActivityJson(w http.ResponseWriter, r *http.Request) {
-	activity, err := a.FindActivity(r.Context(), r.PathValue("id"))
+	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
 
 	if err != nil || activity == nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -134,7 +170,6 @@ func (a *ActivityHandler) UpdateActivityJson(w http.ResponseWriter, r *http.Requ
 
 	data.ID = activity.ID
 
-	// Ensure Metadata is set
 	if data.Metadata == nil {
 		data.Metadata = json.RawMessage(`{}`) // Set to an empty JSON object if nil
 	}
@@ -152,8 +187,7 @@ func (a *ActivityHandler) UpdateActivityJson(w http.ResponseWriter, r *http.Requ
 
 func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
 
-	// Extract ID from the path
-	activity, err := a.FindActivity(r.Context(), r.PathValue("id"))
+	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -195,11 +229,9 @@ func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 }
 
 func (a *ActivityHandler) SaveActivityJson(w http.ResponseWriter, r *http.Request) {
-	// Read the body of the request
 	defer r.Body.Close()
 	var data db.CreateActivityParams
 
-	// Decode the JSON body into the struct
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		log.Printf("decode json body: %v\n", err)
@@ -209,7 +241,6 @@ func (a *ActivityHandler) SaveActivityJson(w http.ResponseWriter, r *http.Reques
 
 	debug.DumpStruct(data)
 
-	// Ensure Metadata is set
 	if data.Metadata == nil {
 		data.Metadata = json.RawMessage(`{}`) // Set to an empty JSON object if nil
 	}
@@ -262,7 +293,7 @@ func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 
 func (a *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request) {
 
-	activity, err := a.FindActivity(r.Context(), r.PathValue("id"))
+	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)

@@ -60,7 +60,7 @@ func (q *Queries) CreateActivity(ctx context.Context, arg CreateActivityParams) 
 }
 
 const deleteActivity = `-- name: DeleteActivity :exec
-UPDATE activities SET is_deleted = 'Y' WHERE id = $1
+UPDATE active_activities SET is_deleted = TRUE WHERE id = $1
 `
 
 func (q *Queries) DeleteActivity(ctx context.Context, id int32) error {
@@ -69,11 +69,33 @@ func (q *Queries) DeleteActivity(ctx context.Context, id int32) error {
 }
 
 const findActivity = `-- name: FindActivity :one
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM active_activities WHERE id = $1
+`
+
+func (q *Queries) FindActivity(ctx context.Context, id int32) (ActiveActivity, error) {
+	row := q.db.QueryRowContext(ctx, findActivity, id)
+	var i ActiveActivity
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Venue,
+		&i.Host,
+		&i.Metadata,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsDeleted,
+	)
+	return i, err
+}
+
+const findActivityAll = `-- name: FindActivityAll :one
 SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM activities WHERE id = $1
 `
 
-func (q *Queries) FindActivity(ctx context.Context, id int32) (Activity, error) {
-	row := q.db.QueryRowContext(ctx, findActivity, id)
+func (q *Queries) FindActivityAll(ctx context.Context, id int32) (Activity, error) {
+	row := q.db.QueryRowContext(ctx, findActivityAll, id)
 	var i Activity
 	err := row.Scan(
 		&i.ID,
@@ -91,18 +113,18 @@ func (q *Queries) FindActivity(ctx context.Context, id int32) (Activity, error) 
 }
 
 const findActivityByStartDate = `-- name: FindActivityByStartDate :many
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM activities WHERE start_date = $1
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM active_activities WHERE start_date = $1
 `
 
-func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) ([]Activity, error) {
+func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) ([]ActiveActivity, error) {
 	rows, err := q.db.QueryContext(ctx, findActivityByStartDate, startDate)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Activity
+	var items []ActiveActivity
 	for rows.Next() {
-		var i Activity
+		var i ActiveActivity
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
@@ -129,18 +151,18 @@ func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) (
 }
 
 const findActivityByTitle = `-- name: FindActivityByTitle :many
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM activities WHERE title LIKE '%$1%'
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM active_activities WHERE title LIKE '%$1%'
 `
 
-func (q *Queries) FindActivityByTitle(ctx context.Context) ([]Activity, error) {
+func (q *Queries) FindActivityByTitle(ctx context.Context) ([]ActiveActivity, error) {
 	rows, err := q.db.QueryContext(ctx, findActivityByTitle)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Activity
+	var items []ActiveActivity
 	for rows.Next() {
-		var i Activity
+		var i ActiveActivity
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
@@ -167,22 +189,18 @@ func (q *Queries) FindActivityByTitle(ctx context.Context) ([]Activity, error) {
 }
 
 const listActivities = `-- name: ListActivities :many
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted
-FROM activities
-WHERE
-    is_deleted = 'N'
-ORDER BY start_date DESC
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM active_activities ORDER BY start_date DESC
 `
 
-func (q *Queries) ListActivities(ctx context.Context) ([]Activity, error) {
+func (q *Queries) ListActivities(ctx context.Context) ([]ActiveActivity, error) {
 	rows, err := q.db.QueryContext(ctx, listActivities)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Activity
+	var items []ActiveActivity
 	for rows.Next() {
-		var i Activity
+		var i ActiveActivity
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
@@ -244,6 +262,15 @@ func (q *Queries) ListAllActivities(ctx context.Context) ([]Activity, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const restoreActivity = `-- name: RestoreActivity :exec
+UPDATE activities SET is_deleted = FALSE WHERE id = $1
+`
+
+func (q *Queries) RestoreActivity(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, restoreActivity, id)
+	return err
 }
 
 const updateActivity = `-- name: UpdateActivity :exec

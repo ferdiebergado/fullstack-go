@@ -10,6 +10,19 @@ import (
 	"time"
 )
 
+type ActiveActivity struct {
+	ID        int32           `json:"id"`
+	Title     string          `json:"title"`
+	StartDate Date            `json:"start_date"`
+	EndDate   Date            `json:"end_date"`
+	Venue     *string         `json:"venue"`
+	Host      *string         `json:"host"`
+	Metadata  json.RawMessage `json:"metadata"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	IsDeleted bool            `json:"is_deleted"`
+}
+
 type Activity struct {
 	ID        int32           `json:"id"`
 	Title     string          `json:"title"`

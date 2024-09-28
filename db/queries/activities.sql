@@ -13,14 +13,10 @@ RETURNING
     *;
 
 -- name: ListActivities :many
-SELECT *
-FROM activities
-WHERE
-    is_deleted = 'N'
-ORDER BY start_date DESC;
+SELECT * FROM active_activities ORDER BY start_date DESC;
 
 -- name: FindActivity :one
-SELECT * FROM activities WHERE id = $1;
+SELECT * FROM active_activities WHERE id = $1;
 
 -- name: UpdateActivity :exec
 UPDATE activities
@@ -36,13 +32,19 @@ WHERE
     id = $7;
 
 -- name: DeleteActivity :exec
-UPDATE activities SET is_deleted = 'Y' WHERE id = $1;
+UPDATE active_activities SET is_deleted = TRUE WHERE id = $1;
+
+-- name: RestoreActivity :exec
+UPDATE activities SET is_deleted = FALSE WHERE id = $1;
 
 -- name: FindActivityByTitle :many
-SELECT * FROM activities WHERE title LIKE '%$1%';
+SELECT * FROM active_activities WHERE title LIKE '%$1%';
 
 -- name: FindActivityByStartDate :many
-SELECT * FROM activities WHERE start_date = $1;
+SELECT * FROM active_activities WHERE start_date = $1;
 
 -- name: ListAllActivities :many
 SELECT * FROM activities ORDER BY start_date DESC;
+
+-- name: FindActivityAll :one
+SELECT * FROM activities WHERE id = $1;

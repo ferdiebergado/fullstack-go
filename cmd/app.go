@@ -24,7 +24,7 @@ func NewApp(conn *sql.DB) *myhttp.Router {
 	router.Use(myhttp.ErrorHandlerMiddleware)
 
 	// Register routes.
-	router.Handle("GET /activities", http.HandlerFunc(activityHandler.ActivityIndex))
+	router.Handle("GET /activities", http.HandlerFunc(activityHandler.ListActiveActivities))
 	router.Handle("GET /activities/create", http.HandlerFunc(activityHandler.CreateActivity))
 	router.Handle("POST /api/activities", http.HandlerFunc(activityHandler.SaveActivityJson))
 	router.Handle("GET /api/activities/{id}", http.HandlerFunc(activityHandler.GetActivity))
