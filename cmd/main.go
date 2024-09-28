@@ -1,27 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
-	"github.com/ferdiebergado/fullstack-go/db"
-	"github.com/ferdiebergado/fullstack-go/pkg/env"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {
-	err := env.LoadEnv()
+	ctx := context.Background()
 
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Cannot open .env file")
+	if err := RunServer(ctx, os.Stdout, os.Args); err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
-
-	database := db.OpenDb()
-
-	defer database.Close()
-
-	router := NewApp(database)
-
-	RunServer(router)
 }
