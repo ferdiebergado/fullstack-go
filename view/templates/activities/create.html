@@ -1,7 +1,7 @@
 {{ block "title" .}}PTMS - New Activity{{ end }}
 {{ block "header" .}}New Activity{{ end }}
 {{ block "content" .}}
-<form id="activity_form" action="/activities" method="post">
+<form id="activity_form" action="/api/activities" method="post">
     <label for="title">Title</label>
     <input type="text" name="title" id="title" required autofocus>
     <label for="start_date">Start Date</label>

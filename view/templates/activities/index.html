@@ -1,4 +1,3 @@
-{{- /* gotype: github.com/ferdiebergado/fullstack-go/db/models.Activity */ -}}
 {{ block "title" .}}PTMS - Activities{{ end }}
 {{ block "header" .}}Activities{{ end }}
 {{ block "content" .}}
@@ -19,10 +18,10 @@
         {{ range .Activities }}
         <tr>
             <td>{{ .Title }}</td>
-            <td>{{ .StartDate.Format "2006-02-01" }}</td>
-            <td>{{ .EndDate.Format "2006-02-01" }}</td>
-            <td>{{ .Venue.String }}</td>
-            <td>{{ .Host.String }}</td>
+            <td>{{ .StartDate }}</td>
+            <td>{{ .EndDate }}</td>
+            <td>{{ .Venue }}</td>
+            <td>{{ .Host }}</td>
             <td><a href="/activities/{{ .ID }}">View</a> <a href="/activities/{{ .ID }}/edit">Edit</a></td>
         </tr>
         {{ end }}

@@ -1,18 +1,18 @@
-{{- /* gotype: github.com/ferdiebergado/fullstack-go/db/models.Activity */ -}}
 {{ block "title" .}}PTMS - Edit Activity{{ end }}
 {{ block "header" .}}Edit Activity{{ end }}
 {{ block "content" .}}
-<form id="activity_form" action="/api/activities/{{ .ID }}" method="put">
+<form id="activity_form" action="/api/activities/{{ .ID }}" method="post">
+    <input type="hidden" name="_method" value="PUT">
     <label for="title">Title</label>
     <input type="text" name="title" id="title" value="{{ .Title }}" required autofocus>
     <label for="start_date">Start Date</label>
-    <input type="date" name="start_date" id="start_date" value="{{ .StartDate.Format "2006-01-02" }}" required>
+    <input type="date" name="start_date" id="start_date" value="{{ .StartDate.Time.Format "2006-01-02" }}" required>
     <label for="end_date">End Date</label>
-    <input type="date" name="end_date" id="end_date" value="{{ .EndDate.Format "2006-01-02" }}" required>
+    <input type="date" name="end_date" id="end_date" value="{{ .EndDate.Time.Format "2006-01-02" }}" required>
     <label for="venue">Venue</label>
-    <input type="text" name="venue" id="venue" value="{{ .Venue.String }}">
+    <input type="text" name="venue" id="venue" value="{{ .Venue }}">
     <label for="host">Host</label>
-    <input type="text" name="host" id="host" value="{{ .Host.String }}">
+    <input type="text" name="host" id="host" value="{{ .Host }}">
     <button type="submit">Submit</button>
     <a href="/activities">Back</a>
 </form>
