@@ -7,8 +7,9 @@ document.getElementById('activity_form').addEventListener('submit', async functi
     console.log(jsonData);
 
     try {
+        const method = this.querySelector('input[name="_method"]').value.toUpperCase() || 'POST'; // Use PUT if specified, else POST
         const response = await fetch(this.action, {
-            method: 'PUT',
+            method,
             headers: {
                 'Content-Type': 'application/json'
             },
