@@ -10,11 +10,9 @@ import (
 	"github.com/ferdiebergado/fullstack-go/view"
 )
 
-func NewApp(conn *sql.DB) *myhttp.Router {
+func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 
-	queries := db.New(conn)
-
-	activityHandler := &handlers.ActivityHandler{Queries: queries}
+	activityHandler := handlers.NewActivityHandler(database, queries)
 
 	// Create the router.
 	router := myhttp.NewRouter()
@@ -24,7 +22,7 @@ func NewApp(conn *sql.DB) *myhttp.Router {
 	router.Use(myhttp.StripTrailingSlash)
 	router.Use(myhttp.ErrorHandlerMiddleware)
 
-	// Register routes.
+	// Register activities routes.
 	router.Handle("GET /activities", http.HandlerFunc(activityHandler.ListActiveActivities))
 	router.Handle("GET /activities/create", http.HandlerFunc(activityHandler.CreateActivity))
 	router.Handle("POST /api/activities", http.HandlerFunc(activityHandler.SaveActivityJson))
@@ -32,16 +30,6 @@ func NewApp(conn *sql.DB) *myhttp.Router {
 	router.Handle("GET /activities/{id}/edit", http.HandlerFunc(activityHandler.EditActivity))
 	router.Handle("PUT /api/activities/{id}", http.HandlerFunc(activityHandler.UpdateActivityJson))
 	router.Handle("DELETE /api/activities/{id}", http.HandlerFunc(activityHandler.DeleteActivity))
-
-	// Register a route that triggers a 403 Forbidden error.
-	router.Handle("/forbidden", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		myhttp.ErrorHandler(w, r, http.StatusForbidden)
-	}))
-
-	// Register a route that triggers a 400 Bad Request error.
-	router.Handle("/badrequest", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest)
-	}))
 
 	router.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
