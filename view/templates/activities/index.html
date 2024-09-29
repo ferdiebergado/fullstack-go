@@ -1,16 +1,18 @@
 {{ block "title" .}}PTMS - Activities{{ end }}
 {{ block "header" .}}Activities{{ end }}
 {{ block "content" .}}
-<a href="/activities/create">Add new...</a>
-<table border="1">
-    <thead>
+
+<a role="button" href="/activities/create">Add new...</a>
+
+<table class="striped">
+    <thead data-theme="dark">
         <tr>
             <th>Title</th>
             <th>Start Date</th>
             <th>End Date</th>
             <th>Venue</th>
             <th>Host</th>
-            <td>Actions</td>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -18,8 +20,8 @@
         {{ range .Activities }}
         <tr>
             <td>{{ .Title }}</td>
-            <td>{{ .StartDate }}</td>
-            <td>{{ .EndDate }}</td>
+            <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
+            <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
             <td>{{ .Venue }}</td>
             <td>{{ .Host }}</td>
             <td><a href="/activities/{{ .ID }}">View</a> <a href="/activities/{{ .ID }}/edit">Edit</a></td>
@@ -32,4 +34,5 @@
         {{ end }}
     </tbody>
 </table>
+
 {{ end }}
