@@ -52,7 +52,7 @@ func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 
 	activities, err := a.Queries.ListActivities(r.Context())
 
-	if err != nil || activities == nil {
+	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "list activities", err)
 		return
 	}
