@@ -71,11 +71,6 @@ function createActivityHandler() {
                     this.notificationMessage = 'Form submitted successfully!';
                     this.showNotification = true;
 
-                    // Hide notification after 3 seconds
-                    setTimeout(() => {
-                        this.showNotification = false;
-                    }, 3000);
-
                     // Clear form data
                     this.formData.title = '';
                     this.formData.start_date = '';
@@ -92,10 +87,6 @@ function createActivityHandler() {
                     // Handle error
                     this.notificationMessage = 'Form submission failed!';
                     this.showNotification = true;
-
-                    setTimeout(() => {
-                        this.showNotification = false;
-                    }, 3000);
 
                     this.loading = false; // To track the loading state for the spinner
                 });
