@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ferdiebergado/fullstack-go/pkg/env"
+	"github.com/ferdiebergado/fullstack-go/config"
+	"github.com/ferdiebergado/fullstack-go/pkg/stdout"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -19,11 +20,11 @@ const (
 func OpenDb() *sql.DB {
 	fmt.Print("Connecting to the database... ")
 
-	user := env.GetEnv("DB_USER")
-	password := env.GetEnv("DB_PASS")
-	host := env.GetEnv("DB_HOST")
-	port := env.GetEnv("DB_PORT")
-	database := env.GetEnv("DB_NAME")
+	user := config.Db.User
+	password := config.Db.Password
+	host := config.Db.Host
+	port := config.Db.Port
+	database := config.Db.Name
 
 	dsn := fmt.Sprintf(connStr, user, password, host, port, database)
 
@@ -41,7 +42,7 @@ func OpenDb() *sql.DB {
 		os.Exit(1)
 	}
 
-	fmt.Println("connected.")
+	fmt.Println(stdout.Green + "connected." + stdout.Reset)
 
 	return db
 }
