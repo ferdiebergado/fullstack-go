@@ -4,7 +4,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -53,7 +52,6 @@ func (d Date) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface for JSON deserialization.
 func (d *Date) UnmarshalJSON(data []byte) error {
-	log.Println("Unmarshalling...")
 	// If the JSON is null, mark the Date as invalid (NULL).
 	if string(data) == "null" {
 		d.Time, d.Valid = time.Time{}, false
@@ -65,8 +63,6 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &dateString); err != nil {
 		return err
 	}
-
-	log.Printf("DATESTRING: %s\n", dateString)
 
 	// Parse the string into a time.Time.
 	parsedTime, err := time.Parse(time.DateOnly, dateString)
