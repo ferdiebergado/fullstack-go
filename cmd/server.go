@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,19 +12,19 @@ import (
 
 	"github.com/ferdiebergado/fullstack-go/config"
 	"github.com/ferdiebergado/fullstack-go/db"
-	"github.com/ferdiebergado/fullstack-go/pkg/env"
+	"github.com/ferdiebergado/fullstack-go/pkg/stdout"
 )
 
-func RunServer(ctx context.Context, w io.Writer, args []string) error {
-	port := env.GetEnv("APP_PORT")
-
+func RunServer(ctx context.Context, w io.Writer, args []string, port string) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-	database := db.OpenDb()
-	defer database.Close()
+	conn := db.OpenDb()
+	defer conn.Close()
 
-	router := NewApp(database)
+	queries := db.New(conn)
+
+	router := NewApp(conn, queries)
 
 	httpServer := &http.Server{
 		Addr:         ":" + port,
@@ -36,7 +35,7 @@ func RunServer(ctx context.Context, w io.Writer, args []string) error {
 	}
 
 	go func() {
-		log.Printf("HTTP Server listening on %s\n", httpServer.Addr)
+		fmt.Printf("%sHTTP Server listening on %s...%s\n", stdout.Cyan, httpServer.Addr, stdout.Reset)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			fmt.Fprintf(os.Stderr, "error listening and serving: %s\n", err)
 		}
