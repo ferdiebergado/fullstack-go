@@ -11,10 +11,12 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-func OpenDb() *sql.DB {
-	const driver = "pgx"
-	const connStr = "postgres://%s:%s@%s:%s/%s?sslmode=disable"
+const (
+	dbDriver = "pgx"
+	connStr  = "postgres://%s:%s@%s:%s/%s?sslmode=disable"
+)
 
+func OpenDb() *sql.DB {
 	fmt.Print("Connecting to the database... ")
 
 	user := env.GetEnv("DB_USER")
@@ -25,7 +27,7 @@ func OpenDb() *sql.DB {
 
 	dsn := fmt.Sprintf(connStr, user, password, host, port, database)
 
-	db, err := sql.Open(driver, dsn)
+	db, err := sql.Open(dbDriver, dsn)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
