@@ -25,9 +25,10 @@ func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 	// Register activities routes.
 	router.Handle("GET /activities", http.HandlerFunc(activityHandler.ListActiveActivities))
 	router.Handle("GET /activities/create", http.HandlerFunc(activityHandler.CreateActivity))
-	router.Handle("POST /api/activities", http.HandlerFunc(activityHandler.SaveActivityJson))
-	router.Handle("GET /api/activities/{id}", http.HandlerFunc(activityHandler.GetActivity))
+	router.Handle("GET /activities/{id}", http.HandlerFunc(activityHandler.ViewActivity))
 	router.Handle("GET /activities/{id}/edit", http.HandlerFunc(activityHandler.EditActivity))
+	router.Handle("GET /api/activities/{id}", http.HandlerFunc(activityHandler.GetActivity))
+	router.Handle("POST /api/activities", http.HandlerFunc(activityHandler.SaveActivityJson))
 	router.Handle("PUT /api/activities/{id}", http.HandlerFunc(activityHandler.UpdateActivityJson))
 	router.Handle("DELETE /api/activities/{id}", http.HandlerFunc(activityHandler.DeleteActivity))
 

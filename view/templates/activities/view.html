@@ -1,23 +1,56 @@
-{{- /* gotype: github.com/ferdiebergado/fullstack-go/db/models.Activity */ -}}
-{{ block "title" .}}PTMS - View Activity{{ end }}
-{{ block "header" .}}View Activity{{ end }}
-{{ block "content" .}}
-<form id="activity_form" action="/activities" method="get">
-    <label for="id">ID</label>
-    <span>{{ .ID }}</span>
-    <label for="title">Title</label>
-    <input type="text" name="title" id="title" value="{{ .Title }}" readonly>
-    <label for="start_date">Start Date</label>
-    <input type="date" name="start_date" id="start_date" value="{{ .StartDate.Time.Format "2006-01-02" }}" readonly>
-    <label for="end_date">End Date</label>
-    <input type="date" name="end_date" id="end_date" value="{{ .EndDate.Time.Format "2006-01-02" }}" readonly>
-    <label for="venue">Venue</label>
-    <input type="text" name="venue" id="venue" value="{{ .Venue }}" readonly>
-    <label for="host">Host</label>
-    <input type="text" name="host" id="host" value="{{ .Host }}" readonly>
-    <button type="submit">Back</button>
-</form>
-<form action="/activities/{{ .ID }}/delete" method="post">
-    <button type="submit">Delete</button>
-</form>
+{{ block "title" . }}PTMS - View Activity{{ end }}
+
+{{ block "header" . }}View Activity{{ end }}
+
+{{ block "styles" . }}
+<style>
+    td:first-child {
+        width: 20%;
+    }
+
+    td:nth-child(2) {
+        font-weight: bold;
+    }
+</style>
+{{ end }}
+
+{{ block "content" . }}
+
+<table>
+    <tr>
+        <td>ID</td>
+        <td>{{ .ID }}</td>
+    </tr>
+    <tr>
+        <td>Title</td>
+        <td>{{ .Title }}</td>
+    </tr>
+    <tr>
+        <td>Start Date</td>
+        <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
+    </tr>
+    <tr>
+        <td>End Date</td>
+        <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
+    </tr>
+    <tr>
+        <td>Venue</td>
+        <td>{{ .Venue }}</td>
+    </tr>
+    <tr>
+        <td>Host</td>
+        <td>{{ .Host }}</td>
+    </tr>
+    <tr>
+        <td>Date Created</td>
+        <td>{{ .CreatedAt.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</td>
+    </tr>
+    <tr>
+        <td>Last Updated</td>
+        <td>{{ .UpdatedAt.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</td>
+    </tr>
+</table>
+
+<a role="button" href="/activities">Back</a>
+
 {{ end }}

@@ -122,6 +122,17 @@ func (a *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
+	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
+		return
+	}
+
+	view.RenderTemplate(w, "activities/view.html", activity)
+}
+
 func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
 
