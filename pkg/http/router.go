@@ -1,6 +1,7 @@
 package http
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -42,7 +43,9 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 // Custom function to handle specific errors like 400, 403.
-func ErrorHandler(w http.ResponseWriter, r *http.Request, status int) {
+func ErrorHandler(w http.ResponseWriter, r *http.Request, status int, msg string, err error) {
+	log.Printf("%s: %v\n", msg, err)
+
 	switch status {
 	case http.StatusBadRequest:
 		http.Error(w, "Bad Request", http.StatusBadRequest)
