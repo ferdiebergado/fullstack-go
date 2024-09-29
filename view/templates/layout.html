@@ -4,19 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>{{ block "title" . }}PTMS{{ end }}</title>
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <!-- <link rel="stylesheet" href="/assets/css/styles.css"> -->
+    <link rel="stylesheet" href="/assets/css/pico.min.css">
+    {{ block "styles" . }}{{ end }}
     {{ block "scripts" . }}{{ end }}
 </head>
 
 <body>
-    <h1>{{ block "header" .}}PTMS{{ end }}</h1>
+    <main class="container">
 
-    <div class="card">
-        {{ block "content" . }}
-        <p>Welcome!</p>
-        {{ end }}
-    </div>
+        <nav>
+            <ul>
+                <li><strong>PTMS</strong></li>
+            </ul>
+            <ul>
+                <li><a href="/travels">Travels</a></li>
+                <li><a href="/activities">Activities</a></li>
+            </ul>
+        </nav>
+
+        <article>
+            <header>{{ block "header". }}{{end}}</header>
+            {{ block "content" . }}{{ end }}
+        </article>
+
+    </main>
 </body>
 
 </html>
