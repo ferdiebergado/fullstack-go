@@ -35,6 +35,18 @@ tasks:
       - export DSN="{{.DSN}}"; sqlc generate
     requires:
       vars: [DSN]
+  setup_test:
+    vars:
+      DB_NAME: test
+      DSN: postgres://$DB_USER:$DB_PASS@$DB_HOST:$DB_PORT/{{.DB_NAME}}?sslmode=disable
+    cmds:
+      - $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "CREATE DATABASE {{.DB_NAME}};"
+      - migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} up
+  test:
+    env:
+      APP_ENV: test
+      DB_NAME: test
+    cmd: clear && go test ./...
   security:
     aliases: ["sec"]
     cmd: gosec ./...
@@ -53,5 +65,4 @@ tasks:
           ]
         cmd: go install {{.ITEM}}
   dev:
-    cmds:
-      - air
+    cmd: air
