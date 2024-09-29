@@ -26,7 +26,9 @@
         </nav>
 
         <article>
-            <header>{{ block "header". }}{{end}}</header>
+            <header>
+                <h3>{{ block "header" . }}{{ end }}</h3>
+            </header>
             {{ block "content" . }}{{ end }}
         </article>
 
