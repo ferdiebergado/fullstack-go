@@ -12,27 +12,22 @@ vars:
 tasks:
   postgres:
     aliases: ["db"]
-    cmds:
-      - $CONTAINER run -ti --rm --network host --name {{.CONTAINER_NAME}} -e POSTGRES_PASSWORD="$DB_PASS" -v ./postgresql.conf:/etc/postgresql/postgresql.conf:Z {{.CONTAINER_IMAGE}} -c 'config_file=/etc/postgresql/postgresql.conf'
+    cmd: $CONTAINER run -ti --rm --network host --name {{.CONTAINER_NAME}} -e POSTGRES_PASSWORD="$DB_PASS" -v ./postgresql.conf:/etc/postgresql/postgresql.conf:Z {{.CONTAINER_IMAGE}} -c 'config_file=/etc/postgresql/postgresql.conf'
     requires:
       vars: [CONTAINER, DB_PASS]
-  migrate_create:
-    cmds:
-      - migrate create -ext sql -dir {{.MIGRATIONS_DIR}} -seq {{.CLI_ARGS}}
+  migration:
+    cmd: migrate create -ext sql -dir {{.MIGRATIONS_DIR}} -seq {{.CLI_ARGS}}
   migrate:
-    cmds:
-      - migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} up {{.CLI_ARGS}}
+    cmd: migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} up {{.CLI_ARGS}}
     requires:
       vars: [DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]
   rollback:
-    cmds:
-      - migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} down {{.CLI_ARGS}}
+    cmd: migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} down {{.CLI_ARGS}}
     requires:
       vars: [DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]
   generate:
     aliases: ["gen"]
-    cmds:
-      - export DSN="{{.DSN}}"; sqlc generate
+    cmd: export DSN="{{.DSN}}"; sqlc generate
     requires:
       vars: [DSN]
   setup_test:
