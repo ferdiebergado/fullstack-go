@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ferdiebergado/fullstack-go/db"
-	"github.com/ferdiebergado/fullstack-go/internal/activity/handlers"
+	"github.com/ferdiebergado/fullstack-go/internal/activity"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 	"github.com/ferdiebergado/fullstack-go/view"
 )
 
 func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 
-	activityHandler := handlers.NewActivityHandler(database, queries)
+	activityHandler := activity.NewActivityHandler(database, queries)
 
 	// Create the router.
 	router := myhttp.NewRouter()
