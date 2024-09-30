@@ -5,11 +5,11 @@ import (
 	"os"
 )
 
-func GetEnv(v string) string {
+func Must(v string) string {
 	res, exists := os.LookupEnv(v)
 
 	if !exists {
-		fmt.Fprintln(os.Stderr, v+" not set!")
+		fmt.Fprintf(os.Stderr, "%s not set!\n", v)
 		os.Exit(1)
 	}
 
