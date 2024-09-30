@@ -6,6 +6,7 @@ type appOptions struct {
 }
 
 type dbOptions struct {
+	Driver   string
 	User     string
 	Password string
 	Host     string

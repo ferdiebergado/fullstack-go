@@ -8,18 +8,16 @@ import (
 
 	"github.com/ferdiebergado/fullstack-go/config"
 	"github.com/ferdiebergado/fullstack-go/pkg/stdout"
-
-	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 const (
-	dbDriver = "pgx"
-	connStr  = "postgres://%s:%s@%s:%s/%s?sslmode=disable"
+	connStr = "postgres://%s:%s@%s:%s/%s?sslmode=disable"
 )
 
 func OpenDb() *sql.DB {
 	fmt.Print("Connecting to the database... ")
 
+	driver := config.Db.Driver
 	user := config.Db.User
 	password := config.Db.Password
 	host := config.Db.Host
@@ -28,7 +26,7 @@ func OpenDb() *sql.DB {
 
 	dsn := fmt.Sprintf(connStr, user, password, host, port, database)
 
-	db, err := sql.Open(dbDriver, dsn)
+	db, err := sql.Open(driver, dsn)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)

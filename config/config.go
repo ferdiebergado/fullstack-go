@@ -14,15 +14,16 @@ const (
 
 var (
 	App = &appOptions{
-		Env:  env.GetEnv("APP_ENV"),
-		Port: env.GetEnv("APP_PORT"),
+		Env:  env.Must("APP_ENV"),
+		Port: env.Must("APP_PORT"),
 	}
 
 	Db = &dbOptions{
-		User:     env.GetEnv("DB_USER"),
-		Password: env.GetEnv("DB_PASS"),
-		Host:     env.GetEnv("DB_HOST"),
-		Port:     env.GetEnv("DB_PORT"),
-		Name:     env.GetEnv("DB_NAME"),
+		Driver:   "pgx",
+		User:     env.Must("DB_USER"),
+		Password: env.Must("DB_PASS"),
+		Host:     env.Must("DB_HOST"),
+		Port:     env.Must("DB_PORT"),
+		Name:     env.Must("DB_NAME"),
 	}
 )
