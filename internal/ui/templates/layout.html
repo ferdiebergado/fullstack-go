@@ -2,37 +2,37 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light dark">
-    <title>{{ block "title" . }}PTMS{{ end }}</title>
-    <!-- <link rel="stylesheet" href="/assets/css/styles.css"> -->
-    <link rel="stylesheet" href="/assets/css/pico.min.css">
-    {{ block "styles" . }}{{ end }}
-    {{ block "scripts" . }}{{ end }}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>{{ block "title" . }}PTMS{{ end }}</title>
+  <!-- <link rel="stylesheet" href="/assets/css/styles.css"> -->
+  <link rel="stylesheet" href="/assets/css/pico.min.css">
+  {{ block "styles" . }}{{ end }}
+  {{ block "scripts" . }}{{ end }}
 </head>
 
 <body>
-    <main class="container">
+  <main class="container">
 
-        <nav>
-            <ul>
-                <li><strong>PTMS</strong></li>
-            </ul>
-            <ul>
-                <li><a href="/travels">Travels</a></li>
-                <li><a href="/activities">Activities</a></li>
-            </ul>
-        </nav>
+    <nav>
+      <ul>
+        <li><strong><a href="/">PTMS</a></strong></li>
+      </ul>
+      <ul>
+        <li><a href="/travels">Travels</a></li>
+        <li><a href="/activities">Activities</a></li>
+      </ul>
+    </nav>
 
-        <article>
-            <header>
-                <h3>{{ block "header" . }}{{ end }}</h3>
-            </header>
-            {{ block "content" . }}{{ end }}
-        </article>
+    <article>
+      <header>
+        <h3>{{ block "header" . }}{{ end }}</h3>
+      </header>
+      {{ block "content" . }}{{ end }}
+    </article>
 
-    </main>
+  </main>
 </body>
 
 </html>

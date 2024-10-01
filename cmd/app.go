@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/ferdiebergado/fullstack-go/internal/activity"
@@ -22,6 +23,9 @@ func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 	router.Use(myhttp.StripTrailingSlash)
 	router.Use(myhttp.ErrorHandlerMiddleware)
 
+	// Serve static files
+	router.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
+
 	// Register activities routes.
 	router.Handle("GET /activities", http.HandlerFunc(activityHandler.ListActiveActivities))
 	router.Handle("GET /activities/create", http.HandlerFunc(activityHandler.CreateActivity))
@@ -32,16 +36,16 @@ func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 	router.Handle("PUT /api/activities/{id}", http.HandlerFunc(activityHandler.UpdateActivityJson))
 	router.Handle("DELETE /api/activities/{id}", http.HandlerFunc(activityHandler.DeleteActivity))
 
-	router.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
-			return
-		}
-
+	// Home page
+	router.Handle("GET /{$}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ui.RenderTemplate(w, "index.html", nil)
 	}))
 
-	router.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
+	// Not found handler
+	router.Handle("GET /", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		status := http.StatusNotFound
+		myhttp.ErrorHandler(w, r, status, http.StatusText(status), errors.New("page not found"))
+	}))
 
 	return router
 }
