@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ferdiebergado/fullstack-go/db"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/ferdiebergado/fullstack-go/internal/db"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 )
 

@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/ferdiebergado/fullstack-go/db"
 	"github.com/ferdiebergado/fullstack-go/internal/activity"
+	"github.com/ferdiebergado/fullstack-go/internal/db"
+	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
-	"github.com/ferdiebergado/fullstack-go/view"
 )
 
 func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
@@ -38,7 +38,7 @@ func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 			return
 		}
 
-		view.RenderTemplate(w, "index.html", nil)
+		ui.RenderTemplate(w, "index.html", nil)
 	}))
 
 	router.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))

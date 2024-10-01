@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ferdiebergado/fullstack-go/db"
+	"github.com/ferdiebergado/fullstack-go/internal/db"
+	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
-	"github.com/ferdiebergado/fullstack-go/view"
 )
 
 type ActivityHandler struct {
@@ -45,7 +45,7 @@ func (a *ActivityHandler) ActivityIndex(w http.ResponseWriter, r *http.Request) 
 
 	data := &Data{Activities: activities}
 
-	view.RenderTemplate(w, "activities/index.html", data)
+	ui.RenderTemplate(w, "activities/index.html", data)
 }
 
 func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
@@ -68,13 +68,13 @@ func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 
 		if mediaType == "application/json" {
 
-			err = view.RenderJson(w, r, http.StatusOK, data)
+			err = ui.RenderJson(w, r, http.StatusOK, data)
 			if err != nil {
 				myhttp.ErrorHandler(w, r, http.StatusNotFound, "render json activities", err)
 			}
 			return
 		} else if mediaType == "text/html" {
-			view.RenderTemplate(w, "activities/index.html", data)
+			ui.RenderTemplate(w, "activities/index.html", data)
 			return
 		}
 	}
@@ -86,7 +86,7 @@ func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 }
 
 func (a *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
-	view.RenderTemplate(w, "activities/create.html", nil)
+	ui.RenderTemplate(w, "activities/create.html", nil)
 }
 
 func (a *ActivityHandler) FindActiveActivity(ctx context.Context, idStr string) (*db.ActiveActivity, error) {
@@ -115,7 +115,7 @@ func (a *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// view.RenderTemplate(w, "activities/view.html", activity)
-	err = view.RenderJson(w, r, http.StatusOK, activity)
+	err = ui.RenderJson(w, r, http.StatusOK, activity)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "render json activity", err)
@@ -130,7 +130,7 @@ func (a *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	view.RenderTemplate(w, "activities/view.html", activity)
+	ui.RenderTemplate(w, "activities/view.html", activity)
 }
 
 func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +141,7 @@ func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	view.RenderTemplate(w, "activities/edit.html", activity)
+	ui.RenderTemplate(w, "activities/edit.html", activity)
 }
 
 func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request) *FormDates {
@@ -265,7 +265,7 @@ func (a *ActivityHandler) SaveActivityJson(w http.ResponseWriter, r *http.Reques
 	}
 
 	// w.WriteHeader(http.StatusCreated)
-	view.RenderJson(w, r, http.StatusCreated, activity)
+	ui.RenderJson(w, r, http.StatusCreated, activity)
 }
 
 func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {

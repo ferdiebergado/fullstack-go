@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ferdiebergado/fullstack-go/config"
-	"github.com/ferdiebergado/fullstack-go/db"
+	"github.com/ferdiebergado/fullstack-go/internal/config"
+	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/pkg/stdout"
 )
 

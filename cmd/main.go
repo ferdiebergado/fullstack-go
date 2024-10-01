@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ferdiebergado/fullstack-go/config"
+	"github.com/ferdiebergado/fullstack-go/internal/config"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
