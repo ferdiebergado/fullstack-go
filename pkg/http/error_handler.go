@@ -3,6 +3,8 @@ package http
 import (
 	"log"
 	"net/http"
+
+	"github.com/ferdiebergado/fullstack-go/internal/ui"
 )
 
 // Custom function to handle specific errors like 400, 403.
@@ -15,7 +17,8 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, status int, msg string
 	case http.StatusForbidden:
 		http.Error(w, "Forbidden", http.StatusForbidden)
 	case http.StatusNotFound:
-		http.Error(w, "Not Found", http.StatusNotFound)
+		// http.Error(w, "Not Found", http.StatusNotFound)
+		ui.RenderTemplate(w, "404.html", nil)
 	case http.StatusInternalServerError:
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	default:
