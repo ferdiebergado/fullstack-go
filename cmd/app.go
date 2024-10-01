@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ferdiebergado/fullstack-go/internal/activity"
 	"github.com/ferdiebergado/fullstack-go/internal/db"
+	"github.com/ferdiebergado/fullstack-go/internal/domain/activity"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 )
