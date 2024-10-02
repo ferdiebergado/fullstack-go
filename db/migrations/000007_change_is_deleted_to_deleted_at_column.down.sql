@@ -1,0 +1,3 @@
+ALTER TABLE activities DROP COLUMN deleted_at;
+
+ALTER TABLE activities ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;

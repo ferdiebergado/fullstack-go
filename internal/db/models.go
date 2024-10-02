@@ -20,7 +20,7 @@ type ActiveActivity struct {
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
-	IsDeleted bool            `json:"is_deleted"`
+	DeletedAt sql.NullTime    `json:"deleted_at"`
 }
 
 type Activity struct {
@@ -33,7 +33,7 @@ type Activity struct {
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
-	IsDeleted bool            `json:"is_deleted"`
+	DeletedAt sql.NullTime    `json:"deleted_at"`
 }
 
 type Office struct {
@@ -42,7 +42,7 @@ type Office struct {
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
-	IsDeleted bool            `json:"is_deleted"`
+	DeletedAt sql.NullTime    `json:"deleted_at"`
 }
 
 type Personnel struct {
@@ -55,7 +55,7 @@ type Personnel struct {
 	Metadata   json.RawMessage `json:"metadata"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
-	IsDeleted  bool            `json:"is_deleted"`
+	DeletedAt  sql.NullTime    `json:"deleted_at"`
 }
 
 type Position struct {
@@ -64,7 +64,7 @@ type Position struct {
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
-	IsDeleted bool            `json:"is_deleted"`
+	DeletedAt sql.NullTime    `json:"deleted_at"`
 }
 
 type Travel struct {
@@ -77,5 +77,5 @@ type Travel struct {
 	ActivityID int32           `json:"activity_id"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
-	IsDeleted  bool            `json:"is_deleted"`
+	DeletedAt  sql.NullTime    `json:"deleted_at"`
 }

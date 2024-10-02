@@ -32,7 +32,10 @@ WHERE
     id = $7;
 
 -- name: DeletePersonnel :exec
-UPDATE personnel SET is_deleted = 'Y' WHERE id = $1;
+UPDATE personnel SET deleted_at = NOW() WHERE id = $1;
+
+-- name: RestorePersonnel :exec
+UPDATE personnel SET deleted_at = NULL WHERE id = $1;
 
 -- name: FindPersonnelByLastname :many
 SELECT * FROM personnel WHERE lastname = $1;

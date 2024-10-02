@@ -15,7 +15,7 @@ INSERT INTO
     positions (title, metadata)
 VALUES ($1, $2)
 RETURNING
-    id, title, metadata, created_at, updated_at, is_deleted
+    id, title, metadata, created_at, updated_at, deleted_at
 `
 
 type CreatePositionParams struct {
@@ -32,13 +32,13 @@ func (q *Queries) CreatePosition(ctx context.Context, arg CreatePositionParams) 
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deletePosition = `-- name: DeletePosition :exec
-UPDATE positions SET is_deleted = 'Y' WHERE id = $1
+UPDATE positions SET deleted_at = NOW() WHERE id = $1
 `
 
 func (q *Queries) DeletePosition(ctx context.Context, id int32) error {
@@ -47,7 +47,7 @@ func (q *Queries) DeletePosition(ctx context.Context, id int32) error {
 }
 
 const findPosition = `-- name: FindPosition :one
-SELECT id, title, metadata, created_at, updated_at, is_deleted FROM positions WHERE id = $1
+SELECT id, title, metadata, created_at, updated_at, deleted_at FROM positions WHERE id = $1
 `
 
 func (q *Queries) FindPosition(ctx context.Context, id int32) (Position, error) {
@@ -59,13 +59,13 @@ func (q *Queries) FindPosition(ctx context.Context, id int32) (Position, error) 
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const findPositionByTitle = `-- name: FindPositionByTitle :many
-SELECT id, title, metadata, created_at, updated_at, is_deleted FROM positions WHERE title LIKE '%$1%'
+SELECT id, title, metadata, created_at, updated_at, deleted_at FROM positions WHERE title LIKE '%$1%'
 `
 
 func (q *Queries) FindPositionByTitle(ctx context.Context) ([]Position, error) {
@@ -83,7 +83,7 @@ func (q *Queries) FindPositionByTitle(ctx context.Context) ([]Position, error) {
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -99,7 +99,7 @@ func (q *Queries) FindPositionByTitle(ctx context.Context) ([]Position, error) {
 }
 
 const listPosition = `-- name: ListPosition :many
-SELECT id, title, metadata, created_at, updated_at, is_deleted FROM positions ORDER BY title
+SELECT id, title, metadata, created_at, updated_at, deleted_at FROM positions ORDER BY title
 `
 
 func (q *Queries) ListPosition(ctx context.Context) ([]Position, error) {
@@ -117,7 +117,7 @@ func (q *Queries) ListPosition(ctx context.Context) ([]Position, error) {
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -130,6 +130,15 @@ func (q *Queries) ListPosition(ctx context.Context) ([]Position, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const restorePosition = `-- name: RestorePosition :exec
+UPDATE positions SET deleted_at = NULL WHERE id = $1
+`
+
+func (q *Queries) RestorePosition(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, restorePosition, id)
+	return err
 }
 
 const updatePosition = `-- name: UpdatePosition :exec

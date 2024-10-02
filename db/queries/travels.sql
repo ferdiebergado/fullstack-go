@@ -32,7 +32,10 @@ WHERE
     id = $7;
 
 -- name: DeleteTravel :exec
-UPDATE travels SET is_deleted = 'Y' WHERE id = $1;
+UPDATE travels SET deleted_at = NOW() WHERE id = $1;
+
+-- name: RestoreTravel :exec
+UPDATE travels SET deleted_at = NULL WHERE id = $1;
 
 -- name: FindTravelByActivityId :many
 SELECT * FROM travels WHERE activity_id = $1;

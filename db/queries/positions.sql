@@ -21,7 +21,10 @@ WHERE
     id = $3;
 
 -- name: DeletePosition :exec
-UPDATE positions SET is_deleted = 'Y' WHERE id = $1;
+UPDATE positions SET deleted_at = NOW() WHERE id = $1;
+
+-- name: RestorePosition :exec
+UPDATE positions SET deleted_at = NULL WHERE id = $1;
 
 -- name: FindPositionByTitle :many
 SELECT * FROM positions WHERE title LIKE '%$1%';

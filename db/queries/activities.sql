@@ -32,10 +32,10 @@ WHERE
     id = $7;
 
 -- name: DeleteActivity :exec
-UPDATE active_activities SET is_deleted = TRUE WHERE id = $1;
+UPDATE active_activities SET deleted_at = NOW() WHERE id = $1;
 
 -- name: RestoreActivity :exec
-UPDATE activities SET is_deleted = FALSE WHERE id = $1;
+UPDATE activities SET deleted_at = NULL WHERE id = $1;
 
 -- name: FindActivityByTitle :many
 SELECT * FROM active_activities WHERE title LIKE '%$1%';

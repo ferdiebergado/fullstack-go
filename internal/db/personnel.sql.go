@@ -23,7 +23,7 @@ INSERT INTO
     )
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING
-    id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, is_deleted
+    id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, deleted_at
 `
 
 type CreatePersonnelParams struct {
@@ -55,13 +55,13 @@ func (q *Queries) CreatePersonnel(ctx context.Context, arg CreatePersonnelParams
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deletePersonnel = `-- name: DeletePersonnel :exec
-UPDATE personnel SET is_deleted = 'Y' WHERE id = $1
+UPDATE personnel SET deleted_at = NOW() WHERE id = $1
 `
 
 func (q *Queries) DeletePersonnel(ctx context.Context, id int32) error {
@@ -70,7 +70,7 @@ func (q *Queries) DeletePersonnel(ctx context.Context, id int32) error {
 }
 
 const findPersonnel = `-- name: FindPersonnel :one
-SELECT id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, is_deleted FROM personnel WHERE id = $1
+SELECT id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, deleted_at FROM personnel WHERE id = $1
 `
 
 func (q *Queries) FindPersonnel(ctx context.Context, id int32) (Personnel, error) {
@@ -86,13 +86,13 @@ func (q *Queries) FindPersonnel(ctx context.Context, id int32) (Personnel, error
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const findPersonnelByFirstname = `-- name: FindPersonnelByFirstname :many
-SELECT id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, is_deleted FROM personnel WHERE firstname = $1
+SELECT id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, deleted_at FROM personnel WHERE firstname = $1
 `
 
 func (q *Queries) FindPersonnelByFirstname(ctx context.Context, firstname string) ([]Personnel, error) {
@@ -114,7 +114,7 @@ func (q *Queries) FindPersonnelByFirstname(ctx context.Context, firstname string
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -130,7 +130,7 @@ func (q *Queries) FindPersonnelByFirstname(ctx context.Context, firstname string
 }
 
 const findPersonnelByLastname = `-- name: FindPersonnelByLastname :many
-SELECT id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, is_deleted FROM personnel WHERE lastname = $1
+SELECT id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, deleted_at FROM personnel WHERE lastname = $1
 `
 
 func (q *Queries) FindPersonnelByLastname(ctx context.Context, lastname string) ([]Personnel, error) {
@@ -152,7 +152,7 @@ func (q *Queries) FindPersonnelByLastname(ctx context.Context, lastname string) 
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -168,7 +168,7 @@ func (q *Queries) FindPersonnelByLastname(ctx context.Context, lastname string) 
 }
 
 const listPersonnel = `-- name: ListPersonnel :many
-SELECT id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, is_deleted FROM personnel ORDER BY lastname
+SELECT id, lastname, firstname, mi, position_id, office_id, metadata, created_at, updated_at, deleted_at FROM personnel ORDER BY lastname
 `
 
 func (q *Queries) ListPersonnel(ctx context.Context) ([]Personnel, error) {
@@ -190,7 +190,7 @@ func (q *Queries) ListPersonnel(ctx context.Context) ([]Personnel, error) {
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -203,6 +203,15 @@ func (q *Queries) ListPersonnel(ctx context.Context) ([]Personnel, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const restorePersonnel = `-- name: RestorePersonnel :exec
+UPDATE personnel SET deleted_at = NULL WHERE id = $1
+`
+
+func (q *Queries) RestorePersonnel(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, restorePersonnel, id)
+	return err
 }
 
 const updatePersonnel = `-- name: UpdatePersonnel :exec

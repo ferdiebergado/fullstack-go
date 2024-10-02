@@ -22,7 +22,7 @@ INSERT INTO
     )
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING
-    id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted
+    id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, deleted_at
 `
 
 type CreateActivityParams struct {
@@ -54,13 +54,13 @@ func (q *Queries) CreateActivity(ctx context.Context, arg CreateActivityParams) 
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deleteActivity = `-- name: DeleteActivity :exec
-UPDATE active_activities SET is_deleted = TRUE WHERE id = $1
+UPDATE active_activities SET deleted_at = NOW() WHERE id = $1
 `
 
 func (q *Queries) DeleteActivity(ctx context.Context, id int32) error {
@@ -69,7 +69,7 @@ func (q *Queries) DeleteActivity(ctx context.Context, id int32) error {
 }
 
 const findActivity = `-- name: FindActivity :one
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM active_activities WHERE id = $1
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, deleted_at FROM active_activities WHERE id = $1
 `
 
 func (q *Queries) FindActivity(ctx context.Context, id int32) (ActiveActivity, error) {
@@ -85,13 +85,13 @@ func (q *Queries) FindActivity(ctx context.Context, id int32) (ActiveActivity, e
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const findActivityAll = `-- name: FindActivityAll :one
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM activities WHERE id = $1
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, deleted_at FROM activities WHERE id = $1
 `
 
 func (q *Queries) FindActivityAll(ctx context.Context, id int32) (Activity, error) {
@@ -107,13 +107,13 @@ func (q *Queries) FindActivityAll(ctx context.Context, id int32) (Activity, erro
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const findActivityByStartDate = `-- name: FindActivityByStartDate :many
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM active_activities WHERE start_date = $1
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, deleted_at FROM active_activities WHERE start_date = $1
 `
 
 func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) ([]ActiveActivity, error) {
@@ -135,7 +135,7 @@ func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) (
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -151,7 +151,7 @@ func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) (
 }
 
 const findActivityByTitle = `-- name: FindActivityByTitle :many
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM active_activities WHERE title LIKE '%$1%'
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, deleted_at FROM active_activities WHERE title LIKE '%$1%'
 `
 
 func (q *Queries) FindActivityByTitle(ctx context.Context) ([]ActiveActivity, error) {
@@ -173,7 +173,7 @@ func (q *Queries) FindActivityByTitle(ctx context.Context) ([]ActiveActivity, er
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -189,7 +189,7 @@ func (q *Queries) FindActivityByTitle(ctx context.Context) ([]ActiveActivity, er
 }
 
 const listActivities = `-- name: ListActivities :many
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM active_activities ORDER BY start_date DESC
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, deleted_at FROM active_activities ORDER BY start_date DESC
 `
 
 func (q *Queries) ListActivities(ctx context.Context) ([]ActiveActivity, error) {
@@ -211,7 +211,7 @@ func (q *Queries) ListActivities(ctx context.Context) ([]ActiveActivity, error) 
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -227,7 +227,7 @@ func (q *Queries) ListActivities(ctx context.Context) ([]ActiveActivity, error) 
 }
 
 const listAllActivities = `-- name: ListAllActivities :many
-SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, is_deleted FROM activities ORDER BY start_date DESC
+SELECT id, title, start_date, end_date, venue, host, metadata, created_at, updated_at, deleted_at FROM activities ORDER BY start_date DESC
 `
 
 func (q *Queries) ListAllActivities(ctx context.Context) ([]Activity, error) {
@@ -249,7 +249,7 @@ func (q *Queries) ListAllActivities(ctx context.Context) ([]Activity, error) {
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -265,7 +265,7 @@ func (q *Queries) ListAllActivities(ctx context.Context) ([]Activity, error) {
 }
 
 const restoreActivity = `-- name: RestoreActivity :exec
-UPDATE activities SET is_deleted = FALSE WHERE id = $1
+UPDATE activities SET deleted_at = NULL WHERE id = $1
 `
 
 func (q *Queries) RestoreActivity(ctx context.Context, id int32) error {

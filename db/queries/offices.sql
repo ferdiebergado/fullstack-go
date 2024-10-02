@@ -21,7 +21,10 @@ WHERE
     id = $3;
 
 -- name: DeleteOffice :exec
-UPDATE offices SET is_deleted = 'Y' WHERE id = $1;
+UPDATE offices SET deleted_at = NOW() WHERE id = $1;
+
+-- name: RestoreOffice :exec
+UPDATE offices SET deleted_at = NULL WHERE id = $1;
 
 -- name: FindOfficeByName :many
 SELECT * FROM offices WHERE name LIKE '%$1%';

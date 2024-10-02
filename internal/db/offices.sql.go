@@ -15,7 +15,7 @@ INSERT INTO
     offices (name, metadata)
 VALUES ($1, $2)
 RETURNING
-    id, name, metadata, created_at, updated_at, is_deleted
+    id, name, metadata, created_at, updated_at, deleted_at
 `
 
 type CreateOfficeParams struct {
@@ -32,13 +32,13 @@ func (q *Queries) CreateOffice(ctx context.Context, arg CreateOfficeParams) (Off
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deleteOffice = `-- name: DeleteOffice :exec
-UPDATE offices SET is_deleted = 'Y' WHERE id = $1
+UPDATE offices SET deleted_at = NOW() WHERE id = $1
 `
 
 func (q *Queries) DeleteOffice(ctx context.Context, id int32) error {
@@ -47,7 +47,7 @@ func (q *Queries) DeleteOffice(ctx context.Context, id int32) error {
 }
 
 const findOffice = `-- name: FindOffice :one
-SELECT id, name, metadata, created_at, updated_at, is_deleted FROM offices WHERE id = $1
+SELECT id, name, metadata, created_at, updated_at, deleted_at FROM offices WHERE id = $1
 `
 
 func (q *Queries) FindOffice(ctx context.Context, id int32) (Office, error) {
@@ -59,13 +59,13 @@ func (q *Queries) FindOffice(ctx context.Context, id int32) (Office, error) {
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.IsDeleted,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const findOfficeByName = `-- name: FindOfficeByName :many
-SELECT id, name, metadata, created_at, updated_at, is_deleted FROM offices WHERE name LIKE '%$1%'
+SELECT id, name, metadata, created_at, updated_at, deleted_at FROM offices WHERE name LIKE '%$1%'
 `
 
 func (q *Queries) FindOfficeByName(ctx context.Context) ([]Office, error) {
@@ -83,7 +83,7 @@ func (q *Queries) FindOfficeByName(ctx context.Context) ([]Office, error) {
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -99,7 +99,7 @@ func (q *Queries) FindOfficeByName(ctx context.Context) ([]Office, error) {
 }
 
 const listOffice = `-- name: ListOffice :many
-SELECT id, name, metadata, created_at, updated_at, is_deleted FROM offices ORDER BY name
+SELECT id, name, metadata, created_at, updated_at, deleted_at FROM offices ORDER BY name
 `
 
 func (q *Queries) ListOffice(ctx context.Context) ([]Office, error) {
@@ -117,7 +117,7 @@ func (q *Queries) ListOffice(ctx context.Context) ([]Office, error) {
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.IsDeleted,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -130,6 +130,15 @@ func (q *Queries) ListOffice(ctx context.Context) ([]Office, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const restoreOffice = `-- name: RestoreOffice :exec
+UPDATE offices SET deleted_at = NULL WHERE id = $1
+`
+
+func (q *Queries) RestoreOffice(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, restoreOffice, id)
+	return err
 }
 
 const updateOffice = `-- name: UpdateOffice :exec
