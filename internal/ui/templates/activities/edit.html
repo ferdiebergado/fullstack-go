@@ -1,5 +1,11 @@
 {{ block "title" .}}PTMS - Edit Activity{{ end }}
+
 {{ block "header" .}}Edit Activity{{ end }}
+
+{{ block "scripts" . }}
+<script src="/assets/js/activities//edit_activity.js" defer></script>
+{{ end }}
+
 {{ block "content" .}}
 <form id="activity_form" action="/api/activities/{{ .ID }}" method="post">
   <input type="hidden" name="_method" value="PUT">
@@ -17,19 +23,21 @@
   <div class="w3-row w3-container">
     <div class="w3-half w3-container">
       <label for="start_date">Start Date</label>
-      <input type="date" name="start_date" id="start_date" value="{{ .StartDate.Time.Format " 2006-01-02" }}"
+      <input type="date" name="start_date" id="start_date" value="{{ .StartDate.Time.Format "2006-01-02" }}"
         class="w3-input w3-border" required>
     </div>
     <div class="w3-half w3-container">
       <label for="end_date">End Date</label>
-      <input type="date" name="end_date" id="end_date" value="{{ .EndDate.Time.Format " 2006-01-02" }}"
+      <input type="date" name="end_date" id="end_date" value="{{ .EndDate.Time.Format "2006-01-02" }}"
         class="w3-input w3-border" required>
     </div>
   </div>
+
   <div class="w3-container w3-margin">
     <label for="venue">Venue</label>
     <input type="text" name="venue" id="venue" value="{{ .Venue }}" class="w3-input w3-border">
   </div>
+  
   <div class="w3-container w3-margin">
     <label for="host">Host</label>
     <input type="text" name="host" id="host" value="{{ .Host }}" class="w3-input w3-border">
@@ -40,8 +48,4 @@
     <a class="w3-container" href="/activities">Back</a>
   </div>
 </form>
-{{ end }}
-
-{{ block "scripts" . }}
-<script src="/assets/js/activities/activity.js" defer></script>
 {{ end }}

@@ -35,6 +35,15 @@
     <section class="w3-container w3-section">
       <div class="w3-card-4 w3-margin w3-padding-24">
         <div class="w3-container">
+
+          <!-- Notification -->
+          <div id="notification" class="w3-panel w3-pale-green w3-display-container w3-margin" style="display: none;">
+            <span onclick="this.parentElement.style.display='none'"
+              class="w3-button w3-large w3-display-topright">&times;</span>
+            <h3 id="notification-header"></h3>
+            <p id="notification-message"></p>
+          </div>
+
           {{ block "content" . }}{{ end }}
         </div>
       </div>
