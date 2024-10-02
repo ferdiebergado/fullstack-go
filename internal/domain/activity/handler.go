@@ -23,9 +23,9 @@ func NewActivityHandler(s ActivityService) *ActivityHandler {
 	return &ActivityHandler{activityService: s}
 }
 
-func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
 
-	activities, err := a.activityService.ListActivities(r.Context())
+	activities, err := h.activityService.ListActivities(r.Context())
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "list activities", err)
@@ -60,11 +60,11 @@ func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusBadRequest)
 }
 
-func (a *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
 	ui.RenderTemplate(w, "activities/create.html", nil)
 }
 
-func (a *ActivityHandler) ParseId(idStr string) (int32, error) {
+func (h *ActivityHandler) ParseId(idStr string) (int32, error) {
 	id, err := strconv.ParseInt(idStr, 10, 32)
 
 	if err != nil {
@@ -74,16 +74,16 @@ func (a *ActivityHandler) ParseId(idStr string) (int32, error) {
 	return int32(id), nil
 }
 
-func (a *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 
-	id, err := a.ParseId(r.PathValue("id"))
+	id, err := h.ParseId(r.PathValue("id"))
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return
 	}
 
-	activity, err := a.activityService.FindActiveActivity(r.Context(), id)
+	activity, err := h.activityService.FindActiveActivity(r.Context(), id)
 
 	if err != nil || activity == nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
@@ -97,15 +97,15 @@ func (a *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
-	id, err := a.ParseId(r.PathValue("id"))
+func (h *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
+	id, err := h.ParseId(r.PathValue("id"))
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return
 	}
 
-	activity, err := a.activityService.FindActiveActivity(r.Context(), id)
+	activity, err := h.activityService.FindActiveActivity(r.Context(), id)
 
 	if err != nil || activity == nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
@@ -115,15 +115,15 @@ func (a *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
 	ui.RenderTemplate(w, "activities/view.html", activity)
 }
 
-func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
-	id, err := a.ParseId(r.PathValue("id"))
+func (h *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
+	id, err := h.ParseId(r.PathValue("id"))
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return
 	}
 
-	activity, err := a.activityService.FindActiveActivity(r.Context(), id)
+	activity, err := h.activityService.FindActiveActivity(r.Context(), id)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
@@ -133,8 +133,8 @@ func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 	ui.RenderTemplate(w, "activities/edit.html", activity)
 }
 
-func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
-	id, err := a.ParseId(r.PathValue("id"))
+func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
+	id, err := h.ParseId(r.PathValue("id"))
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
@@ -157,7 +157,7 @@ func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 		data.Metadata = json.RawMessage(`{}`) // Set to an empty JSON object if nil
 	}
 
-	err = a.activityService.UpdateActivity(r.Context(), data)
+	err = h.activityService.UpdateActivity(r.Context(), data)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "update activity", err)
@@ -167,7 +167,7 @@ func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 }
 
-func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var data db.CreateActivityParams
 
@@ -181,7 +181,7 @@ func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 		data.Metadata = json.RawMessage(`{}`) // Set to an empty JSON object if nil
 	}
 
-	activity, err := a.activityService.CreateActivity(r.Context(), data)
+	activity, err := h.activityService.CreateActivity(r.Context(), data)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
@@ -192,16 +192,16 @@ func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	ui.RenderJson(w, r, http.StatusCreated, activity)
 }
 
-func (a *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request) {
 
-	id, err := a.ParseId(r.PathValue("id"))
+	id, err := h.ParseId(r.PathValue("id"))
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return
 	}
 
-	err = a.activityService.DeleteActivity(r.Context(), id)
+	err = h.activityService.DeleteActivity(r.Context(), id)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "delete activity", err)
