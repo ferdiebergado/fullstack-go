@@ -13,7 +13,9 @@ import (
 
 func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 
-	activityHandler := activity.NewActivityHandler(database, queries)
+	activityRepo := activity.NewActivityRepository(database, queries)
+	activityService := activity.NewActivityService(activityRepo)
+	activityHandler := activity.NewActivityHandler(activityService)
 
 	// Create the router.
 	router := myhttp.NewRouter()
@@ -32,8 +34,8 @@ func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 	router.Handle("GET /activities/{id}", http.HandlerFunc(activityHandler.ViewActivity))
 	router.Handle("GET /activities/{id}/edit", http.HandlerFunc(activityHandler.EditActivity))
 	router.Handle("GET /api/activities/{id}", http.HandlerFunc(activityHandler.GetActivity))
-	router.Handle("POST /api/activities", http.HandlerFunc(activityHandler.SaveActivityJson))
-	router.Handle("PUT /api/activities/{id}", http.HandlerFunc(activityHandler.UpdateActivityJson))
+	router.Handle("POST /api/activities", http.HandlerFunc(activityHandler.SaveActivity))
+	router.Handle("PUT /api/activities/{id}", http.HandlerFunc(activityHandler.UpdateActivity))
 	router.Handle("DELETE /api/activities/{id}", http.HandlerFunc(activityHandler.DeleteActivity))
 
 	// Home page

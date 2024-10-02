@@ -1,56 +1,31 @@
 package activity
 
 import (
-	"context"
-	"database/sql"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 )
 
-type ActivityHandler struct {
-	Db      *sql.DB
-	Queries *db.Queries
-}
-
 type Data struct {
 	Activities []db.ActiveActivity
 }
 
-type FormDates struct {
-	startDate db.Date
-	endDate   db.Date
+type ActivityHandler struct {
+	activityService ActivityService
 }
 
-func NewActivityHandler(database *sql.DB, queries *db.Queries) *ActivityHandler {
-	return &ActivityHandler{Db: database, Queries: queries}
-}
-
-func (a *ActivityHandler) ActivityIndex(w http.ResponseWriter, r *http.Request) {
-	activities, err := a.Queries.ListActivities(r.Context())
-
-	if err != nil {
-		log.Printf("list activities: %v\n", err)
-		http.Error(w, "failed to get activities", http.StatusInternalServerError)
-		return
-	}
-
-	data := &Data{Activities: activities}
-
-	ui.RenderTemplate(w, "activities/index.html", data)
+func NewActivityHandler(s ActivityService) *ActivityHandler {
+	return &ActivityHandler{activityService: s}
 }
 
 func (a *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
 
-	activities, err := a.Queries.ListActivities(r.Context())
+	activities, err := a.activityService.ListActivities(r.Context())
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "list activities", err)
@@ -89,43 +64,50 @@ func (a *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request)
 	ui.RenderTemplate(w, "activities/create.html", nil)
 }
 
-func (a *ActivityHandler) FindActiveActivity(ctx context.Context, idStr string) (*db.ActiveActivity, error) {
+func (a *ActivityHandler) ParseId(idStr string) (int32, error) {
 	id, err := strconv.ParseInt(idStr, 10, 32)
+
 	if err != nil {
-		log.Printf("parse path value: %v\n", err)
-		return nil, fmt.Errorf("invalid activity ID: %v", err)
+		return 0, err
 	}
 
-	activity, err := a.Queries.FindActivity(ctx, int32(id))
-	if err != nil {
-		log.Printf("find activity: %v\n", err)
-		return nil, fmt.Errorf("activity not found: %v", err)
-	}
-
-	return &activity, nil
+	return int32(id), nil
 }
 
 func (a *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 
-	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
+	id, err := a.ParseId(r.PathValue("id"))
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
+		return
+	}
+
+	activity, err := a.activityService.FindActiveActivity(r.Context(), id)
 
 	if err != nil || activity == nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
 		return
 	}
 
-	// view.RenderTemplate(w, "activities/view.html", activity)
 	err = ui.RenderJson(w, r, http.StatusOK, activity)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "render json activity", err)
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "render json activity", err)
 	}
 }
 
 func (a *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
-	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
+	id, err := a.ParseId(r.PathValue("id"))
 
 	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
+		return
+	}
+
+	activity, err := a.activityService.FindActiveActivity(r.Context(), id)
+
+	if err != nil || activity == nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
 		return
 	}
@@ -134,9 +116,16 @@ func (a *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
-	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
+	id, err := a.ParseId(r.PathValue("id"))
 
-	if err != nil || activity == nil {
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
+		return
+	}
+
+	activity, err := a.activityService.FindActiveActivity(r.Context(), id)
+
+	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
 		return
 	}
@@ -144,35 +133,11 @@ func (a *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 	ui.RenderTemplate(w, "activities/edit.html", activity)
 }
 
-func (a *ActivityHandler) ParseFormDates(w http.ResponseWriter, r *http.Request) *FormDates {
-	var startDate, endDate time.Time
-
-	// TODO: validate form values
-	startDate, err := time.Parse(time.DateOnly, r.FormValue("start_date"))
+func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
+	id, err := a.ParseId(r.PathValue("id"))
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "parse start date", err)
-		return nil
-	}
-
-	endDate, err = time.Parse(time.DateOnly, r.FormValue("end_date"))
-
-	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "parse end date", err)
-		return nil
-	}
-
-	return &FormDates{
-		startDate: db.NewDate(startDate),
-		endDate:   db.NewDate(endDate),
-	}
-}
-
-func (a *ActivityHandler) UpdateActivityJson(w http.ResponseWriter, r *http.Request) {
-	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
-
-	if err != nil || activity == nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
+		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return
 	}
 
@@ -186,13 +151,13 @@ func (a *ActivityHandler) UpdateActivityJson(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	data.ID = activity.ID
+	data.ID = id
 
 	if data.Metadata == nil {
 		data.Metadata = json.RawMessage(`{}`) // Set to an empty JSON object if nil
 	}
 
-	err = a.Queries.UpdateActivity(r.Context(), data)
+	err = a.activityService.UpdateActivity(r.Context(), data)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "update activity", err)
@@ -202,48 +167,7 @@ func (a *ActivityHandler) UpdateActivityJson(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 }
 
-func (a *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
-
-	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
-
-	if err != nil || activity == nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
-		return
-	}
-
-	err = r.ParseForm()
-
-	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "parse form", err)
-		return
-	}
-
-	formDates := a.ParseFormDates(w, r)
-
-	venue := r.FormValue("venue")
-	host := r.FormValue("host")
-
-	params := db.UpdateActivityParams{
-		Title:     r.FormValue("title"),
-		StartDate: formDates.startDate,
-		EndDate:   formDates.endDate,
-		Venue:     &venue,
-		Host:      &host,
-		Metadata:  json.RawMessage(`{}`),
-		ID:        activity.ID,
-	}
-
-	err = a.Queries.UpdateActivity(r.Context(), params)
-
-	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "update activity", err)
-		return
-	}
-
-	http.Redirect(w, r, "/activities", http.StatusSeeOther)
-}
-
-func (a *ActivityHandler) SaveActivityJson(w http.ResponseWriter, r *http.Request) {
+func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var data db.CreateActivityParams
 
@@ -257,7 +181,7 @@ func (a *ActivityHandler) SaveActivityJson(w http.ResponseWriter, r *http.Reques
 		data.Metadata = json.RawMessage(`{}`) // Set to an empty JSON object if nil
 	}
 
-	activity, err := a.Queries.CreateActivity(r.Context(), data)
+	activity, err := a.activityService.CreateActivity(r.Context(), data)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
@@ -268,49 +192,16 @@ func (a *ActivityHandler) SaveActivityJson(w http.ResponseWriter, r *http.Reques
 	ui.RenderJson(w, r, http.StatusCreated, activity)
 }
 
-func (a *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-
-	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "parse form", err)
-		return
-	}
-
-	// TODO: validate form values
-	formDates := a.ParseFormDates(w, r)
-
-	venue := r.FormValue("venue")
-	host := r.FormValue("host")
-
-	params := db.CreateActivityParams{
-		Title:     r.FormValue("title"),
-		StartDate: formDates.startDate,
-		EndDate:   formDates.endDate,
-		Venue:     &venue,
-		Host:      &host,
-		Metadata:  json.RawMessage(`{}`),
-	}
-
-	_, err = a.Queries.CreateActivity(r.Context(), params)
-
-	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
-		return
-	}
-
-	http.Redirect(w, r, "/activities", http.StatusSeeOther)
-}
-
 func (a *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request) {
 
-	activity, err := a.FindActiveActivity(r.Context(), r.PathValue("id"))
+	id, err := a.ParseId(r.PathValue("id"))
 
-	if err != nil || activity == nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return
 	}
 
-	err = a.Queries.DeleteActivity(r.Context(), activity.ID)
+	err = a.activityService.DeleteActivity(r.Context(), id)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "delete activity", err)
