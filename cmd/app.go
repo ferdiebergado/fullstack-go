@@ -23,7 +23,7 @@ func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 	// Use logging and error handling middleware.
 	router.Use(myhttp.LoggingMiddleware)
 	router.Use(myhttp.StripTrailingSlash)
-	router.Use(myhttp.ErrorHandlerMiddleware)
+	router.Use(myhttp.ErrorRecoveryMiddleware)
 
 	// Serve static files
 	router.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))

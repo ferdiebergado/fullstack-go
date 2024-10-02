@@ -32,8 +32,8 @@ func StripTrailingSlash(next http.Handler) http.Handler {
 	})
 }
 
-// ErrorHandlerMiddleware catches and handles errors.
-func ErrorHandlerMiddleware(next http.Handler) http.Handler {
+// ErrorRecoveryMiddleware catches and handles errors.
+func ErrorRecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -43,13 +43,6 @@ func ErrorHandlerMiddleware(next http.Handler) http.Handler {
 			}
 		}()
 
-		// Catch 404 errors by checking if no handler is found.
-		originalWriter := w
-		w = &statusWriter{ResponseWriter: originalWriter, status: http.StatusOK}
 		next.ServeHTTP(w, r)
-
-		if w.(*statusWriter).status == 0 {
-			http.Error(originalWriter, "Not Found", http.StatusNotFound)
-		}
 	})
 }
