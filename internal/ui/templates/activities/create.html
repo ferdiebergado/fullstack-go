@@ -12,7 +12,9 @@
 <div x-data="createActivityHandler()">
 
   <!-- Notification -->
-  <div x-show="showNotification" class="w3-container w3-panel w3-pale-green w3-margin">
+  <div x-show="showNotification" class="w3-panel w3-pale-green w3-display-container w3-margin" style="display: none;">
+    <span onclick="this.parentElement.style.display='none'"
+      class="w3-button w3-large w3-display-topright">&times;</span>
     <h3>Success!</h3>
     <p x-text="notificationMessage"></p>
   </div>
