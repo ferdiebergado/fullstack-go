@@ -6,31 +6,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <title>{{ block "title" . }}PTMS{{ end }}</title>
-  <!-- <link rel="stylesheet" href="/assets/css/styles.css"> -->
-  <link rel="stylesheet" href="/assets/css/pico.min.css">
+  <link rel="stylesheet" href="/assets/css/w3.css">
   {{ block "styles" . }}{{ end }}
   {{ block "scripts" . }}{{ end }}
 </head>
 
 <body>
-  <main class="container">
+  <main>
 
-    <nav>
-      <ul>
-        <li><strong><a href="/">PTMS</a></strong></li>
-      </ul>
-      <ul>
-        <li><a href="/travels">Travels</a></li>
-        <li><a href="/activities">Activities</a></li>
-      </ul>
-    </nav>
+    <!-- Navigation Bar -->
+    <div class="w3-container w3-bar w3-border w3-blue-gray">
+      <a href="/" class="w3-bar-item w3-button w3-padding-24">PTMS</a>
+      <a href="/personnel" class="w3-bar-item w3-button w3-padding-24 w3-right">Personnel</a>
+      <a href="/activities" class="w3-bar-item w3-button w3-padding-24 w3-right">Activities</a>
+      <a href="/travels" class="w3-bar-item w3-button w3-padding-24 w3-right">Travels</a>
+    </div>
 
-    <article>
-      <header>
-        <h3>{{ block "header" . }}{{ end }}</h3>
-      </header>
-      {{ block "content" . }}{{ end }}
-    </article>
+    <!-- Page Header -->
+    <section class="w3-container w3-section">
+      <div class="w3-container">
+        <header class="w3-container"></header>
+        <h2>{{ block "header" . }}{{ end }}</h2>
+        </header>
+      </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="w3-container w3-section">
+      <div class="w3-card-4 w3-margin w3-padding-24">
+        <div class="w3-container">
+          {{ block "content" . }}{{ end }}
+        </div>
+      </div>
+    </section>
 
   </main>
 </body>
