@@ -27,11 +27,10 @@ var (
 	}
 )
 
+var conn = db.OpenDb()
+
 func setupTestRouter(t *testing.T) *myhttp.Router {
 	t.Helper()
-
-	// conn, tx := setupTestDB(t)
-	conn := db.OpenDb()
 
 	q := db.New(conn)
 	router := NewApp(conn, q)
@@ -42,8 +41,6 @@ func setupTestRouter(t *testing.T) *myhttp.Router {
 func createActivity(t *testing.T) db.Activity {
 	t.Helper()
 
-	log.Print("creating activity... ")
-	// conn, tx := setupTestDB(t)
 	conn := db.OpenDb()
 
 	queries := db.New(conn)
@@ -52,8 +49,6 @@ func createActivity(t *testing.T) db.Activity {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Println("created.")
 
 	return activity
 }
@@ -66,6 +61,7 @@ func TestCreateActivity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
@@ -76,6 +72,8 @@ func TestCreateActivity(t *testing.T) {
 }
 
 func TestGetActivity(t *testing.T) {
+	t.Parallel()
+
 	router := setupTestRouter(t)
 	activity := createActivity(t)
 
@@ -93,6 +91,8 @@ func TestGetActivity(t *testing.T) {
 }
 
 func TestUpdateActivity(t *testing.T) {
+	t.Parallel()
+
 	payload := &db.UpdateActivityParams{
 		Title:     "Updated Activity",
 		StartDate: db.NewDate(time.Now()),
@@ -102,6 +102,7 @@ func TestUpdateActivity(t *testing.T) {
 		Metadata:  json.RawMessage(`{}`),
 		ID:        1,
 	}
+
 	router := setupTestRouter(t)
 	body, _ := json.Marshal(payload)
 
@@ -113,6 +114,7 @@ func TestUpdateActivity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
@@ -122,6 +124,8 @@ func TestUpdateActivity(t *testing.T) {
 }
 
 func TestDeleteActivity(t *testing.T) {
+	t.Parallel()
+
 	router := setupTestRouter(t)
 	activity := createActivity(t)
 
@@ -139,18 +143,19 @@ func TestDeleteActivity(t *testing.T) {
 }
 
 func TestListActiveActivities(t *testing.T) {
+	t.Parallel()
 	router := setupTestRouter(t)
 
 	req, err := http.NewRequest(http.MethodGet, "/activities", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	req.Header.Set("Accept", "application/json")
 
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 
 	test.AssertEqual(t, http.StatusOK, rr.Code)
-
 	test.AssertContains(t, rr.Header().Get("Content-Type"), "application/json")
 }
