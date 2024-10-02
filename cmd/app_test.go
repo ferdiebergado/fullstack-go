@@ -11,10 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/test"
 )
 
 var (
@@ -73,7 +72,7 @@ func TestCreateActivity(t *testing.T) {
 
 	router.ServeHTTP(rr, req)
 
-	assert.Equal(t, http.StatusCreated, rr.Code)
+	test.AssertEqual(t, http.StatusCreated, rr.Code)
 }
 
 func TestGetActivity(t *testing.T) {
@@ -90,7 +89,7 @@ func TestGetActivity(t *testing.T) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 
-	assert.Equal(t, http.StatusOK, rr.Code)
+	test.AssertEqual(t, http.StatusOK, rr.Code)
 }
 
 func TestUpdateActivity(t *testing.T) {
@@ -119,7 +118,7 @@ func TestUpdateActivity(t *testing.T) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 
-	assert.Equal(t, http.StatusOK, rr.Code)
+	test.AssertEqual(t, http.StatusOK, rr.Code)
 }
 
 func TestDeleteActivity(t *testing.T) {
@@ -136,7 +135,7 @@ func TestDeleteActivity(t *testing.T) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 
-	assert.Equal(t, http.StatusNoContent, rr.Code)
+	test.AssertEqual(t, http.StatusNoContent, rr.Code)
 }
 
 func TestListActiveActivities(t *testing.T) {
@@ -151,6 +150,7 @@ func TestListActiveActivities(t *testing.T) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 
-	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Contains(t, rr.Header().Get("Content-Type"), "application/json")
+	test.AssertEqual(t, http.StatusOK, rr.Code)
+
+	test.AssertContains(t, rr.Header().Get("Content-Type"), "application/json")
 }
