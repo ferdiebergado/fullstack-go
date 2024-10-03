@@ -6,9 +6,9 @@ A full stack web application using net/http, database/sql and html/template.
 2. Docker or Podman
 
 # Usage
-This project uses [Task](https://taskfile.dev/) to run tasks.
+This project uses [Task](https://taskfile.dev/) as task-runner/build tool.
 
-Instructions on how to install Task is found on this [link](https://taskfile.dev/installation/).
+Install Task by following the instructions found on this [link](https://taskfile.dev/installation/).
 
 ## Step 1
 Install development tools.
@@ -19,7 +19,7 @@ The following tools are used in this project:
 - [sqlc](https://sqlc.dev/)
 - [air](https://github.com/air-verse/air)
 
-To install them, run the task below:
+Run the task below to install them:
 ```sh
 task tools
 ```
