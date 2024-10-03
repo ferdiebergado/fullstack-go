@@ -1,29 +1,49 @@
 # fullstack-go
 A full stack web application using net/http, database/sql and html/template.
 
+# Requirements
+1. Go version 1.22 or higher
+2. Docker or Podman
+
 # Usage
 This project uses [Task](https://taskfile.dev/) to run tasks.
 
 Instructions on how to install Task is found on this [link](https://taskfile.dev/installation/).
 
 ## Step 1
+Install development tools.
+
+The following tools are used in this project:
+
+- [migrate](https://github.com/golang-migrate/migrate)
+- [sqlc](https://sqlc.dev/)
+- [air](https://github.com/air-verse/air)
+
+To install them, run the task below:
+```sh
+task tools
+```
+
+## Step 2
 Copy .env.example to .env.
 
 ```sh
 cp .env.example .env
 ```
 
-## Step 2
+## Step 3
 Set the environment variables in .env according to your setup.
 
-## Step 3
+If using podman, change CONTAINER variable to podman.
+
+## Step 4
 Start the database.
 
 ```sh
 task db
 ```
 
-## Step 4
+## Step 5
 Migrate the database.
 
 Open another terminal and run this command:
@@ -31,32 +51,24 @@ Open another terminal and run this command:
 task migrate
 ```
 
-## Step 5
+## Step 6
 Run the application with auto reload.
 
 ```sh
 task dev
 ```
 
-## Step 6
+## Step 7
 Open your browser on [localhost:8888](http://localhost:8888).
 
-# Install Tools
-The following tools are used in this project:
-
-- [sqlc](https://sqlc.dev/)
-- [air](https://github.com/air-verse/air)
-
-To install them:
-```sh
-task tools
-```
+An api is also available at the /api endpoint.
 
 # Running Tests
 First, setup the test environment:
 ```sh
 task setup_test
 ```
+You just need to run this once per terminal session.
 
 Then, run the tests:
 ```sh
