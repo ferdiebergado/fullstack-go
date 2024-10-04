@@ -15,11 +15,12 @@ Install development tools.
 
 The following tools are used in this project:
 
-- [migrate](https://github.com/golang-migrate/migrate)
-- [sqlc](https://sqlc.dev/)
-- [air](https://github.com/air-verse/air)
+- [migrate](https://github.com/golang-migrate/migrate) for database migrations
+- [sqlc](https://sqlc.dev/) for sql code generation
+- [air](https://github.com/air-verse/air) for live reloading
 
 Run the task below to install them:
+
 ```sh
 task tools
 ```
@@ -44,15 +45,14 @@ task db
 ```
 
 ## Step 5
-Migrate the database.
+Run database migrations.
 
-Open another terminal and run this command:
 ```sh
 task migrate
 ```
 
 ## Step 6
-Run the application with auto reload.
+Start the application.
 
 ```sh
 task dev
@@ -65,12 +65,15 @@ An api is also available at the /api endpoint.
 
 # Running Tests
 First, setup the test environment:
+
 ```sh
 task setup_test
 ```
+
 You just need to run this once per terminal session.
 
 Then, run the tests:
+
 ```sh
 task test
 ```
