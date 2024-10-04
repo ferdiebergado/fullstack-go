@@ -13,8 +13,7 @@ import (
 
 func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
 
-	activityRepo := activity.NewActivityRepository(database, queries)
-	activityService := activity.NewActivityService(activityRepo)
+	activityService := activity.NewActivityService(queries)
 	activityHandler := activity.NewActivityHandler(activityService)
 
 	// Create the router.

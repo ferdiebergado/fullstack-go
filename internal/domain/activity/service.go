@@ -16,11 +16,11 @@ type ActivityService interface {
 }
 
 type activityService struct {
-	repo ActivityRepository
+	queries *db.Queries
 }
 
-func NewActivityService(repo ActivityRepository) ActivityService {
-	return &activityService{repo: repo}
+func NewActivityService(queries *db.Queries) ActivityService {
+	return &activityService{queries: queries}
 }
 
 func (s *activityService) CreateActivity(ctx context.Context, params db.CreateActivityParams) (*db.Activity, error) {
@@ -37,29 +37,29 @@ func (s *activityService) CreateActivity(ctx context.Context, params db.CreateAc
 		Metadata:  params.Metadata,
 	}
 
-	activity, err := s.repo.Create(ctx, activityParams)
+	activity, err := s.queries.CreateActivity(ctx, activityParams)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return activity, nil
+	return &activity, nil
 }
 
 // FindActiveActivity implements ActivityService.
 func (s *activityService) FindActiveActivity(ctx context.Context, id int32) (*db.ActiveActivity, error) {
-	activity, err := s.repo.FindActiveActivity(ctx, id)
+	activity, err := s.queries.FindActivity(ctx, id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return activity, nil
+	return &activity, nil
 }
 
 // ListActivities implements ActivityService.
 func (s *activityService) ListActivities(ctx context.Context) ([]db.ActiveActivity, error) {
-	activities, err := s.repo.GetActivities(ctx)
+	activities, err := s.queries.ListActivities(ctx)
 
 	if err != nil {
 		return nil, err
@@ -70,17 +70,17 @@ func (s *activityService) ListActivities(ctx context.Context) ([]db.ActiveActivi
 
 // UpdateActivity implements ActivityService.
 func (s *activityService) UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error {
-	return s.repo.UpdateActivity(ctx, params)
+	return s.queries.UpdateActivity(ctx, params)
 }
 
 // DeleteActivity implements ActivityService.
 func (s *activityService) DeleteActivity(ctx context.Context, id int32) error {
 
-	_, err := s.repo.FindActiveActivity(ctx, id)
+	_, err := s.queries.FindActivity(ctx, id)
 
 	if err != nil {
 		return err
 	}
 
-	return s.repo.DeleteActivity(ctx, id)
+	return s.queries.DeleteActivity(ctx, id)
 }
