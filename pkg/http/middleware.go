@@ -25,6 +25,7 @@ func StripTrailingSlash(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && strings.HasSuffix(r.URL.Path, "/") {
 			// Remove the trailing slash and redirect to the new URL.
+			log.Println("Removing trailing slash and redirecting...")
 			http.Redirect(w, r, strings.TrimSuffix(r.URL.Path, "/"), http.StatusMovedPermanently)
 			return
 		}
