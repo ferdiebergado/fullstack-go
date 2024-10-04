@@ -26,18 +26,25 @@ func (r *Router) Use(mw Middleware) {
 	r.middlewares = append(r.middlewares, mw)
 }
 
-// Handle registers a new route with the router and applies route-specific middleware.
-func (r *Router) Handle(pattern string, handler http.Handler, middlewares ...Middleware) {
-	// Wrap the handler with route-specific middlewares first.
+// Wraps the handler with the given middlewares
+func (r *Router) wrap(handler http.Handler, middlewares []Middleware) http.Handler {
 	finalHandler := handler
+
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		finalHandler = middlewares[i](finalHandler)
 	}
 
+	return finalHandler
+}
+
+// Handle registers a new route with the router and applies route-specific middleware.
+func (r *Router) Handle(pattern string, handler http.Handler, middlewares ...Middleware) {
+
+	// Wrap the handler with route-specific middlewares first.
+	finalHandler := r.wrap(handler, middlewares)
+
 	// Wrap with global middlewares.
-	for i := len(r.middlewares) - 1; i >= 0; i-- {
-		finalHandler = r.middlewares[i](finalHandler)
-	}
+	finalHandler = r.wrap(finalHandler, r.middlewares)
 
 	r.mux.Handle(pattern, finalHandler)
 }
