@@ -33,7 +33,8 @@ func setupTestRouter(t *testing.T) *myhttp.Router {
 	t.Helper()
 
 	q := db.New(conn)
-	router := NewApp(conn, q)
+	database := db.NewDatabase(conn, q)
+	router := NewApp(database)
 
 	return router
 }

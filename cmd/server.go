@@ -23,8 +23,9 @@ func RunServer(ctx context.Context, w io.Writer, args []string, port string) err
 	defer conn.Close()
 
 	queries := db.New(conn)
+	database := db.NewDatabase(conn, queries)
 
-	router := NewApp(conn, queries)
+	router := NewApp(database)
 
 	httpServer := &http.Server{
 		Addr:         ":" + port,

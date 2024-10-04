@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
 	"net/http"
 
@@ -11,9 +10,9 @@ import (
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 )
 
-func NewApp(database *sql.DB, queries *db.Queries) *myhttp.Router {
+func NewApp(database *db.Database) *myhttp.Router {
 
-	activityService := activity.NewActivityService(queries)
+	activityService := activity.NewActivityService(database)
 	activityHandler := activity.NewActivityHandler(activityService)
 
 	// Create the router.

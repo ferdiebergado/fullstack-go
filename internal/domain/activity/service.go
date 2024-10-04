@@ -2,6 +2,7 @@ package activity
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
@@ -16,11 +17,12 @@ type ActivityService interface {
 }
 
 type activityService struct {
+	db *sql.DB
 	queries *db.Queries
 }
 
-func NewActivityService(queries *db.Queries) ActivityService {
-	return &activityService{queries: queries}
+func NewActivityService(database *db.Database) ActivityService {
+	return &activityService{db: database.Db, queries: database.Query}
 }
 
 func (s *activityService) CreateActivity(ctx context.Context, params db.CreateActivityParams) (*db.Activity, error) {
