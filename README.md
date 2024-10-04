@@ -4,11 +4,9 @@ A full stack web application using net/http, database/sql and html/template.
 # Requirements
 1. Go version 1.22 or higher
 2. Docker or Podman
+3. [Task](https://taskfile.dev/)
 
 # Usage
-This project uses [Task](https://taskfile.dev/) as task-runner/build tool.
-
-Install Task by following the instructions found on this [link](https://taskfile.dev/installation/).
 
 ## Step 1
 Install development tools.
