@@ -12,7 +12,7 @@ vars:
 tasks:
   postgres:
     aliases: ["db"]
-    cmd: $CONTAINER run -ti --rm --network host --name {{.CONTAINER_NAME}} -e POSTGRES_PASSWORD="$DB_PASS" -v ./postgresql.conf:/etc/postgresql/postgresql.conf:Z {{.CONTAINER_IMAGE}} -c 'config_file=/etc/postgresql/postgresql.conf'
+    cmd: $CONTAINER run -d --rm --network host --name {{.CONTAINER_NAME}} -e POSTGRES_PASSWORD="$DB_PASS" -v ./postgresql.conf:/etc/postgresql/postgresql.conf:Z {{.CONTAINER_IMAGE}} -c 'config_file=/etc/postgresql/postgresql.conf'
     requires:
       vars: [CONTAINER, DB_PASS]
   migration:
