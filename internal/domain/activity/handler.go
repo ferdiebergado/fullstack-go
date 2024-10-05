@@ -2,6 +2,7 @@ package activity
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -43,13 +44,22 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 
 		if mediaType == "application/json" {
 
-			err = ui.RenderJson(w, r, http.StatusOK, data)
+			err := ui.RenderJson(w, r, http.StatusOK, data)
+
 			if err != nil {
-				myhttp.ErrorHandler(w, r, http.StatusNotFound, "render json activities", err)
+				myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+				return
 			}
+
 			return
 		} else if mediaType == "text/html" {
-			ui.RenderTemplate(w, "activities/index.html", data)
+			err := ui.RenderTemplate(w, "activities/index.html", data)
+
+			if err != nil {
+				myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+				return
+			}
+
 			return
 		}
 	}
@@ -61,7 +71,12 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 }
 
 func (h *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
-	ui.RenderTemplate(w, "activities/create.html", nil)
+	err := ui.RenderTemplate(w, "activities/create.html", nil)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+		return
+	}
 }
 
 func (h *ActivityHandler) ParseId(idStr string) (int32, error) {
@@ -93,7 +108,8 @@ func (h *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 	err = ui.RenderJson(w, r, http.StatusOK, activity)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "render json activity", err)
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+		return
 	}
 }
 
@@ -112,7 +128,12 @@ func (h *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ui.RenderTemplate(w, "activities/view.html", activity)
+	err = ui.RenderTemplate(w, "activities/view.html", activity)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+		return
+	}
 }
 
 func (h *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +151,12 @@ func (h *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ui.RenderTemplate(w, "activities/edit.html", activity)
+	err = ui.RenderTemplate(w, "activities/edit.html", activity)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+		return
+	}
 }
 
 func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
@@ -184,12 +210,36 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	activity, err := h.activityService.CreateActivity(r.Context(), data)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
+		errorBag, ok := err.(*myhttp.ValidationErrorBag)
+
+		if !ok {
+			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "validationerrorbag typecast", errors.New("failed to cast to validationerrorbag"))
+			return
+		}
+
+		response := &myhttp.ApiResponse{
+			Success: false,
+			Errors:  errorBag.ValidationErrors,
+		}
+
+		err = ui.RenderJson(w, r, http.StatusBadRequest, response)
+		if err != nil {
+			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+			return
+		}
 		return
+
+		// myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
+		// return
 	}
 
 	// w.WriteHeader(http.StatusCreated)
-	ui.RenderJson(w, r, http.StatusCreated, activity)
+	err = ui.RenderJson(w, r, http.StatusCreated, activity)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+		return
+	}
 }
 
 func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request) {

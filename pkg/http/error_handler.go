@@ -18,7 +18,12 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, status int, msg string
 		http.Error(w, "Forbidden", http.StatusForbidden)
 	case http.StatusNotFound:
 		// http.Error(w, "Not Found", http.StatusNotFound)
-		ui.RenderTemplate(w, "404.html", nil)
+		err := ui.RenderTemplate(w, "404.html", nil)
+
+		if err != nil {
+			http.Error(w, "Unable to render template", http.StatusInternalServerError)
+			return
+		}
 	case http.StatusInternalServerError:
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	default:

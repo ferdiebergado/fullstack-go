@@ -38,7 +38,12 @@ func NewApp(database *db.Database) *myhttp.Router {
 
 	// Home page
 	router.Handle("GET /{$}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ui.RenderTemplate(w, "index.html", nil)
+		err := ui.RenderTemplate(w, "index.html", nil)
+
+		if err != nil {
+			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+			return
+		}
 	}))
 
 	// Not found handler
