@@ -2,7 +2,6 @@ package activity
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -198,6 +197,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	var data db.CreateActivityParams
 
 	err := json.NewDecoder(r.Body).Decode(&data)
+
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
 		return
@@ -213,7 +213,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 		errorBag, ok := err.(*myhttp.ValidationErrorBag)
 
 		if !ok {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "validationerrorbag typecast", errors.New("failed to cast to validationerrorbag"))
+			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
 			return
 		}
 
@@ -223,17 +223,15 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err = ui.RenderJson(w, r, http.StatusBadRequest, response)
+
 		if err != nil {
 			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
 			return
 		}
-		return
 
-		// myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
-		// return
+		return
 	}
 
-	// w.WriteHeader(http.StatusCreated)
 	err = ui.RenderJson(w, r, http.StatusCreated, activity)
 
 	if err != nil {
