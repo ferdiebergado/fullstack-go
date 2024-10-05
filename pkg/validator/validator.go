@@ -130,7 +130,7 @@ outerLoop:
 				if param != "" {
 					// Get the value of the other date field
 					otherFieldValue, _ := GetValueByJSONTagName(params, param)
-					otherFieldValue = GetStringValue(otherFieldValue)
+					otherStrValue := GetStringValue(otherFieldValue)
 
 					// Parse the current date and the other date
 					currentDate, err := time.Parse(time.DateOnly, strValue) // Assuming it's a string
@@ -138,8 +138,8 @@ outerLoop:
 						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "invalid date format"})
 					}
 
-					if otherFieldValue.(string) != "" {
-						otherDate, err := time.Parse(time.DateOnly, otherFieldValue.(string)) // Assuming it's a string
+					if otherStrValue != "" {
+						otherDate, err := time.Parse(time.DateOnly, otherStrValue) // Assuming it's a string
 						if err != nil {
 							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "invalid date format"})
 						}
