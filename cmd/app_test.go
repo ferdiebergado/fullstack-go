@@ -17,17 +17,19 @@ import (
 )
 
 var (
+	venue   = "Saturn"
+	host    = "SANA"
 	payload = &db.CreateActivityParams{
 		Title:     "New Activity",
 		StartDate: db.NewDate(time.Now()),
 		EndDate:   db.NewDate(time.Now().AddDate(0, 0, 1)),
-		Venue:     nil,
-		Host:      nil,
+		Venue:     &venue,
+		Host:      &host,
 		Metadata:  json.RawMessage(`{}`),
 	}
-)
 
-var conn = db.OpenDb()
+	conn = db.OpenDb()
+)
 
 func setupTestRouter(t *testing.T) *myhttp.Router {
 	t.Helper()
@@ -70,6 +72,38 @@ func TestCreateActivity(t *testing.T) {
 	router.ServeHTTP(rr, req)
 
 	test.AssertEqual(t, http.StatusCreated, rr.Code)
+}
+
+func TestCreateActivityInvalid(t *testing.T) {
+	router := setupTestRouter(t)
+	payload.Title = ""
+	body, _ := json.Marshal(payload)
+
+	req, err := http.NewRequest(http.MethodPost, "/api/activities", bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+
+	router.ServeHTTP(rr, req)
+
+	test.AssertEqual(t, http.StatusBadRequest, rr.Code)
+
+	// Check if the JSON response matches ApiResponse struct
+	var response myhttp.ApiResponse
+	err = json.Unmarshal(rr.Body.Bytes(), &response)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal response body: %v", err)
+	}
+
+	t.Log("response:", response)
+
+	test.AssertEqual(t, false, response.Success)
+	test.AssertLen(t, response.Errors, 1)
+	test.AssertEqual(t, "title", response.Errors[0].Field)
 }
 
 func TestGetActivity(t *testing.T) {

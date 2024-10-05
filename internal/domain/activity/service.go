@@ -3,9 +3,10 @@ package activity
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
+	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/validator"
 )
 
 type ActivityService interface {
@@ -17,7 +18,7 @@ type ActivityService interface {
 }
 
 type activityService struct {
-	db *sql.DB
+	db      *sql.DB
 	queries *db.Queries
 }
 
@@ -26,8 +27,19 @@ func NewActivityService(database *db.Database) ActivityService {
 }
 
 func (s *activityService) CreateActivity(ctx context.Context, params db.CreateActivityParams) (*db.Activity, error) {
-	if params.Title == "" {
-		return nil, errors.New("title is required")
+
+	validationRules := validator.ValidationRules{
+		"title":      "required|min:2|max:150",
+		"start_date": "required|date",
+		"end_date":   "required|date|after:start_date",
+		"venue":      "max:60",
+		"host":       "max:60",
+	}
+
+	validationErrors := validator.Validate(params, validationRules)
+
+	if len(validationErrors) > 0 {
+		return nil, &myhttp.ValidationErrorBag{Message: "Invalid activity", ValidationErrors: validationErrors}
 	}
 
 	activityParams := db.CreateActivityParams{
