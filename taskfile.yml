@@ -12,7 +12,7 @@ vars:
 tasks:
   postgres:
     aliases: ["db"]
-    cmd: $CONTAINER run -d --rm --network host --name {{.CONTAINER_NAME}} -e POSTGRES_PASSWORD="$DB_PASS" -v ./db/postgresql.conf:/etc/postgresql/postgresql.conf:Z -v ./db/psqlrc:/root/.psqlrc:Z {{.CONTAINER_IMAGE}} -c 'config_file=/etc/postgresql/postgresql.conf'
+    cmd: $CONTAINER run -d --rm --network host --name {{.CONTAINER_NAME}} -e POSTGRES_PASSWORD="$DB_PASS" -v ./db/postgresql.conf:/etc/postgresql/postgresql.conf:Z -v ./db/psqlrc:/root/.psqlrc:Z -v ./db/seeds:/root:Z {{.CONTAINER_IMAGE}} -c 'config_file=/etc/postgresql/postgresql.conf'
     requires:
       vars: [CONTAINER, DB_PASS]
   migration:
@@ -25,6 +25,8 @@ tasks:
     cmd: migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} down {{.CLI_ARGS}}
     requires:
       vars: [DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]
+  seed:
+    cmd: $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy activities (title,start_date,end_date,venue,host) FROM '/root/activities.csv' DELIMITER ',' CSV HEADER"
   generate:
     aliases: ["gen"]
     cmd: export DSN="{{.DSN}}"; sqlc generate
