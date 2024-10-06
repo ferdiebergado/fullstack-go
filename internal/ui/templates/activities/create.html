@@ -13,7 +13,7 @@
 
   <div class="w3-container w3-margin">
     <label for="title">Title</label>
-    <textarea name="title" id="title" rows="5" class="w3-input w3-border" minlength="2" required autofocus></textarea>
+    <textarea name="title" id="title" rows="5" class="w3-input w3-border" minlength="2" maxlength="300" required autofocus></textarea>
     <span class="w3-small w3-text-red"></span>
   </div>
 
@@ -33,13 +33,13 @@
   <div class="w3-container w3-margin">
     <label for="venue">Venue</label>
     <input type="text" name="venue" id="venue" class="w3-input w3-border" max="100">
-    <span class="w3-small w3-red" x-text="errors.venue" x-show="errors.venue"></span>
+    <span class="w3-small w3-text-red"></span>
   </div>
 
   <div class="w3-container w3-margin">
     <label for="host">Host </label>
     <input type="text" name="host" id="host" class="w3-input w3-border" max="100">
-    <span class="w3-small w3-red"></span>
+    <span class="w3-small w3-text-red"></span>
   </div>
 
   <div class="w3-container w3-margin w3-center">

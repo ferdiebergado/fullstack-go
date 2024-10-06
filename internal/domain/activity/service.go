@@ -23,11 +23,11 @@ type activityService struct {
 }
 
 var validationRules = validator.ValidationRules{
-	"title":      "required|min:2|max:150",
+	"title":      "required|min:2|max:300",
 	"start_date": "required|date",
 	"end_date":   "required|date|after:start_date",
-	"venue":      "max:60",
-	"host":       "max:60",
+	"venue":      "max:100",
+	"host":       "max:100",
 }
 
 func NewActivityService(database *db.Database) ActivityService {
