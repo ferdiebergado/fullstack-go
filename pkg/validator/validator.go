@@ -2,6 +2,7 @@ package validator
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/str"
 )
 
 type ValidationRules = map[string]string
@@ -44,6 +46,7 @@ outerLoop:
 	for field, rules := range validationRules {
 		for _, rule := range strings.Split(rules, "|") {
 			fieldValue, _ := GetValueByJSONTagName(params, field)
+			log.Println("field, rules, value:", field, rules, fieldValue)
 
 			// Split rule and possible parameters (like "min:3" -> rule = "min", param = "3")
 			parts := strings.Split(rule, ":")
@@ -59,7 +62,7 @@ outerLoop:
 			switch rule {
 			case "required":
 				if strings.TrimSpace(strValue) == "" {
-					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("%s is required", field)})
+					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("%s is required", str.SnakeToTitle(field))})
 					continue outerLoop
 				}
 			case "alphanumeric":
@@ -146,7 +149,7 @@ outerLoop:
 
 						// Validate if the current date is on or after the other date
 						if !currentDate.Equal(otherDate) && !currentDate.After(otherDate) {
-							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("%s must be on or after %s", field, param)})
+							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("%s must be on or after %s", str.SnakeToTitle(field), str.SnakeToTitle(param))})
 						}
 					}
 				}
@@ -173,7 +176,11 @@ func GetStringValue(val any) string {
 	case string:
 		strValue = v
 	case *string:
-		strValue = *v
+		if v != nil {
+			strValue = *v
+		} else {
+			strValue = ""
+		}
 	}
 
 	return strValue
