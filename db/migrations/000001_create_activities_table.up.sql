@@ -12,3 +12,6 @@ CREATE TABLE IF NOT EXISTS activities (
 );
 
 ALTER TABLE activities ADD CONSTRAINT pk_activities PRIMARY KEY (id);
+
+ALTER TABLE activities
+ADD CONSTRAINT chk_end_date_after_start_date CHECK (end_date >= start_date);
