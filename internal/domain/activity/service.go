@@ -22,19 +22,19 @@ type activityService struct {
 	queries *db.Queries
 }
 
+var validationRules = validator.ValidationRules{
+	"title":      "required|min:2|max:150",
+	"start_date": "required|date",
+	"end_date":   "required|date|after:start_date",
+	"venue":      "max:60",
+	"host":       "max:60",
+}
+
 func NewActivityService(database *db.Database) ActivityService {
 	return &activityService{db: database.Db, queries: database.Query}
 }
 
 func (s *activityService) CreateActivity(ctx context.Context, params db.CreateActivityParams) (*db.Activity, error) {
-
-	validationRules := validator.ValidationRules{
-		"title":      "required|min:2|max:150",
-		"start_date": "required|date",
-		"end_date":   "required|date|after:start_date",
-		"venue":      "max:60",
-		"host":       "max:60",
-	}
 
 	validationErrors := validator.Validate(params, validationRules)
 
@@ -84,6 +84,12 @@ func (s *activityService) ListActivities(ctx context.Context) ([]db.ActiveActivi
 
 // UpdateActivity implements ActivityService.
 func (s *activityService) UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error {
+	validationErrors := validator.Validate(params, validationRules)
+
+	if len(validationErrors) > 0 {
+		return &myhttp.ValidationErrorBag{Message: "Invalid activity", ValidationErrors: validationErrors}
+	}
+
 	return s.queries.UpdateActivity(ctx, params)
 }
 

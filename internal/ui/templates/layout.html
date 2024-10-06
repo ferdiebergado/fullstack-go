@@ -7,7 +7,7 @@
   <meta name="color-scheme" content="light dark">
   <title>{{ block "title" . }}PTMS{{ end }}</title>
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> -->
   {{ block "styles" . }}{{ end }}
   {{ block "scripts" . }}{{ end }}
 </head>
@@ -38,7 +38,7 @@
         <div class="w3-container">
 
           <!-- Notification -->
-          <div id="notification" class="w3-panel w3-pale-green w3-display-container w3-margin" style="display: none;">
+          <div id="notification" class="w3-panel w3-display-container w3-margin" style="display: none;">
             <span onclick="this.parentElement.style.display='none'"
               class="w3-button w3-large w3-display-topright">&times;</span>
             <h3 id="notification-header"></h3>

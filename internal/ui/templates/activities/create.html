@@ -3,67 +3,50 @@
 {{ block "header" .}}New Activity{{ end }}
 
 {{ block "scripts" . }}
-<script src="/assets/js/activities/create_activity.js"></script>
+<script src="/assets/js/form.js" defer></script>
 {{ end }}
 
 {{ block "content" .}}
 
-<div x-data="createActivityHandler()">
+<!-- Form -->
+<form action="/api/activities" method="post">
 
-  <!-- Notification -->
-  <div x-show="notification.message" x-cloak class="w3-panel w3-display-container w3-margin"
-    :class="notification.type === 'success' ? 'w3-pale-green' : 'w3-red'">
-    <span onclick="this.parentElement.style.display='none'"
-      class="w3-button w3-large w3-display-topright">&times;</span>
-    <h3 x-text="notification.type === 'success' ? 'Success':'Error'"></h3>
-    <p x-text="notification.message"></p>
+  <div class="w3-container w3-margin">
+    <label for="title">Title</label>
+    <textarea name="title" id="title" rows="5" class="w3-input w3-border" minlength="2" required autofocus></textarea>
+    <span class="w3-small w3-text-red"></span>
   </div>
 
-  <!-- Form -->
-  <form @submit.prevent="submitForm">
-
-    <div class="w3-container w3-margin">
-      <label>Title</label>
-      <textarea name="title" id="title" x-model="formData.title" rows="5" class="w3-input w3-border"
-        :class="errors.title ? 'w3-border-red' : ''" minlength="2" required autofocus></textarea>
-      <span class="w3-small w3-red" x-text="errors.title" x-show="errors.title"></span>
+  <div class="w3-row w3-container">
+    <div class="w3-half w3-container">
+      <label for="start_date">Start Date</label>
+      <input type="date" name="start_date" id="start_date" class="w3-input w3-border" required>
+      <span class="w3-small w3-text-red"></span>
     </div>
-
-    <div class="w3-row w3-container">
-      <div class="w3-half w3-container">
-        <label>Start Date</label>
-        <input type="date" name="start_date" id="start_date" x-model="formData.start_date" class="w3-input w3-border"
-          :class="errors.start_date ? 'w3-border-red' : ''" required>
-        <span class="w3-small w3-red" x-text="errors.start_date" x-show="errors.start_date"></span>
-      </div>
-      <div class="w3-half w3-container">
-        <label>End Date</label>
-        <input type="date" name="end_date" id="end_date" x-model="formData.end_date" class="w3-input w3-border"
-          :class="errors.end_date ? 'w3-border-red' : ''" required>
-        <span class="w3-small w3-red" x-text="errors.end_date" x-show="errors.end_date"></span>
-      </div>
+    <div class="w3-half w3-container">
+      <label for="end_date">End Date</label>
+      <input type="date" name="end_date" id="end_date" class="w3-input w3-border" required>
+      <span class="w3-small w3-text-red"></span>
     </div>
+  </div>
 
-    <div class="w3-container w3-margin">
-      <label>Venue</label>
-      <input type="text" name="venue" id="venue" x-model="formData.venue" class="w3-input w3-border"
-        :class="errors.venue ? 'w3-border-red' : ''">
-      <span class="w3-small w3-red" x-text="errors.venue" x-show="errors.venue"></span>
-    </div>
+  <div class="w3-container w3-margin">
+    <label for="venue">Venue</label>
+    <input type="text" name="venue" id="venue" class="w3-input w3-border" max="100">
+    <span class="w3-small w3-red" x-text="errors.venue" x-show="errors.venue"></span>
+  </div>
 
-    <div class="w3-container w3-margin">
-      <label>Host </label>
-      <input type="text" name="host" id="host" x-model="formData.host" class="w3-input w3-border" :class="errors.host ?
-      'w3-border-red' : ''">
-      <span class="w3-small w3-red" x-text="errors.host" x-show="errors.host"></span>
-    </div>
+  <div class="w3-container w3-margin">
+    <label for="host">Host </label>
+    <input type="text" name="host" id="host" class="w3-input w3-border" max="100">
+    <span class="w3-small w3-red"></span>
+  </div>
 
-    <div class="w3-container w3-margin w3-center">
-      <button class="w3-button w3-block w3-blue w3-padding-large" type="submit" :disabled="loading">Submit</button>
-      <a class="w3-container" href="/activities">Back</a>
-    </div>
+  <div class="w3-container w3-margin w3-center">
+    <button class="w3-button w3-block w3-blue w3-padding-large" type="submit">Submit</button>
+    <a class="w3-container" href="/activities">Back</a>
+  </div>
 
-  </form>
+</form>
 
-</div>
 {{ end }}

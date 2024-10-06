@@ -3,14 +3,14 @@
 {{ block "header" .}}Edit Activity{{ end }}
 
 {{ block "scripts" . }}
-<script src="/assets/js/activities//edit_activity_alpine.js" defer></script>
+<script src="/assets/js/form.js" defer></script>
 {{ end }}
 
 {{ block "content" .}}
 
-<div x-data="formHandler()">
+<form action="/api/activities/{{ .ID }}" method="post">
 
-<form action="/api/activities/{{ .ID }}" @submit.prevent="submitForm">
+  <input type="hidden" name="_method" value="PUT">
 
   <div class="w3-container w3-margin">
     <p>ID: {{ .ID }}</p>
@@ -18,31 +18,36 @@
 
   <div class="w3-container w3-margin">
     <label for="title">Title</label>
-    <textarea type="text" name="title" id="title" class="w3-input w3-border" rows="5" x-model="formData.title" :class="errors.title ? 'error' : ''" required
+    <textarea type="text" name="title" id="title" class="w3-input w3-border" rows="5" required
       autofocus>{{ .Title }}</textarea>
+      <span class="w3-small w3-text-red"></span>
   </div>
 
   <div class="w3-row w3-container">
     <div class="w3-half w3-container">
       <label for="start_date">Start Date</label>
-      <input type="date" name="start_date" id="start_date" value="{{ .StartDate.Time.Format "2006-01-02" }}" x-model="formData.start_date" :class="errors.start_date ? 'error' : ''"
+      <input type="date" name="start_date" id="start_date" value="{{ .StartDate.Time.Format "2006-01-02" }}"
         class="w3-input w3-border" required>
+        <span class="w3-small w3-text-red"></span>
     </div>
     <div class="w3-half w3-container">
       <label for="end_date">End Date</label>
-      <input type="date" name="end_date" id="end_date" value="{{ .EndDate.Time.Format "2006-01-02" }}" x-model="formData.end_date" :class="errors.end_date ? 'error' : ''" /
+      <input type="date" name="end_date" id="end_date" value="{{ .EndDate.Time.Format "2006-01-02" }}"
         class="w3-input w3-border" required>
+        <span class="w3-small w3-text-red"></span>
     </div>
   </div>
 
   <div class="w3-container w3-margin">
     <label for="venue">Venue</label>
-    <input type="text" name="venue" id="venue" value="{{ .Venue }}" class="w3-input w3-border" x-model="formData.venue" :class="errors.venue ? 'error' : ''" />
+    <input type="text" name="venue" id="venue" value="{{ .Venue }}" class="w3-input w3-border">
+    <span class="w3-small w3-text-red"></span>
   </div>
 
   <div class="w3-container w3-margin">
     <label for="host">Host</label>
-    <input type="text" name="host" id="host" value="{{ .Host }}" class="w3-input w3-border" x-model="formData.host" :class="errors.host ? 'error' : ''" />
+    <input type="text" name="host" id="host" value="{{ .Host }}" class="w3-input w3-border">
+    <span class="w3-small w3-text-red"></span>
   </div>
 
   <div class="w3-container w3-margin w3-center">
@@ -50,7 +55,5 @@
     <a class="w3-container" href="/activities">Back</a>
   </div>
 </form>
-
-</div>
 
 {{ end }}

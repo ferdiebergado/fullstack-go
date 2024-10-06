@@ -185,11 +185,38 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 	err = h.activityService.UpdateActivity(r.Context(), data)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "update activity", err)
+		errorBag, ok := err.(*myhttp.ValidationErrorBag)
+
+		if !ok {
+			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "update activity", err)
+			return
+		}
+
+		response := &myhttp.ApiResponse{
+			Success: false,
+			Errors:  errorBag.ValidationErrors,
+		}
+
+		err = ui.RenderJson(w, r, http.StatusBadRequest, response)
+
+		if err != nil {
+			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+			return
+		}
+
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	response := &myhttp.ApiResponse{
+		Success: true,
+	}
+
+	err = ui.RenderJson(w, r, http.StatusOK, response)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+		return
+	}
 }
 
 func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
