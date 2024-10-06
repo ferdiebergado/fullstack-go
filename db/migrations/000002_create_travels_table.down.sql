@@ -1,1 +1,1 @@
-DROP TABLE travels;
+DROP TABLE IF EXISTS travels;
