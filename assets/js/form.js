@@ -1,7 +1,12 @@
 // @ts-check
-const inputError = 'w3-border-red';
-const bgSuccess = 'w3-green';
-const bgError = 'w3-red';
+const inputErrorClass = 'has-error';
+const successBgClass = 'alert--success';
+const errorBgClass = 'alert--danger';
+const errorTextClass = 'form__error';
+
+// const inputError = 'w3-border-red';
+// const bgSuccess = 'w3-green';
+// const bgError = 'w3-red';
 
 const notification = document.getElementById('notification');
 
@@ -22,7 +27,14 @@ function displayErrors(errors) {
 
     if (input) {
       const errorMessage = input.nextElementSibling;
-      input.classList.add('w3-border-red');
+      const parent = input.parentElement;
+
+      if (parent) {
+        if (!parent.classList.contains(inputErrorClass)) {
+          parent.classList.add(inputErrorClass);
+        }
+      }
+
       if (errorMessage) {
         errorMessage.textContent = error;
       }
@@ -31,11 +43,13 @@ function displayErrors(errors) {
 }
 
 function clearErrors() {
-  const errorInputs = document.querySelectorAll('.' + inputError);
+  const errorInputs = document.querySelectorAll('.' + inputErrorClass);
   errorInputs.forEach((input) => {
-    input.classList.remove(inputError);
-    if (input.nextElementSibling) {
-      input.nextElementSibling.textContent = '';
+    input.classList.remove(inputErrorClass);
+    const helpText = input.querySelector('.' + errorTextClass);
+
+    if (helpText) {
+      helpText.textContent = '';
     }
   });
 }
@@ -51,11 +65,11 @@ function showNotification(message, type) {
     const body = notification.querySelector('#notification-message');
 
     if (type === 'success') {
-      notification.classList.remove(bgError);
-      notification.classList.add(bgSuccess);
+      notification.classList.remove(errorBgClass);
+      notification.classList.add(successBgClass);
     } else {
-      notification.classList.remove(bgSuccess);
-      notification.classList.add(bgError);
+      notification.classList.remove(successBgClass);
+      notification.classList.add(errorBgClass);
     }
 
     if (header) {
@@ -79,11 +93,22 @@ form.addEventListener('submit', async function (event) {
   clearErrors();
 
   const formData = new FormData(this);
-  const formJSON = Object.fromEntries(formData.entries());
+  // const formJSON = Object.fromEntries(formData.entries());
   const actionUrl = this.getAttribute('action');
   /** @type {HTMLInputElement|null} */
   const methodInput = this.querySelector('input[name="_method"]');
   const method = methodInput?.value.toUpperCase() || 'POST'; // Use PUT if specified, else POST
+
+  // Convert FormData to a plain object
+  const payload = {};
+  formData.forEach((value, key) => {
+    // Convert numeric fields manually
+    if (key.endsWith('_id')) {
+      payload[key] = Number(value); // Convert to number
+    } else {
+      payload[key] = value; // Keep as string
+    }
+  });
 
   try {
     // @ts-ignore
@@ -92,7 +117,7 @@ form.addEventListener('submit', async function (event) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(formJSON),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
