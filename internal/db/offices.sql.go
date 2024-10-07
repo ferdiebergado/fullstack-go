@@ -15,11 +15,11 @@ INSERT INTO
     offices (name, metadata)
 VALUES ($1, $2)
 RETURNING
-    id, name, metadata, created_at, updated_at, deleted_at
+    id, name, short_name, metadata, created_at, updated_at, deleted_at
 `
 
 type CreateOfficeParams struct {
-	Name     string          `json:"name"`
+	Name     *string         `json:"name"`
 	Metadata json.RawMessage `json:"metadata"`
 }
 
@@ -29,6 +29,7 @@ func (q *Queries) CreateOffice(ctx context.Context, arg CreateOfficeParams) (Off
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.ShortName,
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -47,7 +48,7 @@ func (q *Queries) DeleteOffice(ctx context.Context, id int32) error {
 }
 
 const findOffice = `-- name: FindOffice :one
-SELECT id, name, metadata, created_at, updated_at, deleted_at FROM offices WHERE id = $1
+SELECT id, name, short_name, metadata, created_at, updated_at, deleted_at FROM offices WHERE id = $1
 `
 
 func (q *Queries) FindOffice(ctx context.Context, id int32) (Office, error) {
@@ -56,6 +57,7 @@ func (q *Queries) FindOffice(ctx context.Context, id int32) (Office, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.ShortName,
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -65,7 +67,7 @@ func (q *Queries) FindOffice(ctx context.Context, id int32) (Office, error) {
 }
 
 const findOfficeByName = `-- name: FindOfficeByName :many
-SELECT id, name, metadata, created_at, updated_at, deleted_at FROM offices WHERE name LIKE '%$1%'
+SELECT id, name, short_name, metadata, created_at, updated_at, deleted_at FROM offices WHERE name LIKE '%$1%'
 `
 
 func (q *Queries) FindOfficeByName(ctx context.Context) ([]Office, error) {
@@ -80,6 +82,7 @@ func (q *Queries) FindOfficeByName(ctx context.Context) ([]Office, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
+			&i.ShortName,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -99,7 +102,7 @@ func (q *Queries) FindOfficeByName(ctx context.Context) ([]Office, error) {
 }
 
 const listOffice = `-- name: ListOffice :many
-SELECT id, name, metadata, created_at, updated_at, deleted_at FROM offices ORDER BY name
+SELECT id, name, short_name, metadata, created_at, updated_at, deleted_at FROM offices ORDER BY name
 `
 
 func (q *Queries) ListOffice(ctx context.Context) ([]Office, error) {
@@ -114,6 +117,7 @@ func (q *Queries) ListOffice(ctx context.Context) ([]Office, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
+			&i.ShortName,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -152,7 +156,7 @@ WHERE
 `
 
 type UpdateOfficeParams struct {
-	Name     string          `json:"name"`
+	Name     *string         `json:"name"`
 	Metadata json.RawMessage `json:"metadata"`
 	ID       int32           `json:"id"`
 }

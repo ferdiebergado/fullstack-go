@@ -19,7 +19,7 @@ RETURNING
 `
 
 type CreatePositionParams struct {
-	Title    string          `json:"title"`
+	Title    *string         `json:"title"`
 	Metadata json.RawMessage `json:"metadata"`
 }
 
@@ -152,7 +152,7 @@ WHERE
 `
 
 type UpdatePositionParams struct {
-	Title    string          `json:"title"`
+	Title    *string         `json:"title"`
 	Metadata json.RawMessage `json:"metadata"`
 	ID       int32           `json:"id"`
 }

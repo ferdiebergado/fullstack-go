@@ -11,12 +11,12 @@ import (
 )
 
 type ActiveActivity struct {
-	ID        int32           `json:"id"`
+	ID        int64           `json:"id"`
 	Title     string          `json:"title"`
 	StartDate Date            `json:"start_date"`
 	EndDate   Date            `json:"end_date"`
-	Venue     *string         `json:"venue"`
-	Host      *string         `json:"host"`
+	VenueID   int32           `json:"venue_id"`
+	HostID    int32           `json:"host_id"`
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
@@ -24,12 +24,21 @@ type ActiveActivity struct {
 }
 
 type Activity struct {
-	ID        int32           `json:"id"`
+	ID        int64           `json:"id"`
 	Title     string          `json:"title"`
 	StartDate Date            `json:"start_date"`
 	EndDate   Date            `json:"end_date"`
-	Venue     *string         `json:"venue"`
-	Host      *string         `json:"host"`
+	VenueID   int32           `json:"venue_id"`
+	HostID    int32           `json:"host_id"`
+	Metadata  json.RawMessage `json:"metadata"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	DeletedAt sql.NullTime    `json:"deleted_at"`
+}
+
+type Host struct {
+	ID        int64           `json:"id"`
+	Name      string          `json:"name"`
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
@@ -38,7 +47,8 @@ type Activity struct {
 
 type Office struct {
 	ID        int32           `json:"id"`
-	Name      string          `json:"name"`
+	Name      *string         `json:"name"`
+	ShortName string          `json:"short_name"`
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
@@ -60,21 +70,38 @@ type Personnel struct {
 
 type Position struct {
 	ID        int32           `json:"id"`
-	Title     string          `json:"title"`
+	Title     *string         `json:"title"`
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
 	DeletedAt sql.NullTime    `json:"deleted_at"`
 }
 
+type Region struct {
+	ID       int16  `json:"id"`
+	RegionID int16  `json:"region_id"`
+	Name     string `json:"name"`
+}
+
 type Travel struct {
-	ID         int32           `json:"id"`
+	ID         int64           `json:"id"`
 	StartDate  Date            `json:"start_date"`
 	EndDate    Date            `json:"end_date"`
 	Status     int16           `json:"status"`
 	Remarks    *string         `json:"remarks"`
 	Metadata   json.RawMessage `json:"metadata"`
 	ActivityID int32           `json:"activity_id"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
+	DeletedAt  sql.NullTime    `json:"deleted_at"`
+}
+
+type Venue struct {
+	ID         int32           `json:"id"`
+	Name       string          `json:"name"`
+	DivisionID int32           `json:"division_id"`
+	RegionID   int16           `json:"region_id"`
+	Metadata   json.RawMessage `json:"metadata"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
 	DeletedAt  sql.NullTime    `json:"deleted_at"`

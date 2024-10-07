@@ -65,7 +65,7 @@ const deleteTravel = `-- name: DeleteTravel :exec
 UPDATE travels SET deleted_at = NOW() WHERE id = $1
 `
 
-func (q *Queries) DeleteTravel(ctx context.Context, id int32) error {
+func (q *Queries) DeleteTravel(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteTravel, id)
 	return err
 }
@@ -74,7 +74,7 @@ const findTravel = `-- name: FindTravel :one
 SELECT id, start_date, end_date, status, remarks, metadata, activity_id, created_at, updated_at, deleted_at FROM travels WHERE id = $1
 `
 
-func (q *Queries) FindTravel(ctx context.Context, id int32) (Travel, error) {
+func (q *Queries) FindTravel(ctx context.Context, id int64) (Travel, error) {
 	row := q.db.QueryRowContext(ctx, findTravel, id)
 	var i Travel
 	err := row.Scan(
@@ -131,7 +131,7 @@ func (q *Queries) FindTravelByActivityId(ctx context.Context, activityID int32) 
 }
 
 const findTravelByActivityTitle = `-- name: FindTravelByActivityTitle :many
-SELECT t.id, t.start_date, t.end_date, status, remarks, t.metadata, activity_id, t.created_at, t.updated_at, t.deleted_at, a.id, title, a.start_date, a.end_date, venue, host, a.metadata, a.created_at, a.updated_at, a.deleted_at
+SELECT t.id, t.start_date, t.end_date, status, remarks, t.metadata, activity_id, t.created_at, t.updated_at, t.deleted_at, a.id, title, a.start_date, a.end_date, venue_id, host_id, a.metadata, a.created_at, a.updated_at, a.deleted_at
 FROM travels AS t
     INNER JOIN activities AS a ON t.activity_id = a.id
 WHERE
@@ -140,7 +140,7 @@ ORDER BY t.start_date DESC
 `
 
 type FindTravelByActivityTitleRow struct {
-	ID          int32           `json:"id"`
+	ID          int64           `json:"id"`
 	StartDate   Date            `json:"start_date"`
 	EndDate     Date            `json:"end_date"`
 	Status      int16           `json:"status"`
@@ -150,12 +150,12 @@ type FindTravelByActivityTitleRow struct {
 	CreatedAt   time.Time       `json:"created_at"`
 	UpdatedAt   time.Time       `json:"updated_at"`
 	DeletedAt   sql.NullTime    `json:"deleted_at"`
-	ID_2        int32           `json:"id_2"`
+	ID_2        int64           `json:"id_2"`
 	Title       string          `json:"title"`
 	StartDate_2 Date            `json:"start_date_2"`
 	EndDate_2   Date            `json:"end_date_2"`
-	Venue       *string         `json:"venue"`
-	Host        *string         `json:"host"`
+	VenueID     int32           `json:"venue_id"`
+	HostID      int32           `json:"host_id"`
 	Metadata_2  json.RawMessage `json:"metadata_2"`
 	CreatedAt_2 time.Time       `json:"created_at_2"`
 	UpdatedAt_2 time.Time       `json:"updated_at_2"`
@@ -186,8 +186,8 @@ func (q *Queries) FindTravelByActivityTitle(ctx context.Context, activityID int3
 			&i.Title,
 			&i.StartDate_2,
 			&i.EndDate_2,
-			&i.Venue,
-			&i.Host,
+			&i.VenueID,
+			&i.HostID,
 			&i.Metadata_2,
 			&i.CreatedAt_2,
 			&i.UpdatedAt_2,
@@ -286,7 +286,7 @@ const restoreTravel = `-- name: RestoreTravel :exec
 UPDATE travels SET deleted_at = NULL WHERE id = $1
 `
 
-func (q *Queries) RestoreTravel(ctx context.Context, id int32) error {
+func (q *Queries) RestoreTravel(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, restoreTravel, id)
 	return err
 }
@@ -312,7 +312,7 @@ type UpdateTravelParams struct {
 	Remarks    *string         `json:"remarks"`
 	ActivityID int32           `json:"activity_id"`
 	Metadata   json.RawMessage `json:"metadata"`
-	ID         int32           `json:"id"`
+	ID         int64           `json:"id"`
 }
 
 func (q *Queries) UpdateTravel(ctx context.Context, arg UpdateTravelParams) error {

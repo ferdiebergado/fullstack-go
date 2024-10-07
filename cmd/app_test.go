@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 	"time"
 
@@ -17,14 +16,12 @@ import (
 )
 
 var (
-	venue   = "Saturn"
-	host    = "SANA"
 	payload = &db.CreateActivityParams{
 		Title:     "New Activity",
 		StartDate: db.NewDate(time.Now()),
 		EndDate:   db.NewDate(time.Now().AddDate(0, 0, 1)),
-		Venue:     &venue,
-		Host:      &host,
+		VenueID:   1,
+		HostID:    1,
 		Metadata:  json.RawMessage(`{}`),
 	}
 
@@ -112,7 +109,7 @@ func TestGetActivity(t *testing.T) {
 	router := setupTestRouter(t)
 	activity := createActivity(t)
 
-	id := strconv.Itoa(int(activity.ID))
+	id := db.Int64ToString(activity.ID)
 
 	req, err := http.NewRequest(http.MethodGet, "/api/activities/"+id, nil)
 	if err != nil {
@@ -132,8 +129,8 @@ func TestUpdateActivity(t *testing.T) {
 		Title:     "Updated Activity",
 		StartDate: db.NewDate(time.Now()),
 		EndDate:   db.NewDate(time.Now().AddDate(0, 0, 2)),
-		Venue:     nil,
-		Host:      nil,
+		VenueID:   1,
+		HostID:    2,
 		Metadata:  json.RawMessage(`{}`),
 		ID:        1,
 	}
@@ -143,9 +140,9 @@ func TestUpdateActivity(t *testing.T) {
 
 	activity := createActivity(t)
 
-	id := strconv.Itoa(int(activity.ID))
+	activityId := db.Int64ToString(activity.ID)
 
-	req, err := http.NewRequest(http.MethodPut, "/api/activities/"+id, bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPut, "/api/activities/"+activityId, bytes.NewReader(body))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +161,7 @@ func TestDeleteActivity(t *testing.T) {
 	router := setupTestRouter(t)
 	activity := createActivity(t)
 
-	id := strconv.Itoa(int(activity.ID))
+	id := db.Int64ToString(activity.ID)
 
 	req, err := http.NewRequest(http.MethodDelete, "/api/activities/"+id, nil)
 	if err != nil {

@@ -11,10 +11,12 @@ import (
 
 type ActivityService interface {
 	CreateActivity(ctx context.Context, req db.CreateActivityParams) (*db.Activity, error)
-	ListActivities(ctx context.Context) ([]db.ActiveActivity, error)
-	FindActiveActivity(ctx context.Context, id int32) (*db.ActiveActivity, error)
+	ListActivities(ctx context.Context) ([]db.ListActivitiesRow, error)
+	FindActiveActivity(ctx context.Context, id int64) (*db.ActiveActivity, error)
 	UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error
-	DeleteActivity(ctx context.Context, id int32) error
+	DeleteActivity(ctx context.Context, id int64) error
+	GetRegions(ctx context.Context) ([]db.Region, error)
+	GetVenues(ctx context.Context) ([]db.GetVenuesRow, error)
 }
 
 type activityService struct {
@@ -26,8 +28,8 @@ var validationRules = validator.ValidationRules{
 	"title":      "required|min:2|max:300",
 	"start_date": "required|date",
 	"end_date":   "required|date|after:start_date",
-	"venue":      "max:100",
-	"host":       "max:100",
+	"venue_id":   "required|numeric",
+	"host_id":    "required|numeric",
 }
 
 func NewActivityService(database *db.Database) ActivityService {
@@ -46,8 +48,8 @@ func (s *activityService) CreateActivity(ctx context.Context, params db.CreateAc
 		Title:     params.Title,
 		StartDate: params.StartDate,
 		EndDate:   params.EndDate,
-		Venue:     params.Venue,
-		Host:      params.Host,
+		VenueID:   params.VenueID,
+		HostID:    params.HostID,
 		Metadata:  params.Metadata,
 	}
 
@@ -61,7 +63,7 @@ func (s *activityService) CreateActivity(ctx context.Context, params db.CreateAc
 }
 
 // FindActiveActivity implements ActivityService.
-func (s *activityService) FindActiveActivity(ctx context.Context, id int32) (*db.ActiveActivity, error) {
+func (s *activityService) FindActiveActivity(ctx context.Context, id int64) (*db.ActiveActivity, error) {
 	activity, err := s.queries.FindActivity(ctx, id)
 
 	if err != nil {
@@ -72,7 +74,7 @@ func (s *activityService) FindActiveActivity(ctx context.Context, id int32) (*db
 }
 
 // ListActivities implements ActivityService.
-func (s *activityService) ListActivities(ctx context.Context) ([]db.ActiveActivity, error) {
+func (s *activityService) ListActivities(ctx context.Context) ([]db.ListActivitiesRow, error) {
 	activities, err := s.queries.ListActivities(ctx)
 
 	if err != nil {
@@ -94,7 +96,7 @@ func (s *activityService) UpdateActivity(ctx context.Context, params db.UpdateAc
 }
 
 // DeleteActivity implements ActivityService.
-func (s *activityService) DeleteActivity(ctx context.Context, id int32) error {
+func (s *activityService) DeleteActivity(ctx context.Context, id int64) error {
 
 	_, err := s.queries.FindActivity(ctx, id)
 
@@ -103,4 +105,14 @@ func (s *activityService) DeleteActivity(ctx context.Context, id int32) error {
 	}
 
 	return s.queries.DeleteActivity(ctx, id)
+}
+
+// GetRegions implements ActivityService.
+func (s *activityService) GetRegions(ctx context.Context) ([]db.Region, error) {
+	return s.queries.GetRegions(ctx)
+}
+
+// GetVenues implements ActivityService.
+func (s *activityService) GetVenues(ctx context.Context) ([]db.GetVenuesRow, error) {
+	return s.queries.GetVenues(ctx)
 }

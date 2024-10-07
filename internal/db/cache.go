@@ -63,7 +63,7 @@ func (c *Cache) GetActivityByID(ctx context.Context, id int64) (ActiveActivity, 
 	expiration := 10 * time.Minute
 
 	return cacheFetch(ctx, c.redisClient, cacheKey, expiration, func() (ActiveActivity, error) {
-		return c.dbQueries.FindActivity(ctx, int32(id))
+		return c.dbQueries.FindActivity(ctx, id)
 	})
 }
 

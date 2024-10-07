@@ -12,7 +12,8 @@ import (
 )
 
 type Data struct {
-	Activities []db.ActiveActivity
+	Activities []db.ListActivitiesRow
+	Regions    []db.Region
 }
 
 type ActivityHandler struct {
@@ -28,7 +29,7 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 	activities, err := h.activityService.ListActivities(r.Context())
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "list activities", err)
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "list activities", err)
 		return
 	}
 
@@ -46,7 +47,7 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 			err := ui.RenderJson(w, r, http.StatusOK, data)
 
 			if err != nil {
-				myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+				myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render json", err)
 				return
 			}
 
@@ -55,7 +56,7 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 			err := ui.RenderTemplate(w, "activities/index.html", data)
 
 			if err != nil {
-				myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+				myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
 				return
 			}
 
@@ -70,7 +71,20 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 }
 
 func (h *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
-	err := ui.RenderTemplate(w, "activities/create.html", nil)
+	venues, err := h.activityService.GetVenues(r.Context())
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get regions", err)
+		return
+	}
+
+	data := struct {
+		Venues []db.GetVenuesRow
+	}{
+		Venues: venues,
+	}
+
+	err = ui.RenderTemplate(w, "activities/create.html", data)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
@@ -78,14 +92,14 @@ func (h *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-func (h *ActivityHandler) ParseId(idStr string) (int32, error) {
-	id, err := strconv.ParseInt(idStr, 10, 32)
+func (h *ActivityHandler) ParseId(idStr string) (int64, error) {
+	id, err := strconv.ParseInt(idStr, 10, 64)
 
 	if err != nil {
 		return 0, err
 	}
 
-	return int32(id), nil
+	return id, nil
 }
 
 func (h *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
@@ -150,7 +164,22 @@ func (h *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ui.RenderTemplate(w, "activities/edit.html", activity)
+	regions, err := h.activityService.GetRegions(r.Context())
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get regions", err)
+		return
+	}
+
+	data := struct {
+		Activity db.ActiveActivity
+		Regions  []db.Region
+	}{
+		Activity: *activity,
+		Regions:  regions,
+	}
+
+	err = ui.RenderTemplate(w, "activities/edit.html", data)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)

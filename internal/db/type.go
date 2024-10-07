@@ -1,9 +1,11 @@
 package db
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -82,4 +84,30 @@ func NewDate(t time.Time) Date {
 // NullDate returns a Date instance with a NULL value.
 func NullDate() Date {
 	return Date{Valid: false}
+}
+
+func Int64ToString(n int64) string {
+	return strconv.FormatInt(n, 10) // Convert the Int64 field to a string
+}
+
+func NullInt64ToString(ni sql.NullInt64) string {
+	if ni.Valid {
+		return strconv.FormatInt(ni.Int64, 10) // Convert the Int64 field to a string
+	}
+	return "" // Return an empty string if the value is null
+}
+
+// Function to get the value of sql.NullInt64
+func GetNullInt64Value(ni sql.NullInt64) (int64, error) {
+	if ni.Valid {
+		return ni.Int64, nil
+	}
+	return 0, fmt.Errorf("value is null")
+}
+
+func NewSqlNullInt64(n int64) sql.NullInt64 {
+	return sql.NullInt64{
+		Int64: n,
+		Valid: true,
+	}
 }
