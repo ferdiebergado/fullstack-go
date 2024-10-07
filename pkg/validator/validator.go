@@ -44,9 +44,16 @@ func Validate[T any](params T, validationRules ValidationRules) []myhttp.Validat
 
 outerLoop:
 	for field, rules := range validationRules {
+		log.Print("field, rules: ", field, rules)
 		for _, rule := range strings.Split(rules, "|") {
 			fieldValue, _ := GetValueByJSONTagName(params, field)
-			log.Println("field, rules, value:", field, rules, fieldValue)
+
+			log.Println("value:", fieldValue)
+
+			if fieldValue == nil && rule == "required" {
+				validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "This field is required."})
+				continue outerLoop
+			}
 
 			// Split rule and possible parameters (like "min:3" -> rule = "min", param = "3")
 			parts := strings.Split(rule, ":")
@@ -59,30 +66,32 @@ outerLoop:
 
 			strValue := GetStringValue(fieldValue)
 
+			log.Printf("field: %s, value: %s\n", field, strValue)
+
 			switch rule {
 			case "required":
 				if strings.TrimSpace(strValue) == "" {
-					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("%s is required", str.SnakeToTitle(field))})
+					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "This field is required."})
 					continue outerLoop
 				}
 			case "alphanumeric":
 				re := regexp.MustCompile("^[a-zA-Z0-9 ]*$")
 
 				if !re.MatchString(fmt.Sprint(strValue)) {
-					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("%s must be alphanumeric", field)})
+					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "Must be alphanumeric."})
 				}
 			case "min":
 				if param != "" {
 					minLen, err := strconv.Atoi(param)
 					if err == nil && len(strValue) < minLen {
-						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("must be at least %d characters long", minLen)})
+						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("Must be at least %d characters long.", minLen)})
 					}
 				}
 			case "max":
 				if param != "" {
 					maxLen, err := strconv.Atoi(param)
 					if err == nil && len(strValue) > maxLen {
-						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("must be no more than %d characters long", maxLen)})
+						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("Must be no more than %d characters long.", maxLen)})
 					}
 				}
 			case "email":
@@ -90,11 +99,11 @@ outerLoop:
 				emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 				matched := emailRegex.MatchString(strValue)
 				if !matched {
-					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "must be a valid email address"})
+					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "Must be a valid email address."})
 				}
 			case "numeric":
 				if _, err := strconv.Atoi(strValue); err != nil {
-					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "must be a valid number"})
+					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "Must be a valid number."})
 				}
 			case "min_num":
 				if param != "" {
@@ -102,7 +111,7 @@ outerLoop:
 					if err == nil {
 						numVal, convErr := strconv.Atoi(strValue)
 						if convErr == nil && numVal < minVal {
-							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("must be greater than or equal to %d", minVal)})
+							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("Must be greater than or equal to %d.", minVal)})
 						}
 					}
 				}
@@ -112,7 +121,7 @@ outerLoop:
 					if err == nil {
 						numVal, convErr := strconv.Atoi(strValue)
 						if convErr == nil && numVal > maxVal {
-							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("must be less than or equal to %d", maxVal)})
+							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("Must be less than or equal to %d.", maxVal)})
 						}
 					}
 				}
@@ -120,14 +129,14 @@ outerLoop:
 				if param != "" {
 					matched, _ := regexp.MatchString(param, strValue)
 					if !matched {
-						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "invalid format"})
+						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "Invalid format"})
 					}
 				}
 			case "date":
 				_, err := time.Parse(time.DateOnly, strValue)
 
 				if err != nil {
-					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "invalid date"})
+					validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "Invalid date"})
 				}
 			case "after":
 				if param != "" {
@@ -138,24 +147,24 @@ outerLoop:
 					// Parse the current date and the other date
 					currentDate, err := time.Parse(time.DateOnly, strValue) // Assuming it's a string
 					if err != nil {
-						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "invalid date format"})
+						validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "Invalid date format"})
 					}
 
 					if otherStrValue != "" {
 						otherDate, err := time.Parse(time.DateOnly, otherStrValue) // Assuming it's a string
 						if err != nil {
-							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "invalid date format"})
+							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: "Invalid date format"})
 						}
 
 						// Validate if the current date is on or after the other date
 						if !currentDate.Equal(otherDate) && !currentDate.After(otherDate) {
-							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("%s must be on or after %s", str.SnakeToTitle(field), str.SnakeToTitle(param))})
+							validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("Must be on or after %s", str.SnakeToTitle(param))})
 						}
 					}
 				}
 			default:
 				// TODO: Handle other validation rules if needed
-				validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("invalid rule: %s", ruleName)})
+				validationErrors = append(validationErrors, myhttp.ValidationError{Field: field, Error: fmt.Sprintf("Invalid rule: %s", ruleName)})
 			}
 		}
 	}
@@ -165,6 +174,10 @@ outerLoop:
 
 func GetStringValue(val any) string {
 	var strValue string
+
+	if val == nil {
+		return ""
+	}
 
 	switch v := val.(type) {
 	case db.Date:
@@ -181,6 +194,14 @@ func GetStringValue(val any) string {
 		} else {
 			strValue = ""
 		}
+	case int16:
+		strValue = strconv.FormatInt(int64(val.(int16)), 10)
+	case int32:
+		strValue = strconv.FormatInt(int64(val.(int32)), 10)
+	case int64:
+		strValue = strconv.FormatInt(val.(int64), 10)
+	default:
+		strValue = val.(string)
 	}
 
 	return strValue
