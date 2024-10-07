@@ -1,52 +1,107 @@
-{{ block "title" .}}PTMS - New Activity{{ end }}
-
-{{ block "header" .}}New Activity{{ end }}
-
-{{ block "scripts" . }}
+{{ block "title" .}}PTMS - New Activity{{ end }} {{ block "header"
+.}}Activities{{ end }} {{ block "scripts" . }}
 <script src="/assets/js/form.js" defer></script>
-{{ end }}
-
-{{ block "content" .}}
-
-<!-- Form -->
-<form action="/api/activities" method="post">
-
-  <div class="w3-container w3-margin">
-    <label for="title">Title</label>
-    <textarea name="title" id="title" rows="5" class="w3-input w3-border" minlength="2" maxlength="300" required autofocus></textarea>
-    <span class="w3-small w3-text-red"></span>
+{{ end }} {{ block "content" .}}
+<div class="card">
+  <div class="card-header">
+    <h3>New Activity</h3>
   </div>
+  <div class="card-body">
+    <!-- Form -->
+    <form action="/api/activities" method="post">
+      <div class="form__group">
+        <label for="title">Title <small>(Required)</small></label>
+        <textarea
+          name="title"
+          id="title"
+          rows="4"
+          class="form__textarea"
+          minlength="2"
+          maxlength="300"
+          placeholder="Title of the activity"
+          required
+          autofocus
+        ></textarea>
+        <small class="form__error"></small>
+      </div>
 
-  <div class="w3-row w3-container">
-    <div class="w3-half w3-container">
-      <label for="start_date">Start Date</label>
-      <input type="date" name="start_date" id="start_date" class="w3-input w3-border" required>
-      <span class="w3-small w3-text-red"></span>
+      <div class="flex">
+        <div class="form__group">
+          <label for="start_date">Start Date <small>(Required)</small></label>
+          <input
+            type="date"
+            name="start_date"
+            id="start_date"
+            class="form__input"
+            required
+          />
+          <small class="form__error"></small>
+        </div>
+        <div class="form__group">
+          <label for="end_date">End Date <small>(Required)</small></label>
+          <input
+            type="date"
+            name="end_date"
+            id="end_date"
+            class="form__input"
+            required
+          />
+          <small class="form__error"></small>
+        </div>
+      </div>
+
+      <div class="form__group">
+        <label for="venue"
+          >Venue (Name of Venue, City/Province) <small>(Required)</small></label
+        >
+        <select name="venue_id" id="venue_id" class="form__select" required>
+          <option disabled selected>Select a venue...</option>
+          {{ if .Venues }} {{ range .Venues }}
+          <option value="{{ .ID }}">{{.Name}}</option>
+          {{ end }} {{ end }}
+        </select>
+
+        <button
+          onclick="document.getElementById('create-venue-modal').style.display='block';return false;"
+        >
+          Add Venue...
+        </button>
+
+        <small class="form__error"></small>
+      </div>
+
+      <div class="form__group">
+        <label for="host_id">Host <small>(Required)</small></label>
+        <input
+          type="number"
+          name="host_id"
+          id="host_id"
+          class="form__input"
+          min="1"
+          max="5"
+          placeholder="Host of the activity"
+        />
+        <small class="form__error"></small>
+      </div>
+
+      <div class="form__group">
+        <button class="btn btn--primary" type="submit">Submit</button>
+      </div>
+
+      <a href="/activities">Back</a>
+    </form>
+  </div>
+</div>
+
+<div id="create-venue-modal" class="modal" style="display: none">
+  <div class="modal__content">
+    <div class="modal__header">Add Venue</div>
+    <div class="modal__body">Modal body text.</div>
+    <div class="modal__footer">
+      <button class="btn btn--primary">OK</button>
+      <button class="btn btn--secondary">Cancel</button>
     </div>
-    <div class="w3-half w3-container">
-      <label for="end_date">End Date</label>
-      <input type="date" name="end_date" id="end_date" class="w3-input w3-border" required>
-      <span class="w3-small w3-text-red"></span>
-    </div>
   </div>
-
-  <div class="w3-container w3-margin">
-    <label for="venue">Venue</label>
-    <input type="text" name="venue" id="venue" class="w3-input w3-border" max="100">
-    <span class="w3-small w3-text-red"></span>
-  </div>
-
-  <div class="w3-container w3-margin">
-    <label for="host">Host </label>
-    <input type="text" name="host" id="host" class="w3-input w3-border" max="100">
-    <span class="w3-small w3-text-red"></span>
-  </div>
-
-  <div class="w3-container w3-margin w3-center">
-    <button class="w3-button w3-block w3-blue w3-padding-large" type="submit">Submit</button>
-    <a class="w3-container" href="/activities">Back</a>
-  </div>
-
-</form>
+</div>
 
 {{ end }}

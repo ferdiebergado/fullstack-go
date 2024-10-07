@@ -1,42 +1,45 @@
-{{ block "title" .}}PTMS - Activities{{ end }}
-{{ block "header" .}}Activities{{ end }}
-{{ block "content" .}}
+{{ block "title" .}}PTMS - Activities{{ end }} {{ block "header" .}}Activities{{
+end }} {{ block "content" .}}
 
-<div class="w3-container">
-  <a class="w3-button w3-green w3-right" href="/activities/create">+ Create Activity...</a>
-</div>
-<div class="w3-responsive w3-margin">
-  <table class="w3-table w3-bordered">
-    <thead>
-      <tr class="w3-black">
-        <th>Title</th>
-        <th>Start Date</th>
-        <th>End Date</th>
-        <th>Venue</th>
-        <th>Host</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{ if .Activities }}
-      {{ range .Activities }}
-      <tr>
-        <td>{{ .Title }}</td>
-        <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
-        <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
-        <td>{{ .Venue }}</td>
-        <td>{{ .Host }}</td>
-        <td><a class="w3-button w3-small w3-indigo" href="/activities/{{ .ID }}">View</a> <a
-            class="w3-button w3-small w3-deep-orange" href="/activities/{{ .ID }}/edit">Edit</a></td>
-      </tr>
-      {{ end }}
-      {{ else }}
-      <tr>
-        <td colspan="2">No data.</td>
-      </tr>
-      {{ end }}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="card-body">
+    <a class="btn btn--primary mb-2" href="/activities/create"
+      >+ Create Activity...</a
+    >
 
+    <table class="table mt-1">
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Start Date</th>
+          <th scope="col">End Date</th>
+          <th scope="col">Venue</th>
+          <th scope="col">Host</th>
+          <th scope="col">Region</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ if .Activities }} {{ range .Activities }}
+        <tr>
+          <td>{{ .Title }}</td>
+          <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
+          <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
+          <td>{{ .Venue }}</td>
+          <td>{{ .HostID }}</td>
+          <td>{{ .Region }}</td>
+          <td>
+            <a href="/activities/{{ .ID }}">View</a>
+            <a href="/activities/{{ .ID }}/edit">Edit</a>
+          </td>
+        </tr>
+        {{ end }} {{ else }}
+        <tr>
+          <td colspan="7">No data.</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
 </div>
 {{ end }}

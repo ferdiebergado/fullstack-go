@@ -1,59 +1,113 @@
-{{ block "title" .}}PTMS - Edit Activity{{ end }}
-
-{{ block "header" .}}Edit Activity{{ end }}
-
-{{ block "scripts" . }}
+{{ block "title" .}}PTMS - Edit Activity{{ end }} {{ block "header" .}}Edit
+Activity{{ end }} {{ block "scripts" . }}
 <script src="/assets/js/form.js" defer></script>
-{{ end }}
+{{ end }} {{ block "content" .}}
 
-{{ block "content" .}}
+<div class="card">
+  <div class="card-header"></div>
+  <div class="card-body">
+    <form action="/api/activities/{{ .Activity.ID }}" method="post">
+      <input type="hidden" name="_method" value="PUT" />
 
-<form action="/api/activities/{{ .ID }}" method="post">
+      <div class="form__group">
+        <p>ID: {{ .Activity.ID }}</p>
+      </div>
 
-  <input type="hidden" name="_method" value="PUT">
+      <div class="form__group">
+        <label for="title">Title</label>
+        <textarea
+          type="text"
+          name="title"
+          id="title"
+          class="form__textarea"
+          rows="4"
+          required
+          autofocus
+        >
+{{ .Activity.Title }}</textarea
+        >
+        <small class="form__error"></small>
+      </div>
 
-  <div class="w3-container w3-margin">
-    <p>ID: {{ .ID }}</p>
+      <div class="flex">
+        <div class="form__group">
+          <label for="start_date">Start Date</label>
+          <input type="date" name="start_date" id="start_date" value="{{
+          .Activity.StartDate.Time.Format "2006-01-02" }}" class="form__input"
+          required>
+          <small class="form__error"></small>
+        </div>
+        <div class="form__group">
+          <label for="end_date">End Date</label>
+          <input type="date" name="end_date" id="end_date" value="{{
+          .Activity.EndDate.Time.Format "2006-01-02" }}" class="form__input"
+          required>
+          <small class="form__error"></small>
+        </div>
+      </div>
+
+      <div class="form__group">
+        <label for="venue"
+          >Venue (Name of Hotel, City/Province) <small>(Required)</small></label
+        >
+        <input
+          type="text"
+          name="venue"
+          id="venue"
+          class="form__input"
+          max="100"
+          placeholder="Venue of the activity"
+          value="{{ .Activity.Venue }}"
+        />
+        <small class="form__error"></small>
+      </div>
+
+      <div class="flex">
+        <div class="form__group">
+          <label for="region_id">Region <small>(Required)</small></label>
+          {{ $region_id := .Activity.RegionID }}
+          <select name="region_id" id="region_id" class="form__select" required>
+            <option disabled selected>Select a region...</option>
+            {{ if .Regions }} {{ range .Regions }}
+            <option
+              value="{{ .RegionID }}"
+              {{
+              if
+              eq
+              $region_id
+              .RegionID
+              }}selected{{end}}
+            >
+              {{.Name}}
+            </option>
+            {{ end }} {{ end }}
+          </select>
+
+          <small class="form__error"></small>
+        </div>
+      </div>
+
+      <div class="form__group">
+        <label for="host_id">Host <small>(Required)</small></label>
+        <input
+          type="number"
+          name="host_id"
+          id="host_id"
+          class="form__input"
+          min="1"
+          max="5"
+          placeholder="Host of the activity"
+          value="{{ .Activity.HostID }}"
+        />
+        <small class="form__error"></small>
+      </div>
+
+      <div class="form__group">
+        <button class="btn btn--primary" type="submit">Submit</button>
+      </div>
+
+      <a href="/activities">Back</a>
+    </form>
   </div>
-
-  <div class="w3-container w3-margin">
-    <label for="title">Title</label>
-    <textarea type="text" name="title" id="title" class="w3-input w3-border" rows="5" required
-      autofocus>{{ .Title }}</textarea>
-      <span class="w3-small w3-text-red"></span>
-  </div>
-
-  <div class="w3-row w3-container">
-    <div class="w3-half w3-container">
-      <label for="start_date">Start Date</label>
-      <input type="date" name="start_date" id="start_date" value="{{ .StartDate.Time.Format "2006-01-02" }}"
-        class="w3-input w3-border" required>
-        <span class="w3-small w3-text-red"></span>
-    </div>
-    <div class="w3-half w3-container">
-      <label for="end_date">End Date</label>
-      <input type="date" name="end_date" id="end_date" value="{{ .EndDate.Time.Format "2006-01-02" }}"
-        class="w3-input w3-border" required>
-        <span class="w3-small w3-text-red"></span>
-    </div>
-  </div>
-
-  <div class="w3-container w3-margin">
-    <label for="venue">Venue</label>
-    <input type="text" name="venue" id="venue" value="{{ .Venue }}" class="w3-input w3-border">
-    <span class="w3-small w3-text-red"></span>
-  </div>
-
-  <div class="w3-container w3-margin">
-    <label for="host">Host</label>
-    <input type="text" name="host" id="host" value="{{ .Host }}" class="w3-input w3-border">
-    <span class="w3-small w3-text-red"></span>
-  </div>
-
-  <div class="w3-container w3-margin w3-center">
-    <button class="w3-button w3-block w3-blue w3-padding-large" type="submit">Submit</button>
-    <a class="w3-container" href="/activities">Back</a>
-  </div>
-</form>
-
+</div>
 {{ end }}

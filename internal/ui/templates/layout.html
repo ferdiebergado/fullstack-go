@@ -1,56 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{{ block "title" . }}PTMS{{ end }}</title>
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    {{ block "styles" . }}{{ end }} {{ block "scripts" . }}{{ end }}
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light dark">
-  <title>{{ block "title" . }}PTMS{{ end }}</title>
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <!-- <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> -->
-  {{ block "styles" . }}{{ end }}
-  {{ block "scripts" . }}{{ end }}
-</head>
-
-<body>
-  <main>
-
-    <!-- Navigation Bar -->
-    <div class="w3-container w3-bar w3-border w3-blue-gray">
-      <a href="/" class="w3-bar-item w3-button w3-padding-24">PTMS</a>
-      <a href="/personnel" class="w3-bar-item w3-button w3-padding-24 w3-right">Personnel</a>
-      <a href="/activities" class="w3-bar-item w3-button w3-padding-24 w3-right">Activities</a>
-      <a href="/travels" class="w3-bar-item w3-button w3-padding-24 w3-right">Travels</a>
-    </div>
-
-    <!-- Page Header -->
-    <section class="w3-container w3-section">
-      <div class="w3-container">
-        <header class="w3-container"></header>
-        <h2>{{ block "header" . }}{{ end }}</h2>
-        </header>
-      </div>
-    </section>
-
-    <!-- Page Content -->
-    <section class="w3-container w3-section">
-      <div class="w3-card-4 w3-margin w3-padding-24">
-        <div class="w3-container">
-
-          <!-- Notification -->
-          <div id="notification" class="w3-panel w3-display-container w3-margin" style="display: none;">
-            <span onclick="this.parentElement.style.display='none'"
-              class="w3-button w3-large w3-display-topright">&times;</span>
-            <h3 id="notification-header"></h3>
-            <p id="notification-message"></p>
+  <body>
+    <div class="container">
+      <!-- Navigation Bar -->
+      <header>
+        <nav class="navbar">
+          <div class="navbar__brand">
+            <a href="/">PTMS</a>
           </div>
+          <ul class="navbar__links">
+            <li class="navbar__link">
+              <a href="/personnel">Personnel</a>
+            </li>
+            <li class="navbar__link">
+              <a href="/activities">Activities</a>
+            </li>
+            <li class="navbar__link">
+              <a href="/travels">Travels</a>
+            </li>
+          </ul>
+        </nav>
+      </header>
 
-          {{ block "content" . }}{{ end }}
-        </div>
-      </div>
-    </section>
+      <main>
+        <!-- Page Header -->
+        <header>
+          <h2>{{ block "header" . }}{{ end }}</h2>
+        </header>
 
-  </main>
-</body>
+        <!-- Notification -->
+        <section>
+          <div id="notification" class="alert" style="display: none">
+            <span
+              onclick="this.parentElement.style.display='none'"
+              class="alert__icon"
+              >&times;</span
+            >
+            <h3 id="notification-header"></h3>
+            <p class="alert__message" id="notification-message"></p>
+          </div>
+        </section>
 
+        <!-- Page Content -->
+        <section>{{ block "content" . }}{{ end }}</section>
+      </main>
+    </div>
+  </body>
 </html>
