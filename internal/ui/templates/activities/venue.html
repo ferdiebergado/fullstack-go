@@ -1,0 +1,33 @@
+{{ define "venue-modal" }} {{ template "modal" . }} {{ block
+"modal-id"}}create-venue-modal{{end}} {{ block "modal-header"}}Create
+Venue{{end}} {{ block "modal-body" }}
+<form id="create-venue-form" action="/api/venues" method="post">
+  <div class="form__group">
+    <label for="name">Name</label>
+    <input
+      type="text"
+      name="name"
+      id="name"
+      class="form__input"
+      required
+      autofocus
+    />
+    <small class="form__error"></small>
+  </div>
+
+  <div class="form__group">
+    <label for="division_id">City/Province</label>
+    <select name="division_id" id="division_id" class="form__select" required>
+      <option value="" selected>Select a city/province...</option>
+      {{ if .Divisions }} {{ range .Divisions }}
+      <option value="{{ .ID }}">{{.Name}}</option>
+      {{ end }} {{ end }}
+    </select>
+    <span class="form__error"></span>
+  </div>
+
+  <div class="form__group">
+    <button class="btn btn--primary" type="submit">Submit</button>
+  </div>
+</form>
+{{ end }} {{ end }}

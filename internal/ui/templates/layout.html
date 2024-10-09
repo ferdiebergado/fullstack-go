@@ -12,7 +12,7 @@
   <body>
     <div class="container">
       <!-- Navigation Bar -->
-      <header>
+      <header class="mb-2">
         <nav class="navbar">
           <div class="navbar__brand">
             <a href="/">PTMS</a>
@@ -32,23 +32,13 @@
       </header>
 
       <main>
+        <!-- Notification -->
+        {{ template "notification" . }}
+
         <!-- Page Header -->
         <header>
           <h2>{{ block "header" . }}{{ end }}</h2>
         </header>
-
-        <!-- Notification -->
-        <section>
-          <div id="notification" class="alert" style="display: none">
-            <span
-              onclick="this.parentElement.style.display='none'"
-              class="alert__icon"
-              >&times;</span
-            >
-            <h3 id="notification-header"></h3>
-            <p class="alert__message" id="notification-message"></p>
-          </div>
-        </section>
 
         <!-- Page Content -->
         <section>{{ block "content" . }}{{ end }}</section>

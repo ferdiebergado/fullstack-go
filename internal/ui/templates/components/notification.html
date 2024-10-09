@@ -1,0 +1,16 @@
+{{ define "notification" }}
+
+<div
+  id="notification"
+  class="alert"
+  style="display: none"
+  onmouseout="this.style.display='none'"
+>
+  <span onclick="this.parentElement.style.display='none'" class="alert__icon"
+    >&times;</span
+  >
+  <h3 id="notification-header"></h3>
+  <p class="alert__message" id="notification-message"></p>
+</div>
+
+{{ end }}

@@ -2,13 +2,16 @@
 .}}Activities{{ end }} {{ block "scripts" . }}
 <script src="/assets/js/form.js" defer></script>
 {{ end }} {{ block "content" .}}
+
 <div class="card">
   <div class="card-header">
     <h3>New Activity</h3>
   </div>
+
   <div class="card-body">
     <!-- Form -->
     <form action="/api/activities" method="post">
+      {{ template "notification" . }}
       <div class="form__group">
         <label for="title">Title <small>(Required)</small></label>
         <textarea
@@ -22,7 +25,7 @@
           required
           autofocus
         ></textarea>
-        <small class="form__error"></small>
+        <span class="form__error"></span>
       </div>
 
       <div class="flex">
@@ -35,8 +38,9 @@
             class="form__input"
             required
           />
-          <small class="form__error"></small>
+          <span class="form__error"></span>
         </div>
+
         <div class="form__group">
           <label for="end_date">End Date <small>(Required)</small></label>
           <input
@@ -46,29 +50,32 @@
             class="form__input"
             required
           />
-          <small class="form__error"></small>
+          <span class="form__error"></span>
         </div>
       </div>
 
       <div class="form__group">
-        <label for="venue"
-          >Venue (Name of Venue, City/Province) <small>(Required)</small></label
-        >
-        <select name="venue_id" id="venue_id" class="form__select" required>
-          <option disabled selected>Select a venue...</option>
-          {{ if .Venues }} {{ range .Venues }}
-          <option value="{{ .ID }}">{{.Name}}</option>
-          {{ end }} {{ end }}
-        </select>
+        <div class="flex">
+          <label for="venue_id"
+            >Venue (Name of Venue, City/Province)
+            <small>(Required)</small></label
+          >
+          <select name="venue_id" id="venue_id" class="form__select">
+            <option value="" selected>Select a venue...</option>
+            {{ if .Venues }} {{ range .Venues }}
+            <option value="{{ .ID }}">{{.Name}}</option>
+            {{ end }} {{ end }}
+          </select>
 
-        <button
-          onclick="document.getElementById('create-venue-modal').style.display='block'"
-          type="button"
-        >
-          Add Venue...
-        </button>
+          <button
+            onclick="document.getElementById('create-venue-modal').style.display='block'"
+            type="button"
+          >
+            Add Venue...
+          </button>
+        </div>
 
-        <small class="form__error"></small>
+        <span class="form__error"></span>
       </div>
 
       <div class="form__group">
@@ -82,7 +89,7 @@
           max="5"
           placeholder="Host of the activity"
         />
-        <small class="form__error"></small>
+        <span class="form__error"></span>
       </div>
 
       <div class="form__group">
@@ -95,13 +102,48 @@
 </div>
 
 <div id="create-venue-modal" class="modal" style="display: none">
+  <span onclick="this.parentElement.style.display='none'" class="alert__icon"
+    >&times;</span
+  >
   <div class="modal__content">
-    <div class="modal__header">Add Venue</div>
-    <div class="modal__body">Modal body text.</div>
-    <div class="modal__footer">
-      <button class="btn btn--primary">OK</button>
-      <button class="btn btn--secondary">Cancel</button>
+    <div class="modal__header"><h3>Add Venue</h3></div>
+    <div class="modal__body">
+      <form id="create-venue-form" action="/api/venues" method="post">
+        <div class="form__group">
+          <label for="name">Name</label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            class="form__input"
+            required
+            autofocus
+          />
+          <small class="form__error"></small>
+        </div>
+
+        <div class="form__group">
+          <label for="division_id">City/Province</label>
+          <select
+            name="division_id"
+            id="division_id"
+            class="form__select"
+            required
+          >
+            <option value="" selected>Select a city/province...</option>
+            {{ if .Divisions }} {{ range .Divisions }}
+            <option value="{{ .ID }}">{{.Name}}</option>
+            {{ end }} {{ end }}
+          </select>
+          <span class="form__error"></span>
+        </div>
+
+        <div class="form__group">
+          <button class="btn btn--primary" type="submit">Submit</button>
+        </div>
+      </form>
     </div>
+    <div class="modal__footer"></div>
   </div>
 </div>
 

@@ -1,0 +1,14 @@
+{{ define "modal" }}
+
+<div id="{{block "modal-id" . }}{{end}}" class="modal" style="display: none">
+  <span onclick="this.parentElement.style.display='none'" class="alert__icon"
+    >&times;</span
+  >
+  <div class="modal__content">
+    <div class="modal__header"><h3>{{ block "modal-header" . }}{{ end }}</h3></div>
+    <div class="modal__body">{{ block "modal-body" . }}{{ end }}</div>
+    <div class="modal__footer"></div>
+  </div>
+</div>
+
+{{ end }}
