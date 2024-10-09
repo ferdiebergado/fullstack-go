@@ -12,18 +12,19 @@ import (
 
 func NewApp(database *db.Database) *myhttp.Router {
 
+	// Create the Activity Handler.
 	activityService := activity.NewActivityService(database)
 	activityHandler := activity.NewActivityHandler(activityService)
 
 	// Create the router.
 	router := myhttp.NewRouter()
 
-	// Use logging and error handling middleware.
+	// Register global middlewares.
 	router.Use(myhttp.LoggingMiddleware)
 	router.Use(myhttp.StripTrailingSlash)
 	router.Use(myhttp.ErrorRecoveryMiddleware)
 
-	// Serve static files
+	// Serve static files.
 	router.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 
 	// Register activities routes.
@@ -35,6 +36,9 @@ func NewApp(database *db.Database) *myhttp.Router {
 	router.Handle("POST /api/activities", http.HandlerFunc(activityHandler.SaveActivity))
 	router.Handle("PUT /api/activities/{id}", http.HandlerFunc(activityHandler.UpdateActivity))
 	router.Handle("DELETE /api/activities/{id}", http.HandlerFunc(activityHandler.DeleteActivity))
+
+	// Register venues routes.
+	router.Handle("POST /api/venues", http.HandlerFunc(activityHandler.SaveVenue))
 
 	// Home page
 	router.Handle("GET /{$}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
