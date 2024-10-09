@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
-	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 	"github.com/ferdiebergado/fullstack-go/pkg/validator"
 )
 
@@ -17,6 +16,8 @@ type ActivityService interface {
 	DeleteActivity(ctx context.Context, id int64) error
 	GetRegions(ctx context.Context) ([]db.Region, error)
 	GetVenues(ctx context.Context) ([]db.GetVenuesRow, error)
+	GetDivisions(ctx context.Context) ([]db.GetDivisionWithRegionRow, error)
+	CreateVenue(ctx context.Context, params db.CreateVenueParams) (*db.Venue, error)
 }
 
 type activityService struct {
@@ -24,13 +25,20 @@ type activityService struct {
 	queries *db.Queries
 }
 
-var validationRules = validator.ValidationRules{
-	"title":      "required|min:2|max:300",
-	"start_date": "required|date",
-	"end_date":   "required|date|after:start_date",
-	"venue_id":   "required|numeric",
-	"host_id":    "required|numeric",
-}
+var (
+	activityRules = validator.ValidationRules{
+		"title":      "required|min:2|max:300",
+		"start_date": "required|date",
+		"end_date":   "required|date|after:start_date",
+		"venue_id":   "required|numeric",
+		"host_id":    "required|numeric",
+	}
+
+	venueRules = validator.ValidationRules{
+		"name":        "required",
+		"division_id": "required|numeric|min_num:1|max_num:227",
+	}
+)
 
 func NewActivityService(database *db.Database) ActivityService {
 	return &activityService{db: database.Db, queries: database.Query}
@@ -38,10 +46,11 @@ func NewActivityService(database *db.Database) ActivityService {
 
 func (s *activityService) CreateActivity(ctx context.Context, params db.CreateActivityParams) (*db.Activity, error) {
 
-	validationErrors := validator.Validate(params, validationRules)
+	v := validator.New(params, activityRules)
+	validationErrors := v.Validate()
 
-	if len(validationErrors) > 0 {
-		return nil, &myhttp.ValidationErrorBag{Message: "Invalid activity", ValidationErrors: validationErrors}
+	if !v.Valid() {
+		return nil, &validator.ValidationErrorBag{Message: "Invalid activity", ValidationErrors: validationErrors}
 	}
 
 	activityParams := db.CreateActivityParams{
@@ -86,10 +95,11 @@ func (s *activityService) ListActivities(ctx context.Context) ([]db.ListActiviti
 
 // UpdateActivity implements ActivityService.
 func (s *activityService) UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error {
-	validationErrors := validator.Validate(params, validationRules)
+	v := validator.New(params, activityRules)
+	validationErrors := v.Validate()
 
-	if len(validationErrors) > 0 {
-		return &myhttp.ValidationErrorBag{Message: "Invalid activity", ValidationErrors: validationErrors}
+	if !v.Valid() {
+		return &validator.ValidationErrorBag{Message: "Invalid activity", ValidationErrors: validationErrors}
 	}
 
 	return s.queries.UpdateActivity(ctx, params)
@@ -115,4 +125,27 @@ func (s *activityService) GetRegions(ctx context.Context) ([]db.Region, error) {
 // GetVenues implements ActivityService.
 func (s *activityService) GetVenues(ctx context.Context) ([]db.GetVenuesRow, error) {
 	return s.queries.GetVenues(ctx)
+}
+
+// GetDivisions implements ActivityService.
+func (s *activityService) GetDivisions(ctx context.Context) ([]db.GetDivisionWithRegionRow, error) {
+	return s.queries.GetDivisionWithRegion(ctx)
+}
+
+// CreateVenue implements ActivityService.
+func (s *activityService) CreateVenue(ctx context.Context, params db.CreateVenueParams) (*db.Venue, error) {
+	v := validator.New(params, venueRules)
+	validationErrors := v.Validate()
+
+	if !v.Valid() {
+		return nil, &validator.ValidationErrorBag{Message: "Invalid venue", ValidationErrors: validationErrors}
+	}
+
+	venue, err := s.queries.CreateVenue(ctx, params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &venue, nil
 }

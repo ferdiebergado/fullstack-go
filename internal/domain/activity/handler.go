@@ -9,6 +9,7 @@ import (
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/validator"
 )
 
 type Data struct {
@@ -74,14 +75,23 @@ func (h *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request)
 	venues, err := h.activityService.GetVenues(r.Context())
 
 	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get venues", err)
+		return
+	}
+
+	divisions, err := h.activityService.GetDivisions(r.Context())
+
+	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get regions", err)
 		return
 	}
 
 	data := struct {
-		Venues []db.GetVenuesRow
+		Venues    []db.GetVenuesRow
+		Divisions []db.GetDivisionWithRegionRow
 	}{
-		Venues: venues,
+		Venues:    venues,
+		Divisions: divisions,
 	}
 
 	err = ui.RenderTemplate(w, "activities/create.html", data)
@@ -197,9 +207,8 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 
 	defer r.Body.Close()
 
-	var data db.UpdateActivityParams
+	data, err := ui.DecodeJson[db.UpdateActivityParams](r)
 
-	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json body", err)
 		return
@@ -214,7 +223,7 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 	err = h.activityService.UpdateActivity(r.Context(), data)
 
 	if err != nil {
-		errorBag, ok := err.(*myhttp.ValidationErrorBag)
+		errorBag, ok := err.(*validator.ValidationErrorBag)
 
 		if !ok {
 			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "update activity", err)
@@ -223,6 +232,7 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 
 		response := &myhttp.ApiResponse{
 			Success: false,
+			Message: errorBag.Message,
 			Errors:  errorBag.ValidationErrors,
 		}
 
@@ -250,9 +260,8 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 
 func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	var data db.CreateActivityParams
 
-	err := json.NewDecoder(r.Body).Decode(&data)
+	data, err := ui.DecodeJson[db.CreateActivityParams](r)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
@@ -266,7 +275,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	activity, err := h.activityService.CreateActivity(r.Context(), data)
 
 	if err != nil {
-		errorBag, ok := err.(*myhttp.ValidationErrorBag)
+		errorBag, ok := err.(*validator.ValidationErrorBag)
 
 		if !ok {
 			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
@@ -275,6 +284,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 
 		response := &myhttp.ApiResponse{
 			Success: false,
+			Message: errorBag.Message,
 			Errors:  errorBag.ValidationErrors,
 		}
 
@@ -313,4 +323,48 @@ func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *ActivityHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	data, err := ui.DecodeJson[db.CreateVenueParams](r)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
+		return
+	}
+
+	venue, err := h.activityService.CreateVenue(r.Context(), data)
+
+	if err != nil {
+		errorBag, ok := err.(*validator.ValidationErrorBag)
+
+		if !ok {
+			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save venue", err)
+			return
+		}
+
+		response := &myhttp.ApiResponse{
+			Success: false,
+			Message: errorBag.Message,
+			Errors:  errorBag.ValidationErrors,
+		}
+
+		err = ui.RenderJson(w, r, http.StatusBadRequest, response)
+
+		if err != nil {
+			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+			return
+		}
+
+		return
+	}
+
+	err = ui.RenderJson(w, r, http.StatusCreated, venue)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+		return
+	}
 }
