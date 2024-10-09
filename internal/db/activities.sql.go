@@ -195,7 +195,8 @@ SELECT a.id, a.title, a.start_date, a.end_date, a.venue_id, a.host_id, a.metadat
 FROM
     active_activities a
     JOIN venues v ON v.id = a.venue_id
-    JOIN regions r ON r.region_id = v.region_id
+    JOIN divisions d ON d.id = v.division_id
+    JOIN regions r ON r.region_id = d.region_id
 ORDER BY start_date DESC
 `
 

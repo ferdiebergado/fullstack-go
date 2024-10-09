@@ -12,10 +12,36 @@ import (
 	"time"
 )
 
+const createVenue = `-- name: CreateVenue :one
+INSERT INTO venues (name, division_id) VALUES ($1, $2) RETURNING id, name, division_id, metadata, created_at, updated_at, deleted_at
+`
+
+type CreateVenueParams struct {
+	Name       string `json:"name"`
+	DivisionID int32  `json:"division_id"`
+}
+
+func (q *Queries) CreateVenue(ctx context.Context, arg CreateVenueParams) (Venue, error) {
+	row := q.db.QueryRowContext(ctx, createVenue, arg.Name, arg.DivisionID)
+	var i Venue
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.DivisionID,
+		&i.Metadata,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getVenues = `-- name: GetVenues :many
-SELECT v.id, v.name, v.division_id, v.region_id, v.metadata, v.created_at, v.updated_at, v.deleted_at, r.name as region
-FROM venues v
-    JOIN regions r ON v.region_id = r.region_id
+SELECT v.id, v.name, v.division_id, v.metadata, v.created_at, v.updated_at, v.deleted_at, d.name as division, r.name as region
+FROM
+    venues v
+    JOIN divisions d ON d.id = v.division_id
+    JOIN regions r ON d.region_id = r.region_id
 ORDER BY v.name
 `
 
@@ -23,11 +49,11 @@ type GetVenuesRow struct {
 	ID         int32           `json:"id"`
 	Name       string          `json:"name"`
 	DivisionID int32           `json:"division_id"`
-	RegionID   int16           `json:"region_id"`
 	Metadata   json.RawMessage `json:"metadata"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
 	DeletedAt  sql.NullTime    `json:"deleted_at"`
+	Division   string          `json:"division"`
 	Region     string          `json:"region"`
 }
 
@@ -44,11 +70,11 @@ func (q *Queries) GetVenues(ctx context.Context) ([]GetVenuesRow, error) {
 			&i.ID,
 			&i.Name,
 			&i.DivisionID,
-			&i.RegionID,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Division,
 			&i.Region,
 		); err != nil {
 			return nil, err

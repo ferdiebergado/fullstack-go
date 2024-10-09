@@ -17,7 +17,8 @@ SELECT a.*, v.name as venue, r.name as region
 FROM
     active_activities a
     JOIN venues v ON v.id = a.venue_id
-    JOIN regions r ON r.region_id = v.region_id
+    JOIN divisions d ON d.id = v.division_id
+    JOIN regions r ON r.region_id = d.region_id
 ORDER BY start_date DESC;
 
 -- name: FindActivity :one

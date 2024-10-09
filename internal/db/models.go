@@ -36,6 +36,12 @@ type Activity struct {
 	DeletedAt sql.NullTime    `json:"deleted_at"`
 }
 
+type Division struct {
+	ID       int32  `json:"id"`
+	Name     string `json:"name"`
+	RegionID int16  `json:"region_id"`
+}
+
 type Host struct {
 	ID        int64           `json:"id"`
 	Name      string          `json:"name"`
@@ -100,7 +106,6 @@ type Venue struct {
 	ID         int32           `json:"id"`
 	Name       string          `json:"name"`
 	DivisionID int32           `json:"division_id"`
-	RegionID   int16           `json:"region_id"`
 	Metadata   json.RawMessage `json:"metadata"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
