@@ -183,14 +183,17 @@ label {
 	background-color: var(--primary-color);
 	color: #fff;
 }
+
 .alert--success {
 	background-color: var(--success-color);
 	color: #fff;
 }
+
 .alert--warning {
 	background-color: var(--warning-color);
 	color: var(--text-color);
 }
+
 .alert--danger {
 	background-color: var(--error-color);
 	color: #fff;
@@ -198,7 +201,9 @@ label {
 
 .alert__icon {
 	margin-right: var(--spacing-xs);
+	cursor: pointer;
 }
+
 .alert__message {
 	flex: 1;
 }
@@ -305,6 +310,7 @@ label {
 .text-center {
 	text-align: center;
 }
+
 .text-right {
 	text-align: right;
 }
@@ -331,4 +337,6 @@ label {
 	background-color: white;
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 	padding: var(--spacing-lg);
+	width: 50%;
+	max-width: 350px;
 }
