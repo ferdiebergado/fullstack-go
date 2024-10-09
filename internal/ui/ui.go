@@ -21,8 +21,9 @@ var templatesFS embed.FS
 func RenderTemplate(w http.ResponseWriter, templateFile string, data interface{}) error {
 	layoutPath := filepath.Join(templateDir, layoutFile)
 	templatePath := filepath.Join(templateDir, templateFile)
+	components := filepath.Join(templateDir, "components/*.html")
 
-	t, err := template.ParseFS(templatesFS, layoutPath, templatePath)
+	templates, err := template.ParseFS(templatesFS, layoutPath, components, templatePath)
 
 	if err != nil {
 		return fmt.Errorf("parse html files: %w", err)
@@ -30,7 +31,7 @@ func RenderTemplate(w http.ResponseWriter, templateFile string, data interface{}
 
 	var buf bytes.Buffer
 
-	if err := t.ExecuteTemplate(&buf, layoutFile, data); err != nil {
+	if err := templates.ExecuteTemplate(&buf, layoutFile, data); err != nil {
 		return fmt.Errorf("execute template: %w", err)
 	}
 
@@ -61,8 +62,12 @@ func EncodeJson[T any](w http.ResponseWriter, v T) error {
 func DecodeJson[T any](r *http.Request) (T, error) {
 	var v T
 
-	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
-		return v, fmt.Errorf("decode json: %w", err)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&v)
+
+	if err != nil {
+		return v, err
 	}
 
 	return v, nil
