@@ -11,7 +11,7 @@
   <div class="card-body">
     <!-- Form -->
     <form action="/api/activities" method="post">
-      {{ template "notification" . }}
+      <!-- TITLE -->
       <div class="form__group">
         <label for="title">Title <small>(Required)</small></label>
         <textarea
@@ -27,8 +27,10 @@
         ></textarea>
         <span class="form__error"></span>
       </div>
+      <!-- END TITLE -->
 
       <div class="flex">
+        <!-- START DATE -->
         <div class="form__group">
           <label for="start_date">Start Date <small>(Required)</small></label>
           <input
@@ -40,7 +42,9 @@
           />
           <span class="form__error"></span>
         </div>
+        <!-- END START DATE -->
 
+        <!-- END DATE -->
         <div class="form__group">
           <label for="end_date">End Date <small>(Required)</small></label>
           <input
@@ -52,8 +56,10 @@
           />
           <span class="form__error"></span>
         </div>
+        <!-- END END DATE -->
       </div>
 
+      <!-- VENUE -->
       <div class="form__group">
         <div class="flex">
           <label for="venue_id"
@@ -68,7 +74,7 @@
           </select>
 
           <button
-            onclick="document.getElementById('create-venue-modal').style.display='block'"
+            onclick="document.getElementById('create-venue-modal').style.display='block';"
             type="button"
           >
             Add Venue...
@@ -77,20 +83,29 @@
 
         <span class="form__error"></span>
       </div>
+      <!-- END VENUE -->
 
+      <!-- HOST -->
       <div class="form__group">
-        <label for="host_id">Host <small>(Required)</small></label>
-        <input
-          type="number"
-          name="host_id"
-          id="host_id"
-          class="form__input"
-          min="1"
-          max="5"
-          placeholder="Host of the activity"
-        />
+        <div class="flex">
+          <label for="host_id">Host <small>(Required)</small></label>
+          <select name="host_id" id="host_id" class="form__select">
+            <option value="" selected>Select a host...</option>
+            {{ if .Hosts }} {{ range .Hosts }}
+            <option value="{{ .ID }}">{{.Name}}</option>
+            {{ end }} {{ end }}
+          </select>
+
+          <button
+            onclick="document.getElementById('create-host-modal').style.display='block';"
+            type="button"
+          >
+            Add Host...
+          </button>
+        </div>
         <span class="form__error"></span>
       </div>
+      <!-- END HOST -->
 
       <div class="form__group">
         <button class="btn btn--primary" type="submit">Submit</button>

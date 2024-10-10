@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
+	"github.com/ferdiebergado/fullstack-go/internal/domain/host"
+	"github.com/ferdiebergado/fullstack-go/internal/domain/venue"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 	"github.com/ferdiebergado/fullstack-go/pkg/validator"
@@ -19,10 +21,12 @@ type Data struct {
 
 type ActivityHandler struct {
 	activityService ActivityService
+	venueService    venue.VenueService
+	hostService     host.HostService
 }
 
-func NewActivityHandler(s ActivityService) *ActivityHandler {
-	return &ActivityHandler{activityService: s}
+func NewActivityHandler(activityService ActivityService, venueService venue.VenueService, hostService host.HostService) *ActivityHandler {
+	return &ActivityHandler{activityService: activityService, venueService: venueService, hostService: hostService}
 }
 
 func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +76,7 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 }
 
 func (h *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
-	venues, err := h.activityService.GetVenues(r.Context())
+	venues, err := h.venueService.GetVenues(r.Context())
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get venues", err)
@@ -86,12 +90,21 @@ func (h *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	hosts, err := h.activityService.GetHosts(r.Context())
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get hosts", err)
+		return
+	}
+
 	data := struct {
 		Venues    []db.GetVenuesRow
 		Divisions []db.GetDivisionWithRegionRow
+		Hosts     []db.Host
 	}{
 		Venues:    venues,
 		Divisions: divisions,
+		Hosts:     hosts,
 	}
 
 	err = ui.RenderTemplate(w, "activities/create.html", data)
@@ -323,48 +336,4 @@ func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-}
-
-func (h *ActivityHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	data, err := ui.DecodeJson[db.CreateVenueParams](r)
-
-	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
-		return
-	}
-
-	venue, err := h.activityService.CreateVenue(r.Context(), data)
-
-	if err != nil {
-		errorBag, ok := err.(*validator.ValidationErrorBag)
-
-		if !ok {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save venue", err)
-			return
-		}
-
-		response := &myhttp.ApiResponse{
-			Success: false,
-			Message: errorBag.Message,
-			Errors:  errorBag.ValidationErrors,
-		}
-
-		err = ui.RenderJson(w, r, http.StatusBadRequest, response)
-
-		if err != nil {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
-			return
-		}
-
-		return
-	}
-
-	err = ui.RenderJson(w, r, http.StatusCreated, venue)
-
-	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
-		return
-	}
 }

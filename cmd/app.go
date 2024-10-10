@@ -6,15 +6,25 @@ import (
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/activity"
+	"github.com/ferdiebergado/fullstack-go/internal/domain/host"
+	"github.com/ferdiebergado/fullstack-go/internal/domain/venue"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 )
 
 func NewApp(database *db.Database) *myhttp.Router {
 
+	// Host Handler
+	hostService := host.NewHostService(database)
+	hostHandler := host.NewHostHandler(hostService)
+
+	// Create the Venue Handler.
+	venueService := venue.NewVenueService(database)
+	venueHandler := venue.NewVenueHandler(venueService)
+
 	// Create the Activity Handler.
 	activityService := activity.NewActivityService(database)
-	activityHandler := activity.NewActivityHandler(activityService)
+	activityHandler := activity.NewActivityHandler(activityService, venueService, hostService)
 
 	// Create the router.
 	router := myhttp.NewRouter()
@@ -27,18 +37,14 @@ func NewApp(database *db.Database) *myhttp.Router {
 	// Serve static files.
 	router.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 
-	// Register activities routes.
-	router.Handle("GET /activities", http.HandlerFunc(activityHandler.ListActiveActivities))
-	router.Handle("GET /activities/create", http.HandlerFunc(activityHandler.CreateActivity))
-	router.Handle("GET /activities/{id}", http.HandlerFunc(activityHandler.ViewActivity))
-	router.Handle("GET /activities/{id}/edit", http.HandlerFunc(activityHandler.EditActivity))
-	router.Handle("GET /api/activities/{id}", http.HandlerFunc(activityHandler.GetActivity))
-	router.Handle("POST /api/activities", http.HandlerFunc(activityHandler.SaveActivity))
-	router.Handle("PUT /api/activities/{id}", http.HandlerFunc(activityHandler.UpdateActivity))
-	router.Handle("DELETE /api/activities/{id}", http.HandlerFunc(activityHandler.DeleteActivity))
+	// Activities routes.
+	activity.AddRoutes(router, *activityHandler)
 
-	// Register venues routes.
-	router.Handle("POST /api/venues", http.HandlerFunc(activityHandler.SaveVenue))
+	// Venues routes.
+	router.Handle("POST /api/venues", http.HandlerFunc(venueHandler.SaveVenue))
+
+	// Hosts routes.
+	router.Handle("POST /api/hosts", http.HandlerFunc(hostHandler.SaveHost))
 
 	// Home page
 	router.Handle("GET /{$}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
