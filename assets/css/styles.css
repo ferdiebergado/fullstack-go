@@ -236,7 +236,7 @@ label {
 
 /* Navbar */
 .navbar {
-	background-color: var(--primary-color);
+	background-color: var(--secondary-color);
 	padding: 1rem;
 	display: flex;
 	justify-content: space-between;
@@ -339,4 +339,9 @@ label {
 	padding: var(--spacing-lg);
 	width: 50%;
 	max-width: 350px;
+}
+
+.bnt--success {
+	background-color: var(--success-color);
+	color: white;
 }
