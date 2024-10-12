@@ -4,7 +4,6 @@
 	--tertiary-color: silver;
 	--success-color: limegreen;
 	--danger-color: crimson;
-	--border-radius: 6px;
 }
 
 /* Resets */
@@ -109,9 +108,6 @@ th {
 	background-color: white;
 	margin: 1.5em 0;
 	padding: 2rem;
-	/* box-shadow: 0 0 4px rgba(200, 200, 200, 0.25); */
-	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-	border-radius: var(--border-radius);
 }
 
 .card-header span {
@@ -147,7 +143,6 @@ textarea {
 	width: 100%; /* Full width */
 	padding: 12px; /* Some padding */
 	border: 1px solid #ccc; /* Gray border */
-	border-radius: var(--border-radius); /* Rounded borders */
 	margin-top: 6px; /* Add a top margin */
 	margin-bottom: 6px; /* Bottom margin */
 	outline: 0 !important;
@@ -172,7 +167,6 @@ textarea:focus {
 	text-decoration: none;
 	margin: 12px 6px;
 	cursor: pointer;
-	border-radius: var(--border-radius);
 	display: inline-block; /* Add this */
 	border: 0 !important;
 	outline: 0 !important;
@@ -220,7 +214,6 @@ ul.topnav li a:hover:not(.active) {
 
 ul.topnav li a.active {
 	background-color: var(--secondary-color);
-	border-radius: var(--border-radius);
 }
 
 ul.topnav li.right {
@@ -297,19 +290,19 @@ header h2 {
 	margin: 1em 1em;
 }
 
-.error {
-	background-color: var(--danger-color);
-	color: white;
-}
-
-.success {
-	background-color: var(--success-color);
-	color: white;
-}
-
+/* Alert */
 .alert {
 	padding: 1em 1em;
 	margin: 1em 1em;
 	display: none;
-	border-radius: var(--border-radius);
 }
+.alert-error {
+	background-color: var(--danger-color);
+	color: white;
+}
+
+.alert-success {
+	background-color: var(--success-color);
+	color: white;
+}
+/* End Alert */

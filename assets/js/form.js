@@ -27,8 +27,8 @@
  */
 
 const inputErrorClass = 'has-error';
-const successBgClass = 'success';
-const errorBgClass = 'error';
+const successBgClass = 'alert-success';
+const errorBgClass = 'alert-error';
 const errorTextClass = 'form-error';
 
 /**
