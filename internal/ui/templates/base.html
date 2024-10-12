@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ block "title" . }}PTMS{{ end }}</title>
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <script src="/assets/js/app.js" defer></script>
+    {{ block "styles" . }}{{ end }} {{ block "scripts" . }}{{ end }}
+  </head>
+
+  <body>
+    <!-- Navigation Bar -->
+    <header>{{ template "topnav" . }}</header>
+
+    <main>
+      <!-- Notification -->
+      {{ template "notification" . }}
+
+      <!-- Page Header -->
+      <header>
+        <h2>{{ block "header" . }}{{ end }}</h2>
+      </header>
+
+      <!-- Page Content -->
+      <section>{{ block "content" . }}{{ end }}</section>
+    </main>
+  </body>
+</html>
