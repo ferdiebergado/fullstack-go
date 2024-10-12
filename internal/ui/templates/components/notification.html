@@ -1,16 +1,11 @@
 {{ define "notification" }}
 
-<div
-  id="notification"
-  class="alert"
-  style="display: none"
-  onmouseout="this.style.display='none'"
->
-  <span onclick="this.parentElement.style.display='none'" class="alert__icon"
+<div id="notification" class="alert">
+  <span class="right" onclick="this.parentElement.style.display='none'"
     >&times;</span
   >
   <h3 id="notification-header"></h3>
-  <p class="alert__message" id="notification-message"></p>
+  <p id="notification-message"></p>
 </div>
 
 {{ end }}
