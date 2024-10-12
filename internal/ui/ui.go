@@ -12,7 +12,7 @@ import (
 
 const (
 	templateDir = "templates"
-	layoutFile  = "layout.html"
+	layoutFile  = "base.html"
 )
 
 //go:embed templates/*
@@ -63,7 +63,6 @@ func DecodeJson[T any](r *http.Request) (T, error) {
 	var v T
 
 	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
 	err := decoder.Decode(&v)
 
 	if err != nil {
