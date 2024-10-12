@@ -11,7 +11,7 @@ import (
 type ActivityService interface {
 	CreateActivity(ctx context.Context, req db.CreateActivityParams) (*db.Activity, error)
 	ListActivities(ctx context.Context) ([]db.ListActivitiesRow, error)
-	FindActiveActivity(ctx context.Context, id int64) (*db.ActiveActivity, error)
+	FindActiveActivity(ctx context.Context, id int64) (*db.FindActivityRow, error)
 	UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error
 	DeleteActivity(ctx context.Context, id int64) error
 	GetRegions(ctx context.Context) ([]db.Region, error)
@@ -66,7 +66,7 @@ func (s *activityService) CreateActivity(ctx context.Context, params db.CreateAc
 }
 
 // FindActiveActivity implements ActivityService.
-func (s *activityService) FindActiveActivity(ctx context.Context, id int64) (*db.ActiveActivity, error) {
+func (s *activityService) FindActiveActivity(ctx context.Context, id int64) (*db.FindActivityRow, error) {
 	activity, err := s.queries.FindActivity(ctx, id)
 
 	if err != nil {
