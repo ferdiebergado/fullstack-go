@@ -20,7 +20,7 @@ const hostSelect = document.getElementById('host_id');
 const hostDialog = mountDialogForSelect('create-host-dialog', hostSelect);
 
 hostSelect?.addEventListener(
-  'Created',
+  'HostCreated',
 
   /** @param {MyCustomEventInit} event */
   function (event) {
@@ -31,7 +31,7 @@ hostSelect?.addEventListener(
 const venueDialog = mountDialogForSelect('create-venue-dialog', venueSelect);
 
 venueSelect?.addEventListener(
-  'Created',
+  'VenueCreated',
 
   /** @param {MyCustomEventInit} event */
   function (event) {
@@ -55,8 +55,8 @@ createVenueForm.addEventListener('submit', function (event) {
   event.preventDefault();
 
   sendRequest(createVenueForm, function (data) {
-    const Created = new CustomEvent('Created', { detail: data });
-    venueSelect?.dispatchEvent(Created);
+    const venueCreated = new CustomEvent('VenueCreated', { detail: data });
+    venueSelect?.dispatchEvent(venueCreated);
     venueDialog.close();
   });
 });
@@ -65,8 +65,8 @@ createHostForm.addEventListener('submit', function (event) {
   event.preventDefault();
 
   sendRequest(createHostForm, function (data) {
-    const Created = new CustomEvent('Created', { detail: data });
-    hostSelect?.dispatchEvent(Created);
+    const hostCreated = new CustomEvent('HostCreated', { detail: data });
+    hostSelect?.dispatchEvent(hostCreated);
     hostDialog.close();
   });
 });
