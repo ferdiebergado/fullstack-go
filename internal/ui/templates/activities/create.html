@@ -1,6 +1,9 @@
 {{ block "title" .}}PTMS - New Activity{{ end }} {{ block "header"
 .}}Activities{{ end }} {{ block "scripts" . }}
 <script src="/assets/js/form.js" defer></script>
+<script src="/assets/js/dialog.js" defer></script>
+<script src="/assets/js/select.js" defer></script>
+<script src="/assets//js/activity.js" defer></script>
 {{ end }} {{ block "content" .}}
 
 <div class="card">
@@ -8,157 +11,90 @@
     <h3>New Activity</h3>
   </div>
 
-  <div class="card-body">
-    <!-- Form -->
-    <form class="form" action="/api/activities" method="post">
-      <!-- TITLE -->
-      <div class="form__group">
-        <label for="title">Title <small>(Required)</small></label>
-        <textarea
-          name="title"
-          id="title"
-          rows="4"
-          class="form__textarea"
-          minlength="2"
-          maxlength="300"
-          placeholder="Title of the activity"
-          required
-          autofocus
-        ></textarea>
-        <span class="form__error"></span>
-      </div>
-      <!-- END TITLE -->
+  <!-- Form -->
+  <form id="create-activity-form" action="/api/activities" method="post">
+    <!-- TITLE -->
+    <div class="form-group">
+      <label for="title">Title <small>(Required)</small></label>
+      <textarea
+        name="title"
+        id="title"
+        rows="4"
+        minlength="2"
+        maxlength="300"
+        placeholder="Title of the activity"
+        required
+        autofocus
+      ></textarea>
+      <span class="form-error"></span>
+    </div>
+    <!-- END TITLE -->
 
-        <!-- START DATE -->
-        <div class="form__group">
+    <div class="row">
+      <!-- START DATE -->
+      <div class="col">
+        <div class="form-group">
           <label for="start_date">Start Date <small>(Required)</small></label>
-          <input
-            type="date"
-            name="start_date"
-            id="start_date"
-            class="form__input"
-            required
-          />
-          <span class="form__error"></span>
+          <input type="date" name="start_date" id="start_date" required />
+          <span class="form-error"></span>
         </div>
-        <!-- END START DATE -->
-
-        <!-- END DATE -->
-        <div class="form__group">
-          <label for="end_date">End Date <small>(Required)</small></label>
-          <input
-            type="date"
-            name="end_date"
-            id="end_date"
-            class="form__input"
-            required
-          />
-          <span class="form__error"></span>
-        </div>
-        <!-- END END DATE -->
       </div>
+      <!-- END START DATE -->
 
+      <!-- END DATE -->
+      <div class="col">
+        <div class="form-group">
+          <label for="end_date">End Date <small>(Required)</small></label>
+          <input type="date" name="end_date" id="end_date" required />
+          <span class="form-error"></span>
+        </div>
+      </div>
+      <!-- END END DATE -->
+    </div>
+
+    <div class="row">
       <!-- VENUE -->
-      <div class="form__group">
-        <div class="flex">
+      <div class="col">
+        <div class="form-group">
           <label for="venue_id"
             >Venue (Name of Venue, City/Province)
             <small>(Required)</small></label
           >
-          <select name="venue_id" id="venue_id" class="form__select">
+          <select name="venue_id" id="venue_id">
             <option value="" selected>Select a venue...</option>
+            <option value="add">Add a new venue...</option>
             {{ if .Venues }} {{ range .Venues }}
             <option value="{{ .ID }}">{{.Name}}</option>
             {{ end }} {{ end }}
           </select>
 
-          <button
-            onclick="document.getElementById('create-venue-modal').style.display='block';"
-            type="button"
-          >
-            Add Venue...
-          </button>
+          <span class="form-error"></span>
         </div>
-
-        <span class="form__error"></span>
       </div>
       <!-- END VENUE -->
 
       <!-- HOST -->
-      <div class="form__group">
-        <div class="flex">
+      <div class="col">
+        <div class="form-group">
           <label for="host_id">Host <small>(Required)</small></label>
-          <select name="host_id" id="host_id" class="form__select">
+          <select name="host_id" id="host_id">
             <option value="" selected>Select a host...</option>
+            <option value="add">Add a new host...</option>
             {{ if .Hosts }} {{ range .Hosts }}
             <option value="{{ .ID }}">{{.Name}}</option>
             {{ end }} {{ end }}
           </select>
 
-          <button
-            onclick="document.getElementById('create-host-modal').style.display='block';"
-            type="button"
-          >
-            Add Host...
-          </button>
+          <span class="form-error"></span>
         </div>
-        <span class="form__error"></span>
       </div>
       <!-- END HOST -->
-
-      <div class="form__group">
-        <button class="btn btn--primary" type="submit">Submit</button>
-      </div>
-
-      <a href="/activities">Back</a>
-    </form>
-  </div>
-</div>
-
-<div id="create-venue-modal" class="modal" style="display: none">
-  <span onclick="this.parentElement.style.display='none'" class="alert__icon"
-    >&times;</span
-  >
-  <div class="modal__content">
-    <div class="modal__header"><h3>Add Venue</h3></div>
-    <div class="modal__body">
-      <form id="create-venue-form" action="/api/venues" method="post">
-        <div class="form__group">
-          <label for="name">Name</label>
-          <input
-            type="text"
-            name="name"
-            id="name"
-            class="form__input"
-            required
-            autofocus
-          />
-          <small class="form__error"></small>
-        </div>
-
-        <div class="form__group">
-          <label for="division_id">City/Province</label>
-          <select
-            name="division_id"
-            id="division_id"
-            class="form__select"
-            required
-          >
-            <option value="" selected>Select a city/province...</option>
-            {{ if .Divisions }} {{ range .Divisions }}
-            <option value="{{ .ID }}">{{.Name}}</option>
-            {{ end }} {{ end }}
-          </select>
-          <span class="form__error"></span>
-        </div>
-
-        <div class="form__group">
-          <button class="btn btn--primary" type="submit">Submit</button>
-        </div>
-      </form>
     </div>
-    <div class="modal__footer"></div>
-  </div>
+
+    <button class="btn btn-primary" type="submit">Submit</button>
+
+    <a class="btn btn-secondary" href="/activities"> Back </a>
+  </form>
 </div>
 
-{{ end }}
+{{ template "venue_dialog" . }} {{ template "host_dialog" . }} {{ end }}

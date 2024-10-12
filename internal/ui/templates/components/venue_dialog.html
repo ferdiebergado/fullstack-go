@@ -1,0 +1,31 @@
+{{ define "venue_dialog" }}
+
+<dialog id="create-venue-dialog">
+  <span id="dialog-close" class="close">&times;</span>
+
+  <h3>Add Venue</h3>
+  <form id="create-venue-form" action="/api/venues" method="post">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" required autofocus />
+      <small class="form-error"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="division_id">City/Province</label>
+      <select name="division_id" id="division_id" required>
+        <option value="" selected>Select a city/province...</option>
+        {{ if .Divisions }} {{ range .Divisions }}
+        <option value="{{ .ID }}">{{.Name}}</option>
+        {{ end }} {{ end }}
+      </select>
+      <span class="form-error"></span>
+    </div>
+
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+  </form>
+</dialog>
+
+{{ end }}

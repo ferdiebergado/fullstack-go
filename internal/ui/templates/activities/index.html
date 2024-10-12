@@ -2,44 +2,46 @@
 end }} {{ block "content" .}}
 
 <div class="card">
-  <div class="card-body">
-    <a class="btn bnt--success mb-2" href="/activities/create"
-      >+ Create Activity...</a
-    >
-
-    <table class="table mt-1">
-      <thead>
-        <tr>
-          <th scope="col">Title</th>
-          <th scope="col">Start Date</th>
-          <th scope="col">End Date</th>
-          <th scope="col">Venue</th>
-          <th scope="col">Host</th>
-          <th scope="col">Region</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{ if .Activities }} {{ range .Activities }}
-        <tr>
-          <td>{{ .Title }}</td>
-          <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
-          <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
-          <td>{{ .Venue }}</td>
-          <td>{{ .HostID }}</td>
-          <td>{{ .Region }}</td>
-          <td>
-            <a href="/activities/{{ .ID }}">View</a>
-            <a href="/activities/{{ .ID }}/edit">Edit</a>
-          </td>
-        </tr>
-        {{ end }} {{ else }}
-        <tr>
-          <td colspan="7">No data.</td>
-        </tr>
-        {{ end }}
-      </tbody>
-    </table>
+  <div class="card-header clearfix">
+    <span>List of Activities</span>
+    <div class="right">
+      <a class="btn btn-success" href="/activities/create">
+        + Create Activity...
+      </a>
+    </div>
   </div>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Start Date</th>
+        <th scope="col">End Date</th>
+        <th scope="col">Venue</th>
+        <th scope="col">Host</th>
+        <th scope="col">Region</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ if .Activities }} {{ range .Activities }}
+      <tr>
+        <td>{{ .Title }}</td>
+        <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
+        <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
+        <td>{{ .Venue }}</td>
+        <td>{{ .Host }}</td>
+        <td>{{ .Region }}</td>
+        <td>
+          <a href="/activities/{{ .ID }}">View</a>
+          <a href="/activities/{{ .ID }}/edit">Edit</a>
+        </td>
+      </tr>
+      {{ end }} {{ else }}
+      <tr>
+        <td colspan="7">No data.</td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
 </div>
 {{ end }}

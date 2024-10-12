@@ -1,113 +1,101 @@
-{{ block "title" .}}PTMS - Edit Activity{{ end }} {{ block "header" .}}Edit
-Activity{{ end }} {{ block "scripts" . }}
+{{ block "title" .}}PTMS - Edit Activity{{ end }} {{ block "header"
+.}}Activities{{ end }} {{ block "scripts" . }}
 <script src="/assets/js/form.js" defer></script>
+<script src="/assets/js/dialog.js" defer></script>
+<script src="/assets/js/select.js" defer></script>
+<script src="/assets//js/activity.js" defer></script>
 {{ end }} {{ block "content" .}}
 
 <div class="card">
-  <div class="card-header"></div>
-  <div class="card-body">
-    <form action="/api/activities/{{ .Activity.ID }}" method="post">
-      <input type="hidden" name="_method" value="PUT" />
+  <div class="card-header"><span>Edit Activity</span></div>
+  <form
+    id="edit-activity-form"
+    action="/api/activities/{{ .Activity.ID }}"
+    method="post"
+  >
+    <input type="hidden" name="_method" value="PUT" />
 
-      <div class="form__group">
-        <p>ID: {{ .Activity.ID }}</p>
-      </div>
+    <div class="form-group">
+      <p>ID: {{ .Activity.ID }}</p>
+    </div>
 
-      <div class="form__group">
-        <label for="title">Title</label>
-        <textarea
-          type="text"
-          name="title"
-          id="title"
-          class="form__textarea"
-          rows="4"
-          required
-          autofocus
-        >
+    <div class="form-group">
+      <label for="title">Title</label>
+      <textarea type="text" name="title" id="title" rows="4" required autofocus>
 {{ .Activity.Title }}</textarea
-        >
-        <small class="form__error"></small>
-      </div>
+      >
+      <span class="form-error"></span>
+    </div>
 
-      <div class="flex">
-        <div class="form__group">
+    <div class="row">
+      <!-- START DATE -->
+      <div class="col">
+        <div class="form-group">
           <label for="start_date">Start Date</label>
           <input type="date" name="start_date" id="start_date" value="{{
-          .Activity.StartDate.Time.Format "2006-01-02" }}" class="form__input"
-          required>
-          <small class="form__error"></small>
+          .Activity.StartDate.Time.Format "2006-01-02" }}" required>
+          <span class="form-error"></span>
         </div>
-        <div class="form__group">
+      </div>
+      <!-- END START DATE -->
+
+      <!-- END DATE -->
+      <div class="col">
+        <div class="form-group">
           <label for="end_date">End Date</label>
           <input type="date" name="end_date" id="end_date" value="{{
-          .Activity.EndDate.Time.Format "2006-01-02" }}" class="form__input"
-          required>
-          <small class="form__error"></small>
+          .Activity.EndDate.Time.Format "2006-01-02" }}" required>
+          <span class="form-error"></span>
         </div>
       </div>
+      <!-- END OF END DATE -->
+    </div>
 
-      <div class="form__group">
-        <label for="venue"
-          >Venue (Name of Hotel, City/Province) <small>(Required)</small></label
-        >
-        <input
-          type="text"
-          name="venue"
-          id="venue"
-          class="form__input"
-          max="100"
-          placeholder="Venue of the activity"
-          value="{{ .Activity.Venue }}"
-        />
-        <small class="form__error"></small>
-      </div>
-
-      <div class="flex">
-        <div class="form__group">
-          <label for="region_id">Region <small>(Required)</small></label>
-          {{ $region_id := .Activity.RegionID }}
-          <select name="region_id" id="region_id" class="form__select" required>
-            <option disabled selected>Select a region...</option>
-            {{ if .Regions }} {{ range .Regions }}
-            <option
-              value="{{ .RegionID }}"
-              {{
-              if
-              eq
-              $region_id
-              .RegionID
-              }}selected{{end}}
-            >
+    <div class="row">
+      <!-- VENUE -->
+      <div class="col">
+        <div class="form-group">
+          <label for="venue"
+            >Venue (Name of Hotel, City/Province) <span>(Required)</span></label
+          >
+          {{ $venue_id := .Activity.VenueID }}
+          <select name="venue_id" id="venue_id" required>
+            <option disabled selected>Select a venue...</option>
+            <option value="add">Add a new venue...</option>
+            {{ if .Venues }} {{ range .Venues }}
+            <option value="{{ .ID }}" {{ if eq $venue_id .ID }}selected{{end}}>
               {{.Name}}
             </option>
             {{ end }} {{ end }}
           </select>
-
-          <small class="form__error"></small>
+          <span class="form-error"></span>
         </div>
       </div>
+      <!-- END VENUE -->
 
-      <div class="form__group">
-        <label for="host_id">Host <small>(Required)</small></label>
-        <input
-          type="number"
-          name="host_id"
-          id="host_id"
-          class="form__input"
-          min="1"
-          max="5"
-          placeholder="Host of the activity"
-          value="{{ .Activity.HostID }}"
-        />
-        <small class="form__error"></small>
+      <!-- HOST -->
+      <div class="col">
+        <div class="form-group">
+          <label for="host_id">Host <span>(Required)</span></label>
+          {{ $host_id := .Activity.HostID }}
+          <select name="host_id" id="host_id" required>
+            <option disabled selected>Select a host...</option>
+            <option value="add">Add a new host...</option>
+            {{ if .Hosts }} {{ range .Hosts }}
+            <option value="{{ .ID }}" {{ if eq $host_id .ID }}selected{{end}}>
+              {{.Name}}
+            </option>
+            {{ end }} {{ end }}
+          </select>
+          <span class="form-error"></span>
+        </div>
       </div>
+      <!-- END HOST -->
+    </div>
 
-      <div class="form__group">
-        <button class="btn btn--primary" type="submit">Submit</button>
-      </div>
+    <button class="btn btn-primary" type="submit">Submit</button>
 
-      <a href="/activities">Back</a>
-    </form>
-  </div>
+    <a class="btn btn-secondary" href="/activities">Back</a>
+  </form>
 </div>
-{{ end }}
+{{ template "venue_dialog" . }} {{ template "host_dialog" . }} {{ end }}
