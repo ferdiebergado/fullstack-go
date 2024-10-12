@@ -30,9 +30,9 @@ func NewApp(database *db.Database) *myhttp.Router {
 	router := myhttp.NewRouter()
 
 	// Register global middlewares.
-	router.Use(myhttp.LoggingMiddleware)
-	router.Use(myhttp.StripTrailingSlash)
-	router.Use(myhttp.ErrorRecoveryMiddleware)
+	router.Use(myhttp.RequestLogger)
+	router.Use(myhttp.StripTrailingSlashes)
+	router.Use(myhttp.PanicRecovery)
 
 	// Serve static files.
 	router.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))

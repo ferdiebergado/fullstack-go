@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// LoggingMiddleware logs each request.
-func LoggingMiddleware(next http.Handler) http.Handler {
+// RequestLogger logs each request.
+func RequestLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
@@ -20,8 +20,8 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// StripTrailingSlash is a middleware that removes the trailing slash from the URL path.
-func StripTrailingSlash(next http.Handler) http.Handler {
+// StripTrailingSlashes is a middleware that removes the trailing slash from the URL path.
+func StripTrailingSlashes(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && strings.HasSuffix(r.URL.Path, "/") {
 			// Remove the trailing slash and redirect to the new URL.
@@ -33,8 +33,8 @@ func StripTrailingSlash(next http.Handler) http.Handler {
 	})
 }
 
-// ErrorRecoveryMiddleware catches and handles errors.
-func ErrorRecoveryMiddleware(next http.Handler) http.Handler {
+// PanicRecovery catches and handles errors.
+func PanicRecovery(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
