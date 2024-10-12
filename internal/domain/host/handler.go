@@ -19,14 +19,18 @@ func NewHostHandler(s HostService) *HostHandler {
 func (h *HostHandler) SaveHost(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	data, err := ui.DecodeJson[string](r)
+	type createHostParams struct {
+		Name string `json:"name"`
+	}
+
+	data, err := ui.DecodeJson[createHostParams](r)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
 		return
 	}
 
-	host, err := h.hostService.CreateHost(r.Context(), data)
+	host, err := h.hostService.CreateHost(r.Context(), data.Name)
 
 	if err != nil {
 		errorBag, ok := err.(*validator.ValidationErrorBag)
