@@ -187,19 +187,37 @@ func (h *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	regions, err := h.activityService.GetRegions(r.Context())
+	divisions, err := h.activityService.GetDivisions(r.Context())
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get regions", err)
 		return
 	}
 
+	venues, err := h.venueService.GetVenues(r.Context())
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get venues", err)
+		return
+	}
+
+	hosts, err := h.hostService.GetHosts(r.Context())
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get hosts", err)
+		return
+	}
+
 	data := struct {
-		Activity db.ActiveActivity
-		Regions  []db.Region
+		Activity  db.FindActivityRow
+		Divisions []db.GetDivisionWithRegionRow
+		Venues    []db.GetVenuesRow
+		Hosts     []db.Host
 	}{
-		Activity: *activity,
-		Regions:  regions,
+		Activity:  *activity,
+		Divisions: divisions,
+		Venues:    venues,
+		Hosts:     hosts,
 	}
 
 	err = ui.RenderTemplate(w, "activities/edit.html", data)
@@ -261,6 +279,7 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 
 	response := &myhttp.ApiResponse{
 		Success: true,
+		Message: "Activity updated.",
 	}
 
 	err = ui.RenderJson(w, r, http.StatusOK, response)
@@ -311,7 +330,13 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ui.RenderJson(w, r, http.StatusCreated, activity)
+	response := &myhttp.ApiResponse{
+		Success: true,
+		Message: "Activity created.",
+		Data:    activity,
+	}
+
+	err = ui.RenderJson(w, r, http.StatusCreated, response)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
