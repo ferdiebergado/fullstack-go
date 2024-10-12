@@ -71,12 +71,42 @@ func (q *Queries) DeleteActivity(ctx context.Context, id int64) error {
 }
 
 const findActivity = `-- name: FindActivity :one
-SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at FROM active_activities WHERE id = $1
+SELECT
+    a.id, a.title, a.start_date, a.end_date, a.venue_id, a.host_id, a.metadata, a.created_at, a.updated_at, a.deleted_at,
+    v.name as venue,
+    r.id as region_id,
+    r.name as region,
+    h.name as host
+FROM
+    active_activities a
+    JOIN venues v ON v.id = a.venue_id
+    JOIN divisions d ON d.id = v.division_id
+    JOIN regions r ON r.region_id = d.region_id
+    JOIN hosts h on h.id = a.host_id
+WHERE
+    a.id = $1
 `
 
-func (q *Queries) FindActivity(ctx context.Context, id int64) (ActiveActivity, error) {
+type FindActivityRow struct {
+	ID        int64           `json:"id"`
+	Title     string          `json:"title"`
+	StartDate Date            `json:"start_date"`
+	EndDate   Date            `json:"end_date"`
+	VenueID   int32           `json:"venue_id"`
+	HostID    int32           `json:"host_id"`
+	Metadata  json.RawMessage `json:"metadata"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	DeletedAt sql.NullTime    `json:"deleted_at"`
+	Venue     string          `json:"venue"`
+	RegionID  int16           `json:"region_id"`
+	Region    string          `json:"region"`
+	Host      string          `json:"host"`
+}
+
+func (q *Queries) FindActivity(ctx context.Context, id int64) (FindActivityRow, error) {
 	row := q.db.QueryRowContext(ctx, findActivity, id)
-	var i ActiveActivity
+	var i FindActivityRow
 	err := row.Scan(
 		&i.ID,
 		&i.Title,
@@ -88,6 +118,10 @@ func (q *Queries) FindActivity(ctx context.Context, id int64) (ActiveActivity, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Venue,
+		&i.RegionID,
+		&i.Region,
+		&i.Host,
 	)
 	return i, err
 }
@@ -191,12 +225,13 @@ func (q *Queries) FindActivityByTitle(ctx context.Context) ([]ActiveActivity, er
 }
 
 const listActivities = `-- name: ListActivities :many
-SELECT a.id, a.title, a.start_date, a.end_date, a.venue_id, a.host_id, a.metadata, a.created_at, a.updated_at, a.deleted_at, v.name as venue, r.name as region
+SELECT a.id, a.title, a.start_date, a.end_date, a.venue_id, a.host_id, a.metadata, a.created_at, a.updated_at, a.deleted_at, v.name as venue, r.name as region, h.name as host
 FROM
     active_activities a
     JOIN venues v ON v.id = a.venue_id
     JOIN divisions d ON d.id = v.division_id
     JOIN regions r ON r.region_id = d.region_id
+    JOIN hosts h on h.id = a.host_id
 ORDER BY start_date DESC
 `
 
@@ -213,6 +248,7 @@ type ListActivitiesRow struct {
 	DeletedAt sql.NullTime    `json:"deleted_at"`
 	Venue     string          `json:"venue"`
 	Region    string          `json:"region"`
+	Host      string          `json:"host"`
 }
 
 func (q *Queries) ListActivities(ctx context.Context) ([]ListActivitiesRow, error) {
@@ -237,6 +273,7 @@ func (q *Queries) ListActivities(ctx context.Context) ([]ListActivitiesRow, erro
 			&i.DeletedAt,
 			&i.Venue,
 			&i.Region,
+			&i.Host,
 		); err != nil {
 			return nil, err
 		}

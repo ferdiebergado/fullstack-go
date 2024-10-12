@@ -13,16 +13,30 @@ RETURNING
     *;
 
 -- name: ListActivities :many
-SELECT a.*, v.name as venue, r.name as region
+SELECT a.*, v.name as venue, r.name as region, h.name as host
 FROM
     active_activities a
     JOIN venues v ON v.id = a.venue_id
     JOIN divisions d ON d.id = v.division_id
     JOIN regions r ON r.region_id = d.region_id
+    JOIN hosts h on h.id = a.host_id
 ORDER BY start_date DESC;
 
 -- name: FindActivity :one
-SELECT * FROM active_activities WHERE id = $1;
+SELECT
+    a.*,
+    v.name as venue,
+    r.id as region_id,
+    r.name as region,
+    h.name as host
+FROM
+    active_activities a
+    JOIN venues v ON v.id = a.venue_id
+    JOIN divisions d ON d.id = v.division_id
+    JOIN regions r ON r.region_id = d.region_id
+    JOIN hosts h on h.id = a.host_id
+WHERE
+    a.id = $1;
 
 -- name: UpdateActivity :exec
 UPDATE activities

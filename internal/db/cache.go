@@ -58,11 +58,11 @@ func cacheFetch[T any](ctx context.Context, redisClient *redis.Client, cacheKey 
 }
 
 // GetActivityByID uses the generic cacheFetch to handle caching logic.
-func (c *Cache) GetActivityByID(ctx context.Context, id int64) (ActiveActivity, error) {
+func (c *Cache) GetActivityByID(ctx context.Context, id int64) (FindActivityRow, error) {
 	cacheKey := getActivityCacheKey(id)
 	expiration := 10 * time.Minute
 
-	return cacheFetch(ctx, c.redisClient, cacheKey, expiration, func() (ActiveActivity, error) {
+	return cacheFetch(ctx, c.redisClient, cacheKey, expiration, func() (FindActivityRow, error) {
 		return c.dbQueries.FindActivity(ctx, id)
 	})
 }
