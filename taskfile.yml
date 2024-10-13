@@ -26,7 +26,10 @@ tasks:
     requires:
       vars: [DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]
   seed:
-    cmd: $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy activities (title,start_date,end_date,venue,host) FROM '/root/activities.csv' DELIMITER ',' CSV HEADER"
+    cmds:
+      - $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy activities (title,start_date,end_date,venue_id,host_id) FROM '/root/activities.csv' DELIMITER ',' CSV HEADER"
+      - $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy venues (name,division_id) FROM '/root/venues.csv' DELIMITER ',' CSV HEADER"
+      - $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy hosts (name) FROM '/root/hosts.csv' DELIMITER ',' CSV HEADER"
   generate:
     aliases: ["gen"]
     cmd: export DSN="{{.DSN}}"; sqlc generate
