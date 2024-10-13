@@ -99,6 +99,7 @@ table {
 	width: 100%;
 	margin-top: 1.5em;
 	margin-bottom: 1.5em;
+	font-size: 0.9em;
 }
 
 th,
@@ -106,6 +107,11 @@ td {
 	padding: 10px;
 	text-align: left;
 	border-bottom: 1px solid #ccc;
+	vertical-align: top;
+}
+
+.nowrap-col {
+	width: 100px;
 }
 
 th {
@@ -186,8 +192,8 @@ textarea:focus {
 }
 
 .btn-small {
-	padding: 0.3em 1em;
-	margin: 0 0.2em;
+	padding: 0.3em 1em !important;
+	margin: 0.2em 0.3em !important;
 	font-size: small;
 }
 
@@ -207,7 +213,6 @@ dialog {
 	max-width: 350px;
 }
 
-/* The Close Button */
 .close {
 	color: #aaaaaa;
 	float: right;
@@ -245,6 +250,10 @@ dialog {
 	float: right;
 }
 
+.center {
+	text-align: center;
+}
+
 .clearfix::after {
 	content: "";
 	clear: both;
@@ -252,8 +261,3 @@ dialog {
 }
 
 /* End Utilities */
-
-/* Misc */
-header h2 {
-	margin: 1em 1em;
-}
