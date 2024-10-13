@@ -4,7 +4,10 @@
 {{ end }} {{ block "content" .}}
 
 <div class="card">
-  <div class="card-header"><span>Edit Activity</span></div>
+  <div class="card-header">
+    <h3>Edit Activity</h3>
+  </div>
+
   <form
     id="edit-activity-form"
     action="/api/activities/{{ .Activity.ID }}"
