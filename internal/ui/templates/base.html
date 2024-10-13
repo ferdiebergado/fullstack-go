@@ -6,8 +6,9 @@
     <title>{{ block "title" . }}PTMS{{ end }}</title>
     <link rel="stylesheet" href="/assets/css/reset.css" />
     <link rel="stylesheet" href="/assets/css/styles.css" />
+    {{ block "styles" . }}{{ end }}
     <script src="/assets/js/app.js" defer></script>
-    {{ block "styles" . }}{{ end }} {{ block "scripts" . }}{{ end }}
+    {{ block "scripts" . }}{{ end }}
   </head>
 
   <body>
