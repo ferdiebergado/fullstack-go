@@ -1,82 +1,97 @@
 :root {
+	--font-primary: sans-serif;
+	--text-color: #242424;
+
 	--primary-color: dodgerblue;
 	--secondary-color: lightslategray;
 	--tertiary-color: silver;
 	--success-color: limegreen;
 	--danger-color: crimson;
-}
 
-/* Resets */
-/*
-	1. Use a more-intuitive box-sizing model.
-  */
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
+	--body-background-color: #eee;
 }
-
-/*
-	2. Remove default margin
-  */
-* {
-	margin: 0;
-}
-
-/*
-	Typographic tweaks!  margin: 0;
-	padding: 0;
-	3. Add accessible line-height
-	4. Improve text rendering
-  */
-body {
-	line-height: 1.5;
-	-webkit-font-smoothing: antialiased;
-}
-
-/*
-	5. Improve media defaults
-  */
-img,
-picture,
-video,
-canvas,
-svg {
-	display: block;
-	max-width: 100%;
-}
-
-/*
-	6. Remove built-in form typography styles
-  */
-input,
-button,
-textarea,
-select {
-	font: inherit;
-}
-
-/*
-	7. Avoid text overflows
-  */
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	overflow-wrap: break-word;
-}
-/* End Resets */
 
 body {
 	width: 80%;
 	max-width: 1200px;
 	margin: 0 auto;
-	background: #eee;
-	font-family: sans-serif;
+	background: var(--body-background-color);
+	font-family: var(--font-primary);
+	color: var(--text-color);
 }
+
+/* Navbar */
+ul.topnav {
+	list-style-type: none;
+	margin: 0;
+	padding: 0.5em;
+	overflow: hidden;
+	background-color: black;
+}
+
+ul.topnav li {
+	float: left;
+}
+
+ul.topnav li a {
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 5px 24px;
+	text-decoration: none;
+}
+
+ul.topnav li a:hover:not(.active) {
+	background-color: var(--tertiary-color);
+	color: black;
+}
+
+ul.topnav li a.active {
+	background-color: var(--secondary-color);
+}
+
+ul.topnav li.right {
+	float: right;
+}
+
+@media screen and (max-width: 600px) {
+	ul.topnav li.right,
+	ul.topnav li {
+		float: none;
+	}
+}
+/* End Navbar */
+
+/* Alert */
+.alert {
+	padding: 1em 1em;
+	margin: 1em 1em;
+	display: none;
+}
+.alert-error {
+	background-color: var(--danger-color);
+	color: white;
+}
+
+.alert-success {
+	background-color: var(--success-color);
+	color: white;
+}
+/* End Alert */
+
+/* Card */
+.card {
+	background-color: white;
+	margin: 1.5em 0;
+	padding: 2rem;
+}
+
+.card-header span {
+	margin-bottom: 1em;
+	font-weight: bold;
+}
+
+/* End Card */
 
 /* Table */
 table {
@@ -102,20 +117,6 @@ th {
 	overflow-x: auto;
 }
 /* End Table */
-
-/* Card */
-.card {
-	background-color: white;
-	margin: 1.5em 0;
-	padding: 2rem;
-}
-
-.card-header span {
-	margin-bottom: 1em;
-	font-weight: bold;
-}
-
-/* End Card */
 
 /* Forms */
 
@@ -184,66 +185,13 @@ textarea:focus {
 	background-color: var(--success-color);
 }
 
+.btn-small {
+	padding: 0.3em 1em;
+	margin: 0 0.2em;
+	font-size: small;
+}
+
 /* End Button */
-
-/* Navbar */
-ul.topnav {
-	list-style-type: none;
-	margin: 0;
-	padding: 0.5em;
-	overflow: hidden;
-	background-color: black;
-}
-
-ul.topnav li {
-	float: left;
-}
-
-ul.topnav li a {
-	display: block;
-	color: white;
-	text-align: center;
-	padding: 5px 24px;
-	text-decoration: none;
-}
-
-ul.topnav li a:hover:not(.active) {
-	background-color: var(--tertiary-color);
-	color: black;
-}
-
-ul.topnav li a.active {
-	background-color: var(--secondary-color);
-}
-
-ul.topnav li.right {
-	float: right;
-}
-
-@media screen and (max-width: 600px) {
-	ul.topnav li.right,
-	ul.topnav li {
-		float: none;
-	}
-}
-/* End Navbar */
-
-/* Layout */
-.row {
-	display: flex;
-	gap: 1em;
-}
-
-.col {
-	flex: 50%;
-}
-
-@media screen and (max-width: 600px) {
-	.col {
-		width: 100%;
-	}
-}
-/* End Layout */
 
 /* Modal */
 dialog {
@@ -275,6 +223,23 @@ dialog {
 }
 /* End Modal */
 
+/* Layout */
+.row {
+	display: flex;
+	gap: 1em;
+}
+
+.col {
+	flex: 50%;
+}
+
+@media screen and (max-width: 600px) {
+	.col {
+		width: 100%;
+	}
+}
+/* End Layout */
+
 /* Utilities */
 .right {
 	float: right;
@@ -286,23 +251,9 @@ dialog {
 	display: table;
 }
 
+/* End Utilities */
+
+/* Misc */
 header h2 {
 	margin: 1em 1em;
 }
-
-/* Alert */
-.alert {
-	padding: 1em 1em;
-	margin: 1em 1em;
-	display: none;
-}
-.alert-error {
-	background-color: var(--danger-color);
-	color: white;
-}
-
-.alert-success {
-	background-color: var(--success-color);
-	color: white;
-}
-/* End Alert */
