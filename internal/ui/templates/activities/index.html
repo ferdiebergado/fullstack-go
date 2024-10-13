@@ -3,7 +3,7 @@ end }} {{ block "content" .}}
 
 <div class="card">
   <div class="card-header clearfix">
-    <span>List of Activities</span>
+    <h3>List of Activities</h3>
     <div class="right">
       <a class="btn btn-success" href="/activities/create">
         + Create Activity...
@@ -17,8 +17,8 @@ end }} {{ block "content" .}}
         <th scope="col">Start Date</th>
         <th scope="col">End Date</th>
         <th scope="col">Venue</th>
-        <th scope="col">Host</th>
         <th scope="col">Region</th>
+        <th scope="col">Host</th>
         <th scope="col">Actions</th>
       </tr>
     </thead>
@@ -29,11 +29,17 @@ end }} {{ block "content" .}}
         <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
         <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
         <td>{{ .Venue }}</td>
-        <td>{{ .Host }}</td>
         <td>{{ .Region }}</td>
+        <td>{{ .Host }}</td>
         <td>
-          <a href="/activities/{{ .ID }}">View</a>
-          <a href="/activities/{{ .ID }}/edit">Edit</a>
+          <a class="btn btn-primary btn-small" href="/activities/{{ .ID }}"
+            >View</a
+          >
+          <a
+            class="btn btn-secondary btn-small"
+            href="/activities/{{ .ID }}/edit"
+            >Edit</a
+          >
         </td>
       </tr>
       {{ end }} {{ else }}
