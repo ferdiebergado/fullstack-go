@@ -63,7 +63,7 @@ func AssertValidationError(t *testing.T, actualErrors []string, expectedErrors [
 }
 
 // AssertApiResponse asserts that an ApiResponse struct contains the expected values.
-func AssertApiResponse(t *testing.T, response myhttp.ApiResponse, expectedSuccess bool, expectedData interface{}, expectedErrors []string) {
+func AssertApiResponse(t *testing.T, response myhttp.ApiResponse[any], expectedSuccess bool, expectedData interface{}, expectedErrors []string) {
 	AssertEqual(t, expectedSuccess, response.Success, "Success field mismatch")
 	AssertEqual(t, expectedData, response.Data, "Data field mismatch")
 	AssertEqual(t, expectedErrors, response.Errors, "Errors field mismatch")

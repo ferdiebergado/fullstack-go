@@ -37,7 +37,7 @@ func (h *VenueHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		response := &myhttp.ApiResponse{
+		response := &myhttp.ApiResponse[any]{
 			Success: false,
 			Message: errorBag.Message,
 			Errors:  errorBag.ValidationErrors,
@@ -53,7 +53,7 @@ func (h *VenueHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := &myhttp.ApiResponse{
+	response := &myhttp.ApiResponse[*db.Venue]{
 		Success: true,
 		Message: "Venue created successfully!",
 		Data:    venue,
