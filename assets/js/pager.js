@@ -11,42 +11,39 @@
 
 const pagination = document.querySelector('.pagination');
 
-const links = pagination?.getElementsByTagName('a');
-
-if (links) {
+if (pagination) {
+  const links = pagination.getElementsByTagName('a');
   for (let index = 0; index < links.length; index++) {
     const link = links[index];
 
-    if (link) {
-      link.addEventListener('click', async function (event) {
-        event.preventDefault();
+    link.addEventListener('click', async function (event) {
+      event.preventDefault();
 
-        try {
-          // @ts-ignore
-          const response = await fetch(link.href, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-          });
+      try {
+        // @ts-ignore
+        const response = await fetch(link.href, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+        });
 
-          /** @type {ApiResponse} */
-          const { message, data } = await response.json();
+        /** @type {ApiResponse} */
+        const { message, data } = await response.json();
 
-          if (!response.ok) {
-            // Display validation errors if available
+        if (!response.ok) {
+          // Display validation errors if available
 
-            showNotification(message, 'error');
-            return;
-          }
-
-          renderData(data);
-        } catch (error) {
-          showNotification('An error occurred. Please try again.', 'error');
+          showNotification(message, 'error');
+          return;
         }
-      });
-    }
+
+        renderData(data);
+      } catch (error) {
+        showNotification('An error occurred. Please try again.', 'error');
+      }
+    });
   }
 }
 
@@ -59,34 +56,73 @@ function renderData(data) {
 
   if (table) {
     const tbody = table.tBodies[0];
-    tbody.innerHTML = '';
+
+    removeChildren(tbody);
+
     data.data.forEach((d) => {
-      const row = document.createElement('tr');
-      const titleCol = document.createElement('td');
-      titleCol.textContent = d.title;
-      row.appendChild(titleCol);
+      /** @type {HTMLTemplateElement} */
+      // @ts-ignore
+      const template = document
+        .getElementById('activity-row')
+        .content.cloneNode(true);
 
-      const startDateCol = document.createElement('td');
-      startDateCol.textContent = d.start_date;
-      row.appendChild(startDateCol);
+      if (template) {
+        template.querySelector('.title').textContent = d.title;
+        template.querySelector('.start_date').textContent = d.start_date;
+        template.querySelector('.end_date').textContent = d.end_date;
+        template.querySelector('.venue').textContent = d.venue;
+        template.querySelector('.region').textContent = d.region;
+        template.querySelector('.host').textContent = d.host;
+        template.querySelector('.info').href = `/activities/${d.id}`;
+        template.querySelector('.view').href = `/activities/${d.id}/edit`;
+        tbody.appendChild(template);
+      }
+      // const row = document.createElement('tr');
 
-      const endDateCol = document.createElement('td');
-      endDateCol.textContent = d.end_date;
-      row.appendChild(endDateCol);
+      // addCol(row, d.title);
+      // addCol(row, d.start_date);
+      // addCol(row, d.end_date);
+      // addCol(row, d.venue);
+      // addCol(row, d.region);
+      // addCol(row, d.host);
 
-      const venueCol = document.createElement('td');
-      venueCol.textContent = d.venue;
-      row.appendChild(venueCol);
+      // const col = document.createElement('td');
+      // const infoLink = document.createElement('a');
+      // infoLink.href = `/activities/${d.id}`;
+      // infoLink.textContent = 'Info';
+      // const viewLink = document.createElement('a');
+      // viewLink.href = `/activities/${d.id}/edit`;
+      // viewLink.textContent = 'Edit';
+      // row.appendChild(col);
 
-      const regionCol = document.createElement('td');
-      regionCol.textContent = d.region;
-      row.appendChild(regionCol);
-
-      const hostCol = document.createElement('td');
-      hostCol.textContent = d.host;
-      row.appendChild(hostCol);
-
-      tbody.appendChild(row);
+      // tbody.appendChild(row);
     });
   }
+}
+
+/**
+ *
+ * @param {ResponseData} data
+ */
+function updateLinks(data) {}
+
+/**
+ * Removes all the children node of the element.
+ * @param {HTMLElement} element
+ */
+function removeChildren(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
+/**
+ *
+ * @param {HTMLTableRowElement} row
+ * @param {string} value
+ */
+function addCol(row, value) {
+  const col = document.createElement('td');
+  col.textContent = value;
+  row.appendChild(col);
 }

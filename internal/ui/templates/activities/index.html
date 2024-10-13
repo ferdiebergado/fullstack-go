@@ -52,4 +52,19 @@
   </table>
   {{ template "pagination" .}}
 </div>
+
+<template id="activity-row">
+  <tr>
+    <td class="title"></td>
+    <td class="nowrap-col start_date"></td>
+    <td class="nowrap-col end_date"></td>
+    <td class="venue"></td>
+    <td class="nowrap-col region"></td>
+    <td class="host"></td>
+    <td>
+      <a class="btn btn-primary btn-small info">Info</a>
+      <a class="btn btn-secondary btn-small view">View</a>
+    </td>
+  </tr>
+</template>
 {{ end }}
