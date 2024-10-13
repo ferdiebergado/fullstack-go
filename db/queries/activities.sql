@@ -20,7 +20,10 @@ FROM
     JOIN divisions d ON d.id = v.division_id
     JOIN regions r ON r.region_id = d.region_id
     JOIN hosts h on h.id = a.host_id
-ORDER BY start_date DESC;
+ORDER BY start_date DESC
+LIMIT $1
+OFFSET
+    $2;
 
 -- name: FindActivity :one
 SELECT
@@ -64,7 +67,13 @@ SELECT * FROM active_activities WHERE title LIKE '%$1%';
 SELECT * FROM active_activities WHERE start_date = $1;
 
 -- name: ListAllActivities :many
-SELECT * FROM activities ORDER BY start_date DESC;
+SELECT * FROM activities ORDER BY start_date DESC LIMIT $1 OFFSET $2;
 
 -- name: FindActivityAll :one
 SELECT * FROM activities WHERE id = $1;
+
+-- name: CountActiveActivities :one
+SELECT COUNT(*) FROM active_activities;
+
+-- name: CountAllActivities :one
+SELECT COUNT(*) FROM activities;

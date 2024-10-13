@@ -10,18 +10,24 @@ import (
 
 type ActivityService interface {
 	CreateActivity(ctx context.Context, req db.CreateActivityParams) (*db.Activity, error)
-	ListActivities(ctx context.Context) ([]db.ListActivitiesRow, error)
+	ListActivities(ctx context.Context, args db.ListActivitiesParams) ([]db.ListActivitiesRow, error)
 	FindActiveActivity(ctx context.Context, id int64) (*db.FindActivityRow, error)
 	UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error
 	DeleteActivity(ctx context.Context, id int64) error
 	GetRegions(ctx context.Context) ([]db.Region, error)
 	GetDivisions(ctx context.Context) ([]db.GetDivisionWithRegionRow, error)
 	GetHosts(ctx context.Context) ([]db.Host, error)
+	CountActivities(ctx context.Context) (int64, error)
 }
 
 type activityService struct {
 	db      *sql.DB
 	queries *db.Queries
+}
+
+// CountActivities implements ActivityService.
+func (s *activityService) CountActivities(ctx context.Context) (int64, error) {
+	return s.queries.CountActiveActivities(ctx)
 }
 
 var (
@@ -77,8 +83,8 @@ func (s *activityService) FindActiveActivity(ctx context.Context, id int64) (*db
 }
 
 // ListActivities implements ActivityService.
-func (s *activityService) ListActivities(ctx context.Context) ([]db.ListActivitiesRow, error) {
-	activities, err := s.queries.ListActivities(ctx)
+func (s *activityService) ListActivities(ctx context.Context, args db.ListActivitiesParams) ([]db.ListActivitiesRow, error) {
+	activities, err := s.queries.ListActivities(ctx, args)
 
 	if err != nil {
 		return nil, err

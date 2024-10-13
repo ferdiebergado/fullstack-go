@@ -1,5 +1,6 @@
-{{ block "title" .}}PTMS - Activities{{ end }} {{ block "header" .}}Activities{{
-end }} {{ block "content" .}}
+{{ block "title" .}}PTMS - Activities{{ end }} {{ block "scripts" . }}
+<script src="/assets/js/pager.js" defer></script>
+{{ end }} {{ block "header" .}}Activities{{ end }} {{ block "content" .}}
 
 <div class="card">
   <div class="card-header clearfix">
@@ -23,17 +24,17 @@ end }} {{ block "content" .}}
       </tr>
     </thead>
     <tbody>
-      {{ if .Activities }} {{ range .Activities }}
+      {{ if .Data }} {{ range .Data }}
       <tr>
         <td>{{ .Title }}</td>
-        <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
-        <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
+        <td class="nowrap-col">{{ .StartDate.Time.Format "2006-01-02" }}</td>
+        <td class="nowrap-col">{{ .EndDate.Time.Format "2006-01-02" }}</td>
         <td>{{ .Venue }}</td>
-        <td>{{ .Region }}</td>
+        <td class="nowrap-col">{{ .Region }}</td>
         <td>{{ .Host }}</td>
         <td>
           <a class="btn btn-primary btn-small" href="/activities/{{ .ID }}"
-            >View</a
+            >Info</a
           >
           <a
             class="btn btn-secondary btn-small"
@@ -49,5 +50,6 @@ end }} {{ block "content" .}}
       {{ end }}
     </tbody>
   </table>
+  {{ template "pagination" .}}
 </div>
 {{ end }}

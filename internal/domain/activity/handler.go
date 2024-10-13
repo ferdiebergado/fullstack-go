@@ -2,6 +2,7 @@ package activity
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,15 +31,68 @@ func NewActivityHandler(activityService ActivityService, venueService venue.Venu
 }
 
 func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
+	pageStr := r.URL.Query().Get("page")
+	limitStr := r.URL.Query().Get("limit")
 
-	activities, err := h.activityService.ListActivities(r.Context())
+	log.Println(pageStr, limitStr)
+
+	page, err := strconv.ParseInt(pageStr, 0, 64)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.ParseInt(limitStr, 0, 64)
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	offset := (page - 1) * limit
+
+	totalItems, err := h.activityService.CountActivities(r.Context())
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "count activities", err)
+		return
+	}
+
+	args := &db.ListActivitiesParams{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	activities, err := h.activityService.ListActivities(r.Context(), *args)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "list activities", err)
 		return
 	}
 
-	data := &Data{Activities: activities}
+	totalPages := (totalItems + limit - 1) / limit
+
+	// Determine page range (page to page + 5)
+	pageRange := []int{}
+	for i := page; i <= page+3 && i < totalPages; i++ {
+		pageRange = append(pageRange, int(i))
+	}
+
+	var prevPage, nextPage int64
+	if page > 1 {
+		prevPage = page - 1
+	}
+	if page < totalPages {
+		nextPage = page + 1
+	}
+
+	data := &myhttp.PaginatedData[db.ListActivitiesRow]{
+		TotalItems: totalItems,
+		TotalPages: totalPages,
+		Page:       page,
+		Limit:      limit,
+		PageRange:  pageRange,
+		PrevPage:   prevPage,
+		NextPage:   nextPage,
+		Data:       activities,
+	}
 
 	acceptHeader := r.Header.Get("Accept")
 	acceptedTypes := strings.Split(acceptHeader, ",")
@@ -49,7 +103,12 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 
 		if mediaType == "application/json" {
 
-			err := ui.RenderJson(w, r, http.StatusOK, data)
+			response := &myhttp.ApiResponse[*myhttp.PaginatedData[db.ListActivitiesRow]]{
+				Success: true,
+				Data:    data,
+			}
+
+			err := ui.RenderJson(w, r, http.StatusOK, response)
 
 			if err != nil {
 				myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render json", err)
@@ -261,7 +320,7 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		response := &myhttp.ApiResponse{
+		response := &myhttp.ApiResponse[any]{
 			Success: false,
 			Message: errorBag.Message,
 			Errors:  errorBag.ValidationErrors,
@@ -277,7 +336,7 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response := &myhttp.ApiResponse{
+	response := &myhttp.ApiResponse[any]{
 		Success: true,
 		Message: "Activity updated.",
 	}
@@ -314,7 +373,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		response := &myhttp.ApiResponse{
+		response := &myhttp.ApiResponse[any]{
 			Success: false,
 			Message: errorBag.Message,
 			Errors:  errorBag.ValidationErrors,
@@ -330,7 +389,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := &myhttp.ApiResponse{
+	response := &myhttp.ApiResponse[*db.Activity]{
 		Success: true,
 		Message: "Activity created.",
 		Data:    activity,

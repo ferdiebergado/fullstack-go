@@ -12,6 +12,28 @@ import (
 	"time"
 )
 
+const countActiveActivities = `-- name: CountActiveActivities :one
+SELECT COUNT(*) FROM active_activities
+`
+
+func (q *Queries) CountActiveActivities(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countActiveActivities)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countAllActivities = `-- name: CountAllActivities :one
+SELECT COUNT(*) FROM activities
+`
+
+func (q *Queries) CountAllActivities(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countAllActivities)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createActivity = `-- name: CreateActivity :one
 INSERT INTO
     activities (
@@ -233,7 +255,15 @@ FROM
     JOIN regions r ON r.region_id = d.region_id
     JOIN hosts h on h.id = a.host_id
 ORDER BY start_date DESC
+LIMIT $1
+OFFSET
+    $2
 `
+
+type ListActivitiesParams struct {
+	Limit  int64 `json:"limit"`
+	Offset int64 `json:"offset"`
+}
 
 type ListActivitiesRow struct {
 	ID        int64           `json:"id"`
@@ -251,8 +281,8 @@ type ListActivitiesRow struct {
 	Host      string          `json:"host"`
 }
 
-func (q *Queries) ListActivities(ctx context.Context) ([]ListActivitiesRow, error) {
-	rows, err := q.db.QueryContext(ctx, listActivities)
+func (q *Queries) ListActivities(ctx context.Context, arg ListActivitiesParams) ([]ListActivitiesRow, error) {
+	rows, err := q.db.QueryContext(ctx, listActivities, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -289,11 +319,16 @@ func (q *Queries) ListActivities(ctx context.Context) ([]ListActivitiesRow, erro
 }
 
 const listAllActivities = `-- name: ListAllActivities :many
-SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at FROM activities ORDER BY start_date DESC
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at FROM activities ORDER BY start_date DESC LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) ListAllActivities(ctx context.Context) ([]Activity, error) {
-	rows, err := q.db.QueryContext(ctx, listAllActivities)
+type ListAllActivitiesParams struct {
+	Limit  int64 `json:"limit"`
+	Offset int64 `json:"offset"`
+}
+
+func (q *Queries) ListAllActivities(ctx context.Context, arg ListAllActivitiesParams) ([]Activity, error) {
+	rows, err := q.db.QueryContext(ctx, listAllActivities, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
