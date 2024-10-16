@@ -21,44 +21,35 @@ body {
 }
 
 /* Navbar */
-ul.topnav {
-	list-style-type: none;
-	margin: 0;
-	padding: 0.5em;
-	overflow: hidden;
-	background-color: black;
+.top-nav {
+	background-color: #333;
+	padding: 20px 0;
 }
 
-ul.topnav li {
-	float: left;
+.top-nav ul {
+	list-style: none;
+	display: flex;
+	justify-content: flex-start;
 }
 
-ul.topnav li a {
-	display: block;
-	color: white;
-	text-align: center;
-	padding: 5px 24px;
+.top-nav ul li {
+	margin-right: 20px;
+}
+
+.top-nav ul li a {
 	text-decoration: none;
+	color: white;
+	padding: 10px;
+	font-weight: bold;
+	transition: background-color 0.3s;
 }
 
-ul.topnav li a:hover:not(.active) {
-	background-color: var(--tertiary-color);
-	color: black;
+.top-nav ul li a:hover {
+	background-color: #575757;
 }
 
-ul.topnav li a.active {
+.top-nav ul li a.active {
 	background-color: var(--secondary-color);
-}
-
-ul.topnav li.right {
-	float: right;
-}
-
-@media screen and (max-width: 600px) {
-	ul.topnav li.right,
-	ul.topnav li {
-		float: none;
-	}
 }
 /* End Navbar */
 

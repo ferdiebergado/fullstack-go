@@ -1,24 +1,27 @@
 // @ts-check
 
-// Get the current URL path
-const currentPath = window.location.pathname;
-
-// Extract the root path (first two segments)
-const rootPath = '/' + currentPath.split('/')[1];
-
 // Get all anchor tags in the topnav
-const navLinks = document.querySelectorAll('.topnav a');
-
-// Remove 'active' class from all links first
-navLinks.forEach((link) => {
-  link.classList.remove('active');
-});
+const navLinks = document.querySelectorAll('.top-nav a');
 
 navLinks.forEach((link) => {
   // Check if the href attribute matches the current URL path
-  if (rootPath === link.getAttribute('href') && currentPath !== '/') {
-    link.classList.add('active'); // Add the 'active' class
-  }
+  link.addEventListener('click', function() {
+    // Get the current URL path
+    const currentPath = window.location.pathname;
+
+    // Extract the root path (first two segments)
+    const rootPath = '/' + currentPath.split('/')[1];
+
+    // Remove 'active' class from all links first
+    navLinks.forEach((link) => {
+      link.classList.remove('active');
+    });
+
+    if (rootPath === link.getAttribute('href') && currentPath !== '/') {
+      link.classList.add('active'); // Add the 'active' class
+    }
+
+  })
 });
 
 /**
@@ -30,8 +33,8 @@ function showNotification(message, type) {
   const notification = document.getElementById('notification');
 
   if (notification) {
-    const header = notification.querySelector('#notification-header');
-    const body = notification.querySelector('#notification-message');
+    const header = notification.getElementById('notification-header');
+    const body = notification.getElementById('notification-message');
 
     if (type === 'success') {
       if (header) header.textContent = 'Action Completed';
@@ -48,6 +51,7 @@ function showNotification(message, type) {
     notification.style.display = 'block';
   }
 }
+
 
 /**
  * Shows the appropriate dialog.
