@@ -31,10 +31,10 @@ navLinks.forEach((link) => {
  */
 function showNotification(message, type) {
   const notification = document.getElementById('notification');
+  const header = document.getElementById('notification-header');
+  const body = document.getElementById('notification-message');
 
   if (notification) {
-    const header = notification.getElementById('notification-header');
-    const body = notification.getElementById('notification-message');
 
     if (type === 'success') {
       if (header) header.textContent = 'Action Completed';
@@ -51,7 +51,6 @@ function showNotification(message, type) {
     notification.style.display = 'block';
   }
 }
-
 
 /**
  * Shows the appropriate dialog.
