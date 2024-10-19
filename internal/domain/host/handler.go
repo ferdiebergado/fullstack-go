@@ -18,8 +18,6 @@ func NewHostHandler(s HostService) *HostHandler {
 }
 
 func (h *HostHandler) SaveHost(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	type createHostParams struct {
 		Name string `json:"name"`
 	}

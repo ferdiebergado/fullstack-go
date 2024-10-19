@@ -295,8 +295,6 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	defer r.Body.Close()
-
 	data, err := ui.DecodeJson[db.UpdateActivityParams](r)
 
 	if err != nil {
@@ -350,8 +348,6 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	data, err := ui.DecodeJson[db.CreateActivityParams](r)
 
 	if err != nil {

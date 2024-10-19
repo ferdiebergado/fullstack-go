@@ -18,8 +18,6 @@ func NewVenueHandler(s VenueService) *VenueHandler {
 }
 
 func (h *VenueHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	data, err := ui.DecodeJson[db.CreateVenueParams](r)
 
 	if err != nil {

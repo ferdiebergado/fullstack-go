@@ -62,6 +62,8 @@ func EncodeJson[T any](w http.ResponseWriter, v T) error {
 func DecodeJson[T any](r *http.Request) (T, error) {
 	var v T
 
+	defer r.Body.Close()
+
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&v)
 
