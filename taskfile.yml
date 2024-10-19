@@ -64,5 +64,9 @@ tasks:
             "github.com/go-critic/go-critic/cmd/gocritic@latest",
           ]
         cmd: go install {{.ITEM}}
+  css:watch:
+    cmd: esbuild assets/css/styles.css --bundle --outdir=static/css --watch
+  js:watch:
+    cmd: esbuild assets/js/app.js assets/js/activity/create.js --bundle --outdir=static/js --sourcemap --target=es6 --splitting --format=esm --watch
   dev:
     cmd: air
