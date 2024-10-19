@@ -1,42 +1,28 @@
 // @ts-check
 /**
- * Shows the appropriate dialog.
- *
- * @param {string} dialogId - The id of the dialog element
- * @param {HTMLSelectElement} select - The select element
+ * Mounts a dialog for select elements.
+ * @param {string} dialogId
+ * @param {HTMLSelectElement} select
  */
-function mountDialogForSelect(dialogId, select) {
+export function mountDialogForSelect(dialogId, select) {
   /** @type {HTMLDialogElement} */
   const dialog = document.getElementById(dialogId);
-
   const dialogClose = dialog.querySelector('#dialog-close');
 
-  dialogClose?.addEventListener('click', function () {
-    if (dialog) dialog.close();
-  });
-
-  window.addEventListener('click', function (event) {
+  dialogClose?.addEventListener('click', () => dialog?.close());
+  window.addEventListener('click', (event) => {
     if (event.target === dialog) dialog.close();
   });
 
-  select?.addEventListener('change', function () {
-    showDialog();
-  });
-
-  select?.addEventListener('click', function () {
-    showDialog();
-  });
+  select?.addEventListener('change', showDialog);
+  select?.addEventListener('click', showDialog);
 
   function showDialog() {
-    const index = select.selectedIndex;
-    const optionValue = select.options[index].value;
-
+    const optionValue = select.options[select.selectedIndex].value;
     if (optionValue === 'add') {
-      if (dialog) dialog.showModal();
+      dialog?.showModal();
     }
   }
 
   return dialog;
 }
-
-export default mountDialogForSelect;

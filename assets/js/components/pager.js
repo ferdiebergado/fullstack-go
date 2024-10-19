@@ -1,5 +1,5 @@
 // @ts-check
-import { showNotification } from '../ui.js';
+import { showNotification } from './notification.js';
 
 /**
  * Sets up pagination link handling.
@@ -47,7 +47,7 @@ function renderData(data) {
   const tbody = table?.tBodies[0];
 
   if (tbody) {
-    removeChildren(tbody);
+    tbody.innerHTML = '';
 
     const fragment = document.createDocumentFragment();
 
