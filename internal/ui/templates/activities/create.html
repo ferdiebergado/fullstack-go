@@ -1,6 +1,6 @@
 {{ block "title" .}}PTMS - New Activity{{ end }} {{ block "header"
 .}}Activities{{ end }} {{ block "scripts" . }}
-<script src="/assets//js/activity.js" defer></script>
+<script type="module" src="/static/js/activity/create.js"></script>
 {{ end }} {{ block "content" .}}
 
 <div class="card">
@@ -12,7 +12,7 @@
   <form id="create-activity-form" action="/api/activities" method="post">
     <!-- TITLE -->
     <div class="form-group">
-      <label for="title">Title <small>(Required)</small></label>
+      <label for="title">Title</label>
       <textarea
         name="title"
         id="title"
