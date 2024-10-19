@@ -2,8 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
+	"github.com/ferdiebergado/fullstack-go/internal/config"
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/activity"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/host"
@@ -13,6 +15,7 @@ import (
 )
 
 func NewApp(database *db.Database) *myhttp.Router {
+	staticPath := fmt.Sprintf("/%s/", config.StaticDir)
 
 	// Host Handler
 	hostService := host.NewHostService(database)
@@ -35,7 +38,7 @@ func NewApp(database *db.Database) *myhttp.Router {
 	router.Use(myhttp.PanicRecovery)
 
 	// Serve static files.
-	router.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
+	router.Handle("GET "+staticPath, http.StripPrefix(staticPath, http.FileServer(http.Dir(config.StaticDir))))
 
 	// Activities routes.
 	activity.AddRoutes(router, *activityHandler)

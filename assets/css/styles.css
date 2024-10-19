@@ -1,3 +1,5 @@
+@import "./reset.css";
+
 :root {
 	--font-primary: sans-serif;
 	--text-color: #242424;
@@ -9,10 +11,19 @@
 	--danger-color: crimson;
 
 	--body-background-color: #eee;
+
+	--padding: 2em;
+	--margin: 1em 2em;
+
+	--max-width: 786px;
+}
+
+html {
+	font-size: 100%;
 }
 
 body {
-	width: 80%;
+	width: 90%;
 	max-width: 1200px;
 	margin: 0 auto;
 	background: var(--body-background-color);
@@ -20,10 +31,14 @@ body {
 	color: var(--text-color);
 }
 
-/* Navbar */
+section {
+	font-size: 1rem;
+}
+
+/* Top Nav */
 .top-nav {
 	background-color: #333;
-	padding: 20px 0;
+	padding: 20px 2em;
 }
 
 .top-nav ul {
@@ -51,7 +66,50 @@ body {
 .top-nav ul li a.active {
 	background-color: var(--secondary-color);
 }
-/* End Navbar */
+/* End Top Nav */
+
+/* Pagination */
+.pagination {
+	display: flex;
+	align-items: center;
+}
+
+.right {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+}
+
+.right label {
+	margin-right: 20px;
+	width: 100%;
+}
+
+.right input {
+	padding: 5px 10px;
+	width: 6em;
+}
+
+.pagination a {
+	color: black;
+	float: left;
+	padding: 8px 16px;
+	text-decoration: none;
+	transition: background-color 0.3s;
+	border: 1px solid #ddd;
+	margin: 0 4px;
+}
+
+.pagination a.active {
+	background-color: #4caf50;
+	color: white;
+	border: 1px solid #4caf50;
+}
+
+.pagination a:hover:not(.active) {
+	background-color: #ddd;
+}
+/* End Pagination */
 
 /* Alert */
 .alert {
@@ -73,15 +131,14 @@ body {
 /* Card */
 .card {
 	background-color: white;
-	margin: 1.5em 0;
-	padding: 2rem;
+	margin-bottom: 1.5em;
+	padding: var(--padding);
 }
 
 .card-header span {
 	margin-bottom: 1em;
 	font-weight: bold;
 }
-
 /* End Card */
 
 /* Table */
@@ -116,7 +173,6 @@ th {
 /* End Table */
 
 /* Forms */
-
 .form-group {
 	margin: 0.5em 0;
 }
@@ -144,6 +200,7 @@ textarea {
 	margin-top: 6px; /* Add a top margin */
 	margin-bottom: 6px; /* Bottom margin */
 	outline: 0 !important;
+	font-size: 16px;
 }
 
 textarea {
@@ -187,7 +244,6 @@ textarea:focus {
 	margin: 0.2em 0.3em !important;
 	font-size: small;
 }
-
 /* End Button */
 
 /* Modal */
@@ -229,7 +285,7 @@ dialog {
 	flex: 50%;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: var(--max-width)) {
 	.col {
 		width: 100%;
 	}
@@ -250,11 +306,36 @@ dialog {
 	clear: both;
 	display: table;
 }
-
 /* End Utilities */
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+	body {
+		width: 100%;
+	}
+
+	.card {
+		margin: 1em 1em !important;
+	}
+
+	header h2 {
+		margin: 1em 1em !important;
+	}
+
+	.top-nav ul,
+	.row {
+		font-size: 1rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1em;
+	}
+}
+/* End Media Queries */
 
 /* Misc */
 header h2 {
-	margin-left: 1.5em;
 	margin-top: 2em;
+	padding: 1em 0;
 }
