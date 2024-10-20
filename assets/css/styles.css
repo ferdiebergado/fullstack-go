@@ -72,25 +72,12 @@ section {
 .pagination {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
+	gap: 1em;
+	font-size: 0.9em;
 }
 
-.right {
-	margin-left: auto;
-	display: flex;
-	align-items: center;
-}
-
-.right label {
-	margin-right: 20px;
-	width: 100%;
-}
-
-.right input {
-	padding: 5px 10px;
-	width: 6em;
-}
-
-.pagination a {
+.pagination button {
 	color: black;
 	float: left;
 	padding: 8px 16px;
@@ -100,15 +87,6 @@ section {
 	margin: 0 4px;
 }
 
-.pagination a.active {
-	background-color: #4caf50;
-	color: white;
-	border: 1px solid #4caf50;
-}
-
-.pagination a:hover:not(.active) {
-	background-color: #ddd;
-}
 /* End Pagination */
 
 /* Alert */
@@ -127,6 +105,13 @@ section {
 	color: white;
 }
 /* End Alert */
+
+/* Page Header */
+.page-header {
+	margin-top: 2rem;
+	padding: 1em 2em;
+}
+/* End Page Header */
 
 /* Card */
 .card {
@@ -148,23 +133,20 @@ table {
 	margin-top: 1.5em;
 	margin-bottom: 1.5em;
 	font-size: 0.9em;
+	table-layout: fixed;
+}
+
+th {
+	background-color: lightslategray;
+	color: whitesmoke;
 }
 
 th,
 td {
 	padding: 10px;
 	text-align: left;
-	border-bottom: 1px solid #ccc;
 	vertical-align: top;
-}
-
-.nowrap-col {
-	width: 100px;
-}
-
-th {
-	background-color: lightslategray;
-	color: whitesmoke;
+	border-bottom: 1px solid #ccc;
 }
 
 .responsive-table {
@@ -275,6 +257,12 @@ dialog {
 }
 /* End Modal */
 
+footer {
+	text-align: center;
+	font-size: small;
+	margin-top: 2rem;
+}
+
 /* Layout */
 .row {
 	display: flex;
@@ -282,10 +270,10 @@ dialog {
 }
 
 .col {
-	flex: 50%;
+	flex: 1;
 }
 
-@media screen and (max-width: var(--max-width)) {
+@media screen and (max-width: 768px) {
 	.col {
 		width: 100%;
 	}
@@ -305,6 +293,12 @@ dialog {
 	content: "";
 	clear: both;
 	display: table;
+}
+
+.flex {
+	display: flex;
+	align-items: center;
+	gap: 1em;
 }
 /* End Utilities */
 
@@ -335,7 +329,3 @@ dialog {
 /* End Media Queries */
 
 /* Misc */
-header h2 {
-	margin-top: 2em;
-	padding: 1em 0;
-}

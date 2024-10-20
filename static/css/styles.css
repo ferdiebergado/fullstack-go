@@ -92,21 +92,11 @@ section {
 .pagination {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  font-size: 0.9em;
 }
-.right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-}
-.right label {
-  margin-right: 20px;
-  width: 100%;
-}
-.right input {
-  padding: 5px 10px;
-  width: 6em;
-}
-.pagination a {
+.pagination button {
   color: black;
   float: left;
   padding: 8px 16px;
@@ -114,14 +104,6 @@ section {
   transition: background-color 0.3s;
   border: 1px solid #ddd;
   margin: 0 4px;
-}
-.pagination a.active {
-  background-color: #4caf50;
-  color: white;
-  border: 1px solid #4caf50;
-}
-.pagination a:hover:not(.active) {
-  background-color: #ddd;
 }
 .alert {
   padding: 1em 1em;
@@ -135,6 +117,10 @@ section {
 .alert-success {
   background-color: var(--success-color);
   color: white;
+}
+.page-header {
+  margin-top: 2rem;
+  padding: 1em 2em;
 }
 .card {
   background-color: white;
@@ -151,20 +137,18 @@ table {
   margin-top: 1.5em;
   margin-bottom: 1.5em;
   font-size: 0.9em;
+  table-layout: fixed;
+}
+th {
+  background-color: lightslategray;
+  color: whitesmoke;
 }
 th,
 td {
   padding: 10px;
   text-align: left;
-  border-bottom: 1px solid #ccc;
   vertical-align: top;
-}
-.nowrap-col {
-  width: 100px;
-}
-th {
-  background-color: lightslategray;
-  color: whitesmoke;
+  border-bottom: 1px solid #ccc;
 }
 .responsive-table {
   overflow-x: auto;
@@ -251,14 +235,19 @@ dialog {
   text-decoration: none;
   cursor: pointer;
 }
+footer {
+  text-align: center;
+  font-size: small;
+  margin-top: 2rem;
+}
 .row {
   display: flex;
   gap: 1em;
 }
 .col {
-  flex: 50%;
+  flex: 1;
 }
-@media screen and (max-width: var(--max-width)) {
+@media screen and (max-width: 768px) {
   .col {
     width: 100%;
   }
@@ -273,6 +262,11 @@ dialog {
   content: "";
   clear: both;
   display: table;
+}
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 1em;
 }
 @media screen and (max-width: 768px) {
   body {
@@ -293,8 +287,4 @@ dialog {
     justify-content: center;
     gap: 1em;
   }
-}
-header h2 {
-  margin-top: 2em;
-  padding: 1em 0;
 }
