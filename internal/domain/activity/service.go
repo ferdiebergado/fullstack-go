@@ -11,6 +11,7 @@ import (
 type ActivityService interface {
 	CreateActivity(ctx context.Context, req db.CreateActivityParams) (*db.Activity, error)
 	ListActivities(ctx context.Context, args db.ListActivitiesParams) ([]db.ListActivitiesRow, error)
+	ListActivitiesOrderedDesc(ctx context.Context, args db.ListActivitiesOrderedDescParams) ([]db.ListActivitiesOrderedDescRow, error)
 	FindActiveActivity(ctx context.Context, id int64) (*db.FindActivityRow, error)
 	UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error
 	DeleteActivity(ctx context.Context, id int64) error
@@ -85,6 +86,17 @@ func (s *activityService) FindActiveActivity(ctx context.Context, id int64) (*db
 // ListActivities implements ActivityService.
 func (s *activityService) ListActivities(ctx context.Context, args db.ListActivitiesParams) ([]db.ListActivitiesRow, error) {
 	activities, err := s.queries.ListActivities(ctx, args)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return activities, nil
+}
+
+// ListActivitiesOrderedDesc implements ActivityService.
+func (s *activityService) ListActivitiesOrderedDesc(ctx context.Context, args db.ListActivitiesOrderedDescParams) ([]db.ListActivitiesOrderedDescRow, error) {
+	activities, err := s.queries.ListActivitiesOrderedDesc(ctx, args)
 
 	if err != nil {
 		return nil, err

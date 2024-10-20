@@ -3,7 +3,6 @@ package host
 import (
 	"net/http"
 
-	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 	"github.com/ferdiebergado/fullstack-go/pkg/validator"
@@ -39,7 +38,7 @@ func (h *HostHandler) SaveHost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		response := &myhttp.ApiResponse[any]{
+		response := &myhttp.ApiResponse{
 			Success: false,
 			Message: errorBag.Message,
 			Errors:  errorBag.ValidationErrors,
@@ -55,7 +54,7 @@ func (h *HostHandler) SaveHost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := &myhttp.ApiResponse[db.Host]{
+	response := &myhttp.ApiResponse{
 		Success: true,
 		Message: "Host created successfully!",
 		Data:    host,

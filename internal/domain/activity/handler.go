@@ -2,7 +2,6 @@ package activity
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -29,11 +28,12 @@ func NewActivityHandler(activityService ActivityService, venueService venue.Venu
 	return &ActivityHandler{activityService: activityService, venueService: venueService, hostService: hostService}
 }
 
-func (h *ActivityHandler) paginatedActiveActivities(w http.ResponseWriter, r *http.Request) *myhttp.PaginatedData[db.ListActivitiesRow] {
+func (h *ActivityHandler) paginatedActiveActivities(w http.ResponseWriter, r *http.Request) interface{} {
+	// TODO: validate query parameters
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
-
-	log.Println(pageStr, limitStr)
+	sortCol := r.URL.Query().Get("sort")
+	sortDir := r.URL.Query().Get("sortDir")
 
 	page, err := strconv.ParseInt(pageStr, 0, 64)
 	if err != nil || page < 1 {
@@ -46,29 +46,44 @@ func (h *ActivityHandler) paginatedActiveActivities(w http.ResponseWriter, r *ht
 	}
 
 	offset := (page - 1) * limit
-
 	totalItems, err := h.activityService.CountActivities(r.Context())
+	totalPages := (totalItems + limit - 1) / limit
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "count activities", err)
 		return nil
 	}
 
-	args := &db.ListActivitiesParams{
-		Limit:  limit,
-		Offset: offset,
-	}
+	var activities any
 
-	activities, err := h.activityService.ListActivities(r.Context(), *args)
+	if sortDir == "1" {
+
+		args := &db.ListActivitiesParams{
+			Limit:   limit,
+			Offset:  offset,
+			Column1: &sortCol,
+		}
+
+		activities, err = h.activityService.ListActivities(r.Context(), *args)
+
+	} else {
+		args := &db.ListActivitiesOrderedDescParams{
+			Limit:   limit,
+			Offset:  offset,
+			Column1: &sortCol,
+		}
+
+		activities, err = h.activityService.ListActivitiesOrderedDesc(r.Context(), *args)
+
+	}
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "list activities", err)
 		return nil
 	}
 
-	totalPages := (totalItems + limit - 1) / limit
+	return &myhttp.PaginatedData{
 
-	return &myhttp.PaginatedData[db.ListActivitiesRow]{
 		TotalItems: totalItems,
 		TotalPages: totalPages,
 		Page:       page,
@@ -78,9 +93,10 @@ func (h *ActivityHandler) paginatedActiveActivities(w http.ResponseWriter, r *ht
 }
 
 func (h *ActivityHandler) ListActiveActivitiesJson(w http.ResponseWriter, r *http.Request) {
+	// TODO: check type assertion
 	data := h.paginatedActiveActivities(w, r)
 
-	response := &myhttp.ApiResponse[*myhttp.PaginatedData[db.ListActivitiesRow]]{
+	response := &myhttp.ApiResponse{
 		Success: true,
 		Data:    data,
 	}
@@ -94,6 +110,7 @@ func (h *ActivityHandler) ListActiveActivitiesJson(w http.ResponseWriter, r *htt
 }
 
 func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
+	// TODO: check type assertion
 	data := h.paginatedActiveActivities(w, r)
 
 	err := ui.RenderTemplate(w, "activities/index.html", data)
@@ -288,7 +305,7 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		response := &myhttp.ApiResponse[any]{
+		response := &myhttp.ApiResponse{
 			Success: false,
 			Message: errorBag.Message,
 			Errors:  errorBag.ValidationErrors,
@@ -304,7 +321,7 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response := &myhttp.ApiResponse[any]{
+	response := &myhttp.ApiResponse{
 		Success: true,
 		Message: "Activity updated.",
 	}
@@ -339,7 +356,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		response := &myhttp.ApiResponse[any]{
+		response := &myhttp.ApiResponse{
 			Success: false,
 			Message: errorBag.Message,
 			Errors:  errorBag.ValidationErrors,
@@ -355,7 +372,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := &myhttp.ApiResponse[*db.Activity]{
+	response := &myhttp.ApiResponse{
 		Success: true,
 		Message: "Activity created.",
 		Data:    activity,
