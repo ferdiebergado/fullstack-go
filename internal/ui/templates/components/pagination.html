@@ -1,27 +1,45 @@
 {{ define "pagination" }} {{ if gt .TotalPages 1 }}
+<div class="row">
+  <div class="col">
+    <span
+      >Search
+      <input type="search" id="search" style="padding: 8px 16px; margin: 0 4px"
+    /></span>
+  </div>
+  <div class="col">
+    <span>Sort by: </span>
+    <select id="sortCol" style="padding: 8px 16px; margin: 0 4px">
+      <option value="title">Title</option>
+      <option value="start_date">Start Date</option>
+      <option value="end_date">End Date</option>
+      <option value="venue">Venue</option>
+      <option value="host">Host</option>
+    </select>
+  </div>
+</div>
 <div class="pagination">
   <div class="pager">
     <button id="firstPage">&#8676;</button>
     <button id="prevPage">&laquo;</button>
+
     <button id="nextPage">&raquo;</button>
     <button id="lastPage">&#8677;</button>
-    <button id="refresh">Refresh</button>
   </div>
-  <div>
-    <span
-      >Go to Page
-      <input
-        type="number"
-        id="currentPage"
-        value="{{.Page}}"
-        style="width: 6rem; padding: 8px 16px"
-        min="1"
-      />
-      of <span id="totalPages">1</span></span
-    >
-  </div>
+  <button id="refresh">Refresh</button>
+  <span
+    >Page
+    <input
+      type="number"
+      id="currentPage"
+      value="{{.Page}}"
+      style="width: 6rem; padding: 8px 16px; margin: 0 4px"
+      min="1"
+    />
+    of <span id="totalPages">1</span></span
+  >
+
   <div class="flex">
-    <label for="recordsPerPage">Records per page: </label>
+    <span>Records per page: </span>
     <select id="recordsPerPage" style="width: 5rem; padding: 8px 16px">
       <option value="5" {{ if eq .Limit 5 }}selected{{end}}>5</option>
       <option value="10" {{ if eq .Limit 10 }}selected{{end}}>10</option>

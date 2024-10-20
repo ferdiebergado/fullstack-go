@@ -1,5 +1,5 @@
 {{ block "title" .}}PTMS - Activities{{ end }} {{ block "scripts" . }}
-<script type="module" src="/static/js/components/pager.js"></script>
+<script type="module" src="/static/js/components/datatable.js"></script>
 {{ end }} {{ block "header" .}}Activities{{ end }} {{ block "content" .}}
 
 <div class="card">
@@ -11,60 +11,6 @@
       </a>
     </div>
   </div>
-  {{ template "pagination" .}}
-  <table id="datatable">
-    <thead>
-      <tr>
-        <th scope="col">Title</th>
-        <th scope="col">Start Date</th>
-        <th scope="col">End Date</th>
-        <th scope="col">Venue</th>
-        <th scope="col">Region</th>
-        <th scope="col">Host</th>
-        <th scope="col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{ if .Data }} {{ range .Data }}
-      <tr>
-        <td>{{ .Title }}</td>
-        <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
-        <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
-        <td>{{ .Venue }}</td>
-        <td>{{ .Region }}</td>
-        <td>{{ .Host }}</td>
-        <td>
-          <a class="btn btn-primary btn-small" href="/activities/{{ .ID }}"
-            >Info</a
-          >
-          <a
-            class="btn btn-secondary btn-small"
-            href="/activities/{{ .ID }}/edit"
-            >Edit</a
-          >
-        </td>
-      </tr>
-      {{ end }} {{ else }}
-      <tr>
-        <td colspan="7">No data.</td>
-      </tr>
-      {{ end }}
-    </tbody>
-  </table>
+  {{ template "datatable". }}
 </div>
-
-<template id="activity-row">
-  <tr>
-    <td class="title"></td>
-    <td class="start_date"></td>
-    <td class="end_date"></td>
-    <td class="venue"></td>
-    <td class="region"></td>
-    <td class="host"></td>
-    <td>
-      <a class="btn btn-primary btn-small info">Info</a>
-      <a class="btn btn-secondary btn-small view">View</a>
-    </td>
-  </tr>
-</template>
 {{ end }}

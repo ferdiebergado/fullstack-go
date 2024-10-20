@@ -1,0 +1,50 @@
+{{ block "scripts" . }}
+<script type="module" src="/static/js/components/datatable.js"></script>
+{{ end }} {{ define "datatable"}}
+<div class="row">
+  <div class="col">
+    <input type="text" id="search" placeholder="Search..." />
+  </div>
+  <div class="col">
+    <select id="filter"></select>
+  </div>
+</div>
+
+<div class="pagination" id="pagination">
+  <div>
+    <button type="button" id="firstPage">&#8676;</button>
+    <button type="button" id="prevPage">&laquo;</button>
+    <button type="button" id="nextPage">&raquo;</button>
+    <button type="button" id="lastPage">&#8677;</button>
+  </div>
+  <div>
+    <span>Page </span>
+    <input
+      id="page"
+      type="number"
+      min="1"
+      style="width: 6rem; padding: 8px 16px; margin: 0 4px"
+    />
+    of <span id="totalPages"></span>
+  </div>
+  <div class="flex">
+    <span>Records per page: </span>
+    <select id="recordsPerPage" style="width: 5em">
+      <option value="5">5</option>
+      <option value="10" selected>10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+  <div class="right">
+    <div class="page-info" id="pageInfo"></div>
+  </div>
+</div>
+
+<table id="data-table" data-columns="{{ .Columns }}" data-url="{{ .Url }}">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+
+{{ end }}
