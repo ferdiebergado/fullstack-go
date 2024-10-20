@@ -254,15 +254,16 @@ FROM
     JOIN divisions d ON d.id = v.division_id
     JOIN regions r ON r.region_id = d.region_id
     JOIN hosts h on h.id = a.host_id
-ORDER BY start_date DESC
-LIMIT $1
+ORDER BY $1 ASC
+LIMIT $2
 OFFSET
-    $2
+    $3
 `
 
 type ListActivitiesParams struct {
-	Limit  int64 `json:"limit"`
-	Offset int64 `json:"offset"`
+	Column1 *string `json:"column_1"`
+	Limit   int64   `json:"limit"`
+	Offset  int64   `json:"offset"`
 }
 
 type ListActivitiesRow struct {
@@ -282,7 +283,7 @@ type ListActivitiesRow struct {
 }
 
 func (q *Queries) ListActivities(ctx context.Context, arg ListActivitiesParams) ([]ListActivitiesRow, error) {
-	rows, err := q.db.QueryContext(ctx, listActivities, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listActivities, arg.Column1, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -290,6 +291,79 @@ func (q *Queries) ListActivities(ctx context.Context, arg ListActivitiesParams) 
 	var items []ListActivitiesRow
 	for rows.Next() {
 		var i ListActivitiesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.StartDate,
+			&i.EndDate,
+			&i.VenueID,
+			&i.HostID,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listActivitiesOrderedDesc = `-- name: ListActivitiesOrderedDesc :many
+SELECT a.id, a.title, a.start_date, a.end_date, a.venue_id, a.host_id, a.metadata, a.created_at, a.updated_at, a.deleted_at, v.name as venue, r.name as region, h.name as host
+FROM
+    active_activities a
+    JOIN venues v ON v.id = a.venue_id
+    JOIN divisions d ON d.id = v.division_id
+    JOIN regions r ON r.region_id = d.region_id
+    JOIN hosts h on h.id = a.host_id
+ORDER BY $1 ASC
+LIMIT $2
+OFFSET
+    $3
+`
+
+type ListActivitiesOrderedDescParams struct {
+	Column1 *string `json:"column_1"`
+	Limit   int64   `json:"limit"`
+	Offset  int64   `json:"offset"`
+}
+
+type ListActivitiesOrderedDescRow struct {
+	ID        int64           `json:"id"`
+	Title     string          `json:"title"`
+	StartDate Date            `json:"start_date"`
+	EndDate   Date            `json:"end_date"`
+	VenueID   int32           `json:"venue_id"`
+	HostID    int32           `json:"host_id"`
+	Metadata  json.RawMessage `json:"metadata"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	DeletedAt sql.NullTime    `json:"deleted_at"`
+	Venue     string          `json:"venue"`
+	Region    string          `json:"region"`
+	Host      string          `json:"host"`
+}
+
+func (q *Queries) ListActivitiesOrderedDesc(ctx context.Context, arg ListActivitiesOrderedDescParams) ([]ListActivitiesOrderedDescRow, error) {
+	rows, err := q.db.QueryContext(ctx, listActivitiesOrderedDesc, arg.Column1, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListActivitiesOrderedDescRow
+	for rows.Next() {
+		var i ListActivitiesOrderedDescRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,

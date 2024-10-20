@@ -20,10 +20,23 @@ FROM
     JOIN divisions d ON d.id = v.division_id
     JOIN regions r ON r.region_id = d.region_id
     JOIN hosts h on h.id = a.host_id
-ORDER BY start_date DESC
-LIMIT $1
+ORDER BY $1 ASC
+LIMIT $2
 OFFSET
-    $2;
+    $3;
+
+-- name: ListActivitiesOrderedDesc :many
+SELECT a.*, v.name as venue, r.name as region, h.name as host
+FROM
+    active_activities a
+    JOIN venues v ON v.id = a.venue_id
+    JOIN divisions d ON d.id = v.division_id
+    JOIN regions r ON r.region_id = d.region_id
+    JOIN hosts h on h.id = a.host_id
+ORDER BY $1 ASC
+LIMIT $2
+OFFSET
+    $3;
 
 -- name: FindActivity :one
 SELECT
