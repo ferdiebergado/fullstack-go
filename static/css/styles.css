@@ -64,36 +64,42 @@ body {
 section {
   font-size: 1rem;
 }
-.top-nav {
-  background-color: #333;
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 20px 2em;
+  background-color: #333;
+  color: white;
 }
-.top-nav ul {
+.navbar-brand img {
+  height: 40px;
+}
+.navbar-links {
   list-style: none;
   display: flex;
-  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
 }
-.top-nav ul li {
-  margin-right: 20px;
+.navbar-links li {
+  margin-left: 20px;
 }
-.top-nav ul li a {
+.navbar-links a {
   text-decoration: none;
   color: white;
-  padding: 10px;
   font-weight: bold;
-  transition: background-color 0.3s;
+  padding: 10px;
 }
-.top-nav ul li a:hover {
-  background-color: #575757;
+.navbar-links a:hover {
+  color: #ddd;
 }
-.top-nav ul li a.active {
+.navbar-links a.active {
   background-color: var(--secondary-color);
 }
 .pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1em;
   font-size: 0.9em;
 }
 .pagination button {
@@ -104,6 +110,9 @@ section {
   transition: background-color 0.3s;
   border: 1px solid #ddd;
   margin: 0 4px;
+}
+.page-info {
+  padding: 8px 16px;
 }
 .alert {
   padding: 1em 1em;
@@ -149,6 +158,9 @@ td {
   text-align: left;
   vertical-align: top;
   border-bottom: 1px solid #ccc;
+}
+#data-table th {
+  cursor: pointer;
 }
 .responsive-table {
   overflow-x: auto;
@@ -238,11 +250,12 @@ dialog {
 footer {
   text-align: center;
   font-size: small;
-  margin-top: 2rem;
+  margin: 2rem 0;
 }
 .row {
   display: flex;
   gap: 1em;
+  margin-bottom: 2em;
 }
 .col {
   flex: 1;

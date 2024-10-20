@@ -1,5 +1,5 @@
 // @ts-check
-const navSelector = '.top-nav a';
+const navSelector = '.navbar a';
 const activeClass = 'active';
 
 /**
