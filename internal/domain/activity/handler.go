@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/host"
@@ -30,7 +29,7 @@ func NewActivityHandler(activityService ActivityService, venueService venue.Venu
 	return &ActivityHandler{activityService: activityService, venueService: venueService, hostService: hostService}
 }
 
-func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) paginatedActiveActivities(w http.ResponseWriter, r *http.Request) *myhttp.PaginatedData[db.ListActivitiesRow] {
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
 
@@ -52,7 +51,7 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "count activities", err)
-		return
+		return nil
 	}
 
 	args := &db.ListActivitiesParams{
@@ -64,77 +63,48 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "list activities", err)
-		return
+		return nil
 	}
 
 	totalPages := (totalItems + limit - 1) / limit
 
-	// Determine page range (page to page + 5)
-	pageRange := []int{}
-	for i := page; i <= page+3 && i < totalPages; i++ {
-		pageRange = append(pageRange, int(i))
-	}
-
-	var prevPage, nextPage int64
-	if page > 1 {
-		prevPage = page - 1
-	}
-	if page < totalPages {
-		nextPage = page + 1
-	}
-
-	data := &myhttp.PaginatedData[db.ListActivitiesRow]{
+	return &myhttp.PaginatedData[db.ListActivitiesRow]{
 		TotalItems: totalItems,
 		TotalPages: totalPages,
 		Page:       page,
 		Limit:      limit,
-		PageRange:  pageRange,
-		PrevPage:   prevPage,
-		NextPage:   nextPage,
 		Data:       activities,
 	}
-
-	acceptHeader := r.Header.Get("Accept")
-	acceptedTypes := strings.Split(acceptHeader, ",")
-
-	// Trim spaces and check each accepted media type
-	for _, mediaType := range acceptedTypes {
-		mediaType = strings.TrimSpace(mediaType)
-
-		if mediaType == "application/json" {
-
-			response := &myhttp.ApiResponse[*myhttp.PaginatedData[db.ListActivitiesRow]]{
-				Success: true,
-				Data:    data,
-			}
-
-			err := ui.RenderJson(w, r, http.StatusOK, response)
-
-			if err != nil {
-				myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render json", err)
-				return
-			}
-
-			return
-		} else if mediaType == "text/html" {
-			err := ui.RenderTemplate(w, "activities/index.html", data)
-
-			if err != nil {
-				myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
-				return
-			}
-
-			return
-		}
-	}
-
-	// Default fallback if no match
-	// w.Header().Set("Content-Type", "text/plain")
-	// w.Write([]byte("Default response in plain text"))
-	w.WriteHeader(http.StatusBadRequest)
 }
 
-func (h *ActivityHandler) CreateActivity(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) ListActiveActivitiesJson(w http.ResponseWriter, r *http.Request) {
+	data := h.paginatedActiveActivities(w, r)
+
+	response := &myhttp.ApiResponse[*myhttp.PaginatedData[db.ListActivitiesRow]]{
+		Success: true,
+		Data:    data,
+	}
+
+	err := ui.RenderJson(w, r, http.StatusOK, response)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render json", err)
+		return
+	}
+}
+
+func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
+	data := h.paginatedActiveActivities(w, r)
+
+	err := ui.RenderTemplate(w, "activities/index.html", data)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
+		return
+	}
+}
+
+func (h *ActivityHandler) ShowCreateActivityForm(w http.ResponseWriter, r *http.Request) {
 	venues, err := h.venueService.GetVenues(r.Context())
 
 	if err != nil {
@@ -208,7 +178,7 @@ func (h *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) ShowActivity(w http.ResponseWriter, r *http.Request) {
 	id, err := h.ParseId(r.PathValue("id"))
 
 	if err != nil {
@@ -231,7 +201,7 @@ func (h *ActivityHandler) ViewActivity(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *ActivityHandler) EditActivity(w http.ResponseWriter, r *http.Request) {
+func (h *ActivityHandler) ShowEditActivityForm(w http.ResponseWriter, r *http.Request) {
 	id, err := h.ParseId(r.PathValue("id"))
 
 	if err != nil {

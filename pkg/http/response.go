@@ -14,8 +14,5 @@ type PaginatedData[T any] struct {
 	TotalPages int64 `json:"total_pages"`
 	Page       int64 `json:"page"`
 	Limit      int64 `json:"limit"`
-	PageRange  []int `json:"page_range"`
-	PrevPage   int64 `json:"prev_page"`
-	NextPage   int64 `json:"next_page"`
 	Data       []T   `json:"data"`
 }
