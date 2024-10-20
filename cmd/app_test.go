@@ -90,7 +90,7 @@ func TestCreateActivityInvalid(t *testing.T) {
 	test.AssertEqual(t, http.StatusBadRequest, rr.Code)
 
 	// Check if the JSON response matches ApiResponse struct
-	var response myhttp.ApiResponse[*db.CreateActivityParams]
+	var response myhttp.ApiResponse
 	err = json.Unmarshal(rr.Body.Bytes(), &response)
 	if err != nil {
 		t.Fatalf("Failed to unmarshal response body: %v", err)
