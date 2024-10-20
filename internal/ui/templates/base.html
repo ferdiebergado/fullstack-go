@@ -16,15 +16,17 @@
 
     <main>
       <!-- Notification -->
-      {{ template "notification" . }}
+      <section>{{ template "notification" . }}</section>
 
       <!-- Page Header -->
-      <header>
+      <section class="page-header">
         <h2>{{ block "header" . }}{{ end }}</h2>
-      </header>
+      </section>
 
       <!-- Page Content -->
       <section>{{ block "content" . }}{{ end }}</section>
     </main>
+
+    <footer>&copy; 2024. PTMS</footer>
   </body>
 </html>
