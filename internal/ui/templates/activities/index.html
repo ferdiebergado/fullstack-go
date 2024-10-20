@@ -1,5 +1,5 @@
 {{ block "title" .}}PTMS - Activities{{ end }} {{ block "scripts" . }}
-<script type="module" src="/assets/js/components/pager.js"></script>
+<script type="module" src="/static/js/components/pager.js"></script>
 {{ end }} {{ block "header" .}}Activities{{ end }} {{ block "content" .}}
 
 <div class="card">
@@ -11,7 +11,8 @@
       </a>
     </div>
   </div>
-  <table>
+  {{ template "pagination" .}}
+  <table id="datatable">
     <thead>
       <tr>
         <th scope="col">Title</th>
@@ -27,10 +28,10 @@
       {{ if .Data }} {{ range .Data }}
       <tr>
         <td>{{ .Title }}</td>
-        <td class="nowrap-col">{{ .StartDate.Time.Format "2006-01-02" }}</td>
-        <td class="nowrap-col">{{ .EndDate.Time.Format "2006-01-02" }}</td>
+        <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
+        <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
         <td>{{ .Venue }}</td>
-        <td class="nowrap-col">{{ .Region }}</td>
+        <td>{{ .Region }}</td>
         <td>{{ .Host }}</td>
         <td>
           <a class="btn btn-primary btn-small" href="/activities/{{ .ID }}"
@@ -50,16 +51,15 @@
       {{ end }}
     </tbody>
   </table>
-  {{ template "pagination" .}}
 </div>
 
 <template id="activity-row">
   <tr>
     <td class="title"></td>
-    <td class="nowrap-col start_date"></td>
-    <td class="nowrap-col end_date"></td>
+    <td class="start_date"></td>
+    <td class="end_date"></td>
     <td class="venue"></td>
-    <td class="nowrap-col region"></td>
+    <td class="region"></td>
     <td class="host"></td>
     <td>
       <a class="btn btn-primary btn-small info">Info</a>

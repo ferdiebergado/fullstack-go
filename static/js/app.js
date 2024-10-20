@@ -1,18 +1,2 @@
-// assets/js/app.js
-var navSelector = ".top-nav a";
-var activeClass = "active";
-function initializeNavLinks() {
-  const currentPath = window.location.pathname;
-  const rootPath = "/" + currentPath.split("/")[1];
-  const links = document.querySelectorAll(navSelector);
-  links.forEach((link) => {
-    const linkPath = new URL(link.href).pathname;
-    if (linkPath === rootPath && rootPath !== "/") {
-      link.classList.add(activeClass);
-    } else {
-      link.classList.remove(activeClass);
-    }
-  });
-}
-initializeNavLinks();
+var e=".top-nav a",n="active";function s(){let a="/"+window.location.pathname.split("/")[1];document.querySelectorAll(e).forEach(t=>{new URL(t.href).pathname===a&&a!=="/"?t.classList.add(n):t.classList.remove(n)})}s();
 //# sourceMappingURL=app.js.map
