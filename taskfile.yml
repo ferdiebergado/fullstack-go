@@ -26,13 +26,18 @@ tasks:
     requires:
       vars: [DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]
   seed:
-    cmds:
-      - $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy activities (title,start_date,end_date,venue_id,host_id) FROM '/root/activities.csv' DELIMITER ',' CSV HEADER"
-      - $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy venues (name,division_id) FROM '/root/venues.csv' DELIMITER ',' CSV HEADER"
-      - $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy hosts (name) FROM '/root/hosts.csv' DELIMITER ',' CSV HEADER"
+    cmd:
+      for:
+        [
+          "activities (title,start_date,end_date,venue_id,host_id) FROM '/root/activities.csv'",
+          "venues (name,division_id) FROM '/root/venues.csv'",
+          "hosts (name) FROM '/root/hosts.csv'",
+        ]
+      cmd: $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy {{.ITEM}} DELIMITER ',' CSV HEADER"
+
   generate:
     aliases: ["gen"]
-    cmd: export DSN="{{.DSN}}"; sqlc generate
+    cmd: export DSN="{{.DSN}}"; sqlc -f db/sqlc.yaml generate
     requires:
       vars: [DSN]
   setup_test:
@@ -67,6 +72,6 @@ tasks:
   css:watch:
     cmd: esbuild assets/css/styles.css --bundle --outdir=static/css --watch
   js:watch:
-    cmd: esbuild assets/js/app.js assets/js/activity/create.js --bundle --outdir=static/js --sourcemap --target=es6 --splitting --format=esm --watch
+    cmd: esbuild assets/js/**/*.js --bundle --outdir=static/js --sourcemap --target=es6 --splitting --format=esm --watch
   dev:
     cmd: air
