@@ -1,24 +1,22 @@
 package activity
 
 import (
-	"net/http"
-
-	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	router "github.com/ferdiebergado/go-express"
 )
 
-func AddRoutes(router *myhttp.Router, handler ActivityHandler) {
+func AddRoutes(router *router.Router, handler ActivityHandler) {
 
 	// html pages
-	router.Handle("GET /activities", http.HandlerFunc(handler.ListActiveActivities))
-	router.Handle("GET /activities/create", http.HandlerFunc(handler.ShowCreateActivityForm))
-	router.Handle("GET /activities/{id}", http.HandlerFunc(handler.ShowActivity))
-	router.Handle("GET /activities/{id}/edit", http.HandlerFunc(handler.ShowEditActivityForm))
+	router.Get("/activities", handler.ListActiveActivities)
+	router.Get("/activities/create", handler.ShowCreateActivityForm)
+	router.Get("/activities/{id}", handler.ShowActivity)
+	router.Get("/activities/{id}/edit", handler.ShowEditActivityForm)
 
 	// api routes
-	router.Handle("GET /api/activities", http.HandlerFunc(handler.ListActiveActivitiesJson))
-	router.Handle("GET /api/activities/{id}", http.HandlerFunc(handler.GetActivity))
-	router.Handle("POST /api/activities", http.HandlerFunc(handler.SaveActivity))
-	router.Handle("PUT /api/activities/{id}", http.HandlerFunc(handler.UpdateActivity))
-	router.Handle("DELETE /api/activities/{id}", http.HandlerFunc(handler.DeleteActivity))
+	router.Get("/api/activities", handler.ListActiveActivitiesJson)
+	router.Get("/api/activities/{id}", handler.GetActivity)
+	router.Post("/api/activities", handler.SaveActivity)
+	router.Put("/api/activities/{id}", handler.UpdateActivity)
+	router.Delete("/api/activities/{id}", handler.DeleteActivity)
 
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 	"github.com/ferdiebergado/fullstack-go/pkg/test"
+	router "github.com/ferdiebergado/go-express"
 )
 
 var (
@@ -28,7 +29,7 @@ var (
 	conn = db.OpenDb()
 )
 
-func setupTestRouter(t *testing.T) *myhttp.Router {
+func setupTestRouter(t *testing.T) *router.Router {
 	t.Helper()
 
 	q := db.New(conn)
@@ -178,7 +179,7 @@ func TestListActiveActivities(t *testing.T) {
 	t.Parallel()
 	router := setupTestRouter(t)
 
-	req, err := http.NewRequest(http.MethodGet, "/activities", nil)
+	req, err := http.NewRequest(http.MethodGet, "/api/activities", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

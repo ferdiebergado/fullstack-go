@@ -1,8 +1,6 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/ferdiebergado/fullstack-go/internal/config"
@@ -12,10 +10,11 @@ import (
 	"github.com/ferdiebergado/fullstack-go/internal/domain/venue"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	router "github.com/ferdiebergado/go-express"
+	"github.com/ferdiebergado/go-express/middleware"
 )
 
-func NewApp(database *db.Database) *myhttp.Router {
-	staticPath := fmt.Sprintf("/%s/", config.StaticDir)
+func NewApp(database *db.Database) *router.Router {
 
 	// Host Handler
 	hostService := host.NewHostService(database)
@@ -30,40 +29,40 @@ func NewApp(database *db.Database) *myhttp.Router {
 	activityHandler := activity.NewActivityHandler(activityService, venueService, hostService)
 
 	// Create the router.
-	router := myhttp.NewRouter()
+	router := router.NewRouter()
 
 	// Register global middlewares.
-	router.Use(myhttp.RequestLogger)
-	router.Use(myhttp.StripTrailingSlashes)
-	router.Use(myhttp.PanicRecovery)
+	router.Use(middleware.RequestLogger)
+	router.Use(middleware.StripTrailingSlashes)
+	router.Use(middleware.PanicRecovery)
 
 	// Serve static files.
-	router.Handle("GET "+staticPath, http.StripPrefix(staticPath, http.FileServer(http.Dir(config.StaticDir))))
+	router.ServeStatic(config.StaticDir)
 
 	// Activities routes.
 	activity.AddRoutes(router, *activityHandler)
 
 	// Venues routes.
-	router.Handle("POST /api/venues", http.HandlerFunc(venueHandler.SaveVenue))
+	router.Post("/api/venues", venueHandler.SaveVenue)
 
 	// Hosts routes.
-	router.Handle("POST /api/hosts", http.HandlerFunc(hostHandler.SaveHost))
+	router.Post("/api/hosts", hostHandler.SaveHost)
 
 	// Home page
-	router.Handle("GET /{$}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/{$}", func(w http.ResponseWriter, r *http.Request) {
 		err := ui.RenderTemplate(w, "index.html", nil)
 
 		if err != nil {
 			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
 			return
 		}
-	}))
+	})
 
 	// Not found handler
-	router.Handle("GET /", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		status := http.StatusNotFound
-		myhttp.ErrorHandler(w, r, status, http.StatusText(status), errors.New("page not found"))
-	}))
+	// router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	status := http.StatusNotFound
+	// 	myhttp.ErrorHandler(w, r, status, http.StatusText(status), errors.New("page not found"))
+	// })
 
 	return router
 }
