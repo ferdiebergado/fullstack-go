@@ -35,13 +35,14 @@ func (h *VenueHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		response := &myhttp.ApiResponse{
-			Success: false,
-			Message: errorBag.Message,
-			Errors:  errorBag.ValidationErrors,
+		response := &myhttp.ApiResponse[any]{
+			Meta: myhttp.ResponseMeta{
+				Message: errorBag.Message,
+				Errors:  errorBag.ValidationErrors,
+			},
 		}
 
-		err = ui.RenderJson(w, r, http.StatusBadRequest, response)
+		err = ui.RenderJson(w, http.StatusBadRequest, response)
 
 		if err != nil {
 			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
@@ -51,13 +52,14 @@ func (h *VenueHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := &myhttp.ApiResponse{
-		Success: true,
-		Message: "Venue created successfully!",
-		Data:    venue,
+	response := &myhttp.ApiResponse[[]*db.Venue]{
+		Meta: myhttp.ResponseMeta{
+			Message: "Venue created successfully!",
+		},
+		Data: []*db.Venue{venue},
 	}
 
-	err = ui.RenderJson(w, r, http.StatusCreated, response)
+	err = ui.RenderJson(w, http.StatusCreated, response)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)

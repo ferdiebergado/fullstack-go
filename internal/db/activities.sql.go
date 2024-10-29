@@ -7,9 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
-	"time"
 )
 
 const countActiveActivities = `-- name: CountActiveActivities :one
@@ -23,12 +21,12 @@ func (q *Queries) CountActiveActivities(ctx context.Context) (int64, error) {
 	return count, err
 }
 
-const countAllActivities = `-- name: CountAllActivities :one
+const countActivities = `-- name: CountActivities :one
 SELECT COUNT(*) FROM activities
 `
 
-func (q *Queries) CountAllActivities(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countAllActivities)
+func (q *Queries) CountActivities(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countActivities)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -92,76 +90,109 @@ func (q *Queries) DeleteActivity(ctx context.Context, id int64) error {
 	return err
 }
 
-const findActivity = `-- name: FindActivity :one
-SELECT
-    a.id, a.title, a.start_date, a.end_date, a.venue_id, a.host_id, a.metadata, a.created_at, a.updated_at, a.deleted_at,
-    v.name as venue,
-    r.id as region_id,
-    r.name as region,
-    h.name as host
-FROM
-    active_activities a
-    JOIN venues v ON v.id = a.venue_id
-    JOIN divisions d ON d.id = v.division_id
-    JOIN regions r ON r.region_id = d.region_id
-    JOIN hosts h on h.id = a.host_id
-WHERE
-    a.id = $1
+const findActiveActivitiesByStartDate = `-- name: FindActiveActivitiesByStartDate :many
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM active_activity_details WHERE start_date = $1
 `
 
-type FindActivityRow struct {
-	ID        int64           `json:"id"`
-	Title     string          `json:"title"`
-	StartDate Date            `json:"start_date"`
-	EndDate   Date            `json:"end_date"`
-	VenueID   int32           `json:"venue_id"`
-	HostID    int32           `json:"host_id"`
-	Metadata  json.RawMessage `json:"metadata"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
-	DeletedAt sql.NullTime    `json:"deleted_at"`
-	Venue     string          `json:"venue"`
-	RegionID  int16           `json:"region_id"`
-	Region    string          `json:"region"`
-	Host      string          `json:"host"`
+func (q *Queries) FindActiveActivitiesByStartDate(ctx context.Context, startDate Date) ([]ActiveActivityDetail, error) {
+	rows, err := q.db.QueryContext(ctx, findActiveActivitiesByStartDate, startDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ActiveActivityDetail
+	for rows.Next() {
+		var i ActiveActivityDetail
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.StartDate,
+			&i.EndDate,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-func (q *Queries) FindActivity(ctx context.Context, id int64) (FindActivityRow, error) {
-	row := q.db.QueryRowContext(ctx, findActivity, id)
-	var i FindActivityRow
+const findActiveActivitiesByTitle = `-- name: FindActiveActivitiesByTitle :many
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM active_activity_details WHERE title LIKE '%$1%'
+`
+
+func (q *Queries) FindActiveActivitiesByTitle(ctx context.Context) ([]ActiveActivityDetail, error) {
+	rows, err := q.db.QueryContext(ctx, findActiveActivitiesByTitle)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ActiveActivityDetail
+	for rows.Next() {
+		var i ActiveActivityDetail
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.StartDate,
+			&i.EndDate,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findActiveActivity = `-- name: FindActiveActivity :one
+SELECT id FROM active_activities WHERE id = $1
+`
+
+func (q *Queries) FindActiveActivity(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, findActiveActivity, id)
+	err := row.Scan(&id)
+	return id, err
+}
+
+const findActiveActivityDetails = `-- name: FindActiveActivityDetails :one
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM active_activity_details WHERE id = $1
+`
+
+func (q *Queries) FindActiveActivityDetails(ctx context.Context, id int64) (ActiveActivityDetail, error) {
+	row := q.db.QueryRowContext(ctx, findActiveActivityDetails, id)
+	var i ActiveActivityDetail
 	err := row.Scan(
 		&i.ID,
 		&i.Title,
 		&i.StartDate,
 		&i.EndDate,
-		&i.VenueID,
-		&i.HostID,
-		&i.Metadata,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
 		&i.Venue,
-		&i.RegionID,
 		&i.Region,
 		&i.Host,
-	)
-	return i, err
-}
-
-const findActivityAll = `-- name: FindActivityAll :one
-SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at FROM activities WHERE id = $1
-`
-
-func (q *Queries) FindActivityAll(ctx context.Context, id int64) (Activity, error) {
-	row := q.db.QueryRowContext(ctx, findActivityAll, id)
-	var i Activity
-	err := row.Scan(
-		&i.ID,
-		&i.Title,
-		&i.StartDate,
-		&i.EndDate,
-		&i.VenueID,
-		&i.HostID,
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -170,26 +201,27 @@ func (q *Queries) FindActivityAll(ctx context.Context, id int64) (Activity, erro
 	return i, err
 }
 
-const findActivityByStartDate = `-- name: FindActivityByStartDate :many
-SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at FROM active_activities WHERE start_date = $1
+const findActivitiesByStartDate = `-- name: FindActivitiesByStartDate :many
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM activity_details WHERE start_date = $1
 `
 
-func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) ([]ActiveActivity, error) {
-	rows, err := q.db.QueryContext(ctx, findActivityByStartDate, startDate)
+func (q *Queries) FindActivitiesByStartDate(ctx context.Context, startDate Date) ([]ActivityDetail, error) {
+	rows, err := q.db.QueryContext(ctx, findActivitiesByStartDate, startDate)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ActiveActivity
+	var items []ActivityDetail
 	for rows.Next() {
-		var i ActiveActivity
+		var i ActivityDetail
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.VenueID,
-			&i.HostID,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -208,26 +240,27 @@ func (q *Queries) FindActivityByStartDate(ctx context.Context, startDate Date) (
 	return items, nil
 }
 
-const findActivityByTitle = `-- name: FindActivityByTitle :many
-SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at FROM active_activities WHERE title LIKE '%$1%'
+const findActivitiesByTitle = `-- name: FindActivitiesByTitle :many
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM activity_details WHERE title LIKE '%$1%'
 `
 
-func (q *Queries) FindActivityByTitle(ctx context.Context) ([]ActiveActivity, error) {
-	rows, err := q.db.QueryContext(ctx, findActivityByTitle)
+func (q *Queries) FindActivitiesByTitle(ctx context.Context) ([]ActivityDetail, error) {
+	rows, err := q.db.QueryContext(ctx, findActivitiesByTitle)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ActiveActivity
+	var items []ActivityDetail
 	for rows.Next() {
-		var i ActiveActivity
+		var i ActivityDetail
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.VenueID,
-			&i.HostID,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -246,65 +279,161 @@ func (q *Queries) FindActivityByTitle(ctx context.Context) ([]ActiveActivity, er
 	return items, nil
 }
 
-const listActivities = `-- name: ListActivities :many
-SELECT a.id, a.title, a.start_date, a.end_date, a.venue_id, a.host_id, a.metadata, a.created_at, a.updated_at, a.deleted_at, v.name as venue, r.name as region, h.name as host
-FROM
-    active_activities a
-    JOIN venues v ON v.id = a.venue_id
-    JOIN divisions d ON d.id = v.division_id
-    JOIN regions r ON r.region_id = d.region_id
-    JOIN hosts h on h.id = a.host_id
+const findActivity = `-- name: FindActivity :one
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM activity_details WHERE id = $1
+`
+
+func (q *Queries) FindActivity(ctx context.Context, id int64) (ActivityDetail, error) {
+	row := q.db.QueryRowContext(ctx, findActivity, id)
+	var i ActivityDetail
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Venue,
+		&i.Region,
+		&i.Host,
+		&i.Metadata,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const listActiveActivitiesOrderedByCol = `-- name: ListActiveActivitiesOrderedByCol :many
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at
+FROM active_activity_details
+ORDER BY
+    CASE
+        WHEN $1 = 'title'
+        AND $2 = 'ASC' THEN title
+    END ASC,
+    CASE
+        WHEN $1 = 'title'
+        AND $2 = 'DESC' THEN title
+    END DESC,
+    CASE
+        WHEN $1 = 'start_date'
+        AND $2 = 'ASC' THEN start_date
+    END ASC,
+    CASE
+        WHEN $1 = 'start_date'
+        AND $2 = 'DESC' THEN start_date
+    END DESC,
+    CASE
+        WHEN $1 = 'end_date'
+        AND $2 = 'ASC' THEN end_date
+    END ASC,
+    CASE
+        WHEN $1 = 'end_date'
+        AND $2 = 'DESC' THEN end_date
+    END DESC,
+    CASE
+        WHEN $1 = 'venue'
+        AND $2 = 'ASC' THEN venue
+    END ASC,
+    CASE
+        WHEN $1 = 'venue'
+        AND $2 = 'DESC' THEN venue
+    END DESC,
+    CASE
+        WHEN $1 = 'host'
+        AND $2 = 'ASC' THEN host
+    END ASC,
+    CASE
+        WHEN $1 = 'host'
+        AND $2 = 'DESC' THEN host
+    END DESC
+LIMIT $3
+OFFSET
+    $4
+`
+
+type ListActiveActivitiesOrderedByColParams struct {
+	Column1 *string `json:"column_1"`
+	Column2 *string `json:"column_2"`
+	Limit   int64   `json:"limit"`
+	Offset  int64   `json:"offset"`
+}
+
+func (q *Queries) ListActiveActivitiesOrderedByCol(ctx context.Context, arg ListActiveActivitiesOrderedByColParams) ([]ActiveActivityDetail, error) {
+	rows, err := q.db.QueryContext(ctx, listActiveActivitiesOrderedByCol,
+		arg.Column1,
+		arg.Column2,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ActiveActivityDetail
+	for rows.Next() {
+		var i ActiveActivityDetail
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.StartDate,
+			&i.EndDate,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listActivitiesOrderedByColAsc = `-- name: ListActivitiesOrderedByColAsc :many
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at
+FROM activity_details
 ORDER BY $1 ASC
 LIMIT $2
 OFFSET
     $3
 `
 
-type ListActivitiesParams struct {
+type ListActivitiesOrderedByColAscParams struct {
 	Column1 *string `json:"column_1"`
 	Limit   int64   `json:"limit"`
 	Offset  int64   `json:"offset"`
 }
 
-type ListActivitiesRow struct {
-	ID        int64           `json:"id"`
-	Title     string          `json:"title"`
-	StartDate Date            `json:"start_date"`
-	EndDate   Date            `json:"end_date"`
-	VenueID   int32           `json:"venue_id"`
-	HostID    int32           `json:"host_id"`
-	Metadata  json.RawMessage `json:"metadata"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
-	DeletedAt sql.NullTime    `json:"deleted_at"`
-	Venue     string          `json:"venue"`
-	Region    string          `json:"region"`
-	Host      string          `json:"host"`
-}
-
-func (q *Queries) ListActivities(ctx context.Context, arg ListActivitiesParams) ([]ListActivitiesRow, error) {
-	rows, err := q.db.QueryContext(ctx, listActivities, arg.Column1, arg.Limit, arg.Offset)
+func (q *Queries) ListActivitiesOrderedByColAsc(ctx context.Context, arg ListActivitiesOrderedByColAscParams) ([]ActivityDetail, error) {
+	rows, err := q.db.QueryContext(ctx, listActivitiesOrderedByColAsc, arg.Column1, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListActivitiesRow
+	var items []ActivityDetail
 	for rows.Next() {
-		var i ListActivitiesRow
+		var i ActivityDetail
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.VenueID,
-			&i.HostID,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
-			&i.Venue,
-			&i.Region,
-			&i.Host,
 		); err != nil {
 			return nil, err
 		}
@@ -319,104 +448,38 @@ func (q *Queries) ListActivities(ctx context.Context, arg ListActivitiesParams) 
 	return items, nil
 }
 
-const listActivitiesOrderedDesc = `-- name: ListActivitiesOrderedDesc :many
-SELECT a.id, a.title, a.start_date, a.end_date, a.venue_id, a.host_id, a.metadata, a.created_at, a.updated_at, a.deleted_at, v.name as venue, r.name as region, h.name as host
-FROM
-    active_activities a
-    JOIN venues v ON v.id = a.venue_id
-    JOIN divisions d ON d.id = v.division_id
-    JOIN regions r ON r.region_id = d.region_id
-    JOIN hosts h on h.id = a.host_id
-ORDER BY $1 ASC
+const listActivitiesOrderedByColDesc = `-- name: ListActivitiesOrderedByColDesc :many
+SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at
+FROM activity_details
+ORDER BY $1 DESC
 LIMIT $2
 OFFSET
     $3
 `
 
-type ListActivitiesOrderedDescParams struct {
+type ListActivitiesOrderedByColDescParams struct {
 	Column1 *string `json:"column_1"`
 	Limit   int64   `json:"limit"`
 	Offset  int64   `json:"offset"`
 }
 
-type ListActivitiesOrderedDescRow struct {
-	ID        int64           `json:"id"`
-	Title     string          `json:"title"`
-	StartDate Date            `json:"start_date"`
-	EndDate   Date            `json:"end_date"`
-	VenueID   int32           `json:"venue_id"`
-	HostID    int32           `json:"host_id"`
-	Metadata  json.RawMessage `json:"metadata"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
-	DeletedAt sql.NullTime    `json:"deleted_at"`
-	Venue     string          `json:"venue"`
-	Region    string          `json:"region"`
-	Host      string          `json:"host"`
-}
-
-func (q *Queries) ListActivitiesOrderedDesc(ctx context.Context, arg ListActivitiesOrderedDescParams) ([]ListActivitiesOrderedDescRow, error) {
-	rows, err := q.db.QueryContext(ctx, listActivitiesOrderedDesc, arg.Column1, arg.Limit, arg.Offset)
+func (q *Queries) ListActivitiesOrderedByColDesc(ctx context.Context, arg ListActivitiesOrderedByColDescParams) ([]ActivityDetail, error) {
+	rows, err := q.db.QueryContext(ctx, listActivitiesOrderedByColDesc, arg.Column1, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListActivitiesOrderedDescRow
+	var items []ActivityDetail
 	for rows.Next() {
-		var i ListActivitiesOrderedDescRow
+		var i ActivityDetail
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.VenueID,
-			&i.HostID,
-			&i.Metadata,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
 			&i.Venue,
 			&i.Region,
 			&i.Host,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listAllActivities = `-- name: ListAllActivities :many
-SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at FROM activities ORDER BY start_date DESC LIMIT $1 OFFSET $2
-`
-
-type ListAllActivitiesParams struct {
-	Limit  int64 `json:"limit"`
-	Offset int64 `json:"offset"`
-}
-
-func (q *Queries) ListAllActivities(ctx context.Context, arg ListAllActivitiesParams) ([]Activity, error) {
-	rows, err := q.db.QueryContext(ctx, listAllActivities, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Activity
-	for rows.Next() {
-		var i Activity
-		if err := rows.Scan(
-			&i.ID,
-			&i.Title,
-			&i.StartDate,
-			&i.EndDate,
-			&i.VenueID,
-			&i.HostID,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -445,7 +508,7 @@ func (q *Queries) RestoreActivity(ctx context.Context, id int64) error {
 }
 
 const updateActivity = `-- name: UpdateActivity :exec
-UPDATE activities
+UPDATE active_activities
 SET
     title = $1,
     start_date = $2,

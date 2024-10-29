@@ -3,6 +3,7 @@ package host
 import (
 	"net/http"
 
+	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 	"github.com/ferdiebergado/fullstack-go/pkg/validator"
@@ -38,13 +39,14 @@ func (h *HostHandler) SaveHost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		response := &myhttp.ApiResponse{
-			Success: false,
-			Message: errorBag.Message,
-			Errors:  errorBag.ValidationErrors,
+		response := &myhttp.ApiResponse[any]{
+			Meta: myhttp.ResponseMeta{
+				Message: errorBag.Message,
+				Errors:  errorBag.ValidationErrors,
+			},
 		}
 
-		err = ui.RenderJson(w, r, http.StatusBadRequest, response)
+		err = ui.RenderJson(w, http.StatusBadRequest, response)
 
 		if err != nil {
 			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
@@ -54,13 +56,14 @@ func (h *HostHandler) SaveHost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := &myhttp.ApiResponse{
-		Success: true,
-		Message: "Host created successfully!",
-		Data:    host,
+	response := &myhttp.ApiResponse[[]db.Host]{
+		Meta: myhttp.ResponseMeta{
+			Message: "Host created successfully!",
+		},
+		Data: []db.Host{host},
 	}
 
-	err = ui.RenderJson(w, r, http.StatusCreated, response)
+	err = ui.RenderJson(w, http.StatusCreated, response)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)

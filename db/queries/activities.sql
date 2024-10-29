@@ -12,50 +12,8 @@ VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING
     *;
 
--- name: ListActivities :many
-SELECT a.*, v.name as venue, r.name as region, h.name as host
-FROM
-    active_activities a
-    JOIN venues v ON v.id = a.venue_id
-    JOIN divisions d ON d.id = v.division_id
-    JOIN regions r ON r.region_id = d.region_id
-    JOIN hosts h on h.id = a.host_id
-ORDER BY $1 ASC
-LIMIT $2
-OFFSET
-    $3;
-
--- name: ListActivitiesOrderedDesc :many
-SELECT a.*, v.name as venue, r.name as region, h.name as host
-FROM
-    active_activities a
-    JOIN venues v ON v.id = a.venue_id
-    JOIN divisions d ON d.id = v.division_id
-    JOIN regions r ON r.region_id = d.region_id
-    JOIN hosts h on h.id = a.host_id
-ORDER BY $1 ASC
-LIMIT $2
-OFFSET
-    $3;
-
--- name: FindActivity :one
-SELECT
-    a.*,
-    v.name as venue,
-    r.id as region_id,
-    r.name as region,
-    h.name as host
-FROM
-    active_activities a
-    JOIN venues v ON v.id = a.venue_id
-    JOIN divisions d ON d.id = v.division_id
-    JOIN regions r ON r.region_id = d.region_id
-    JOIN hosts h on h.id = a.host_id
-WHERE
-    a.id = $1;
-
 -- name: UpdateActivity :exec
-UPDATE activities
+UPDATE active_activities
 SET
     title = $1,
     start_date = $2,
@@ -73,20 +31,125 @@ UPDATE active_activities SET deleted_at = NOW() WHERE id = $1;
 -- name: RestoreActivity :exec
 UPDATE activities SET deleted_at = NULL WHERE id = $1;
 
--- name: FindActivityByTitle :many
-SELECT * FROM active_activities WHERE title LIKE '%$1%';
+-- name: FindActiveActivity :one
+SELECT id FROM active_activities WHERE id = $1;
 
--- name: FindActivityByStartDate :many
-SELECT * FROM active_activities WHERE start_date = $1;
+-- name: FindActiveActivityDetails :one
+SELECT * FROM active_activity_details WHERE id = $1;
 
--- name: ListAllActivities :many
-SELECT * FROM activities ORDER BY start_date DESC LIMIT $1 OFFSET $2;
+-- name: FindActivity :one
+SELECT * FROM activity_details WHERE id = $1;
 
--- name: FindActivityAll :one
-SELECT * FROM activities WHERE id = $1;
+-- name: FindActiveActivitiesByTitle :many
+SELECT * FROM active_activity_details WHERE title LIKE '%$1%';
+
+-- name: FindActivitiesByTitle :many
+SELECT * FROM activity_details WHERE title LIKE '%$1%';
+
+-- name: FindActiveActivitiesByStartDate :many
+SELECT * FROM active_activity_details WHERE start_date = $1;
+
+-- name: FindActivitiesByStartDate :many
+SELECT * FROM activity_details WHERE start_date = $1;
+
+-- name: ListActiveActivitiesOrderedByCol :many
+SELECT *
+FROM active_activity_details
+ORDER BY
+    CASE
+        WHEN $1 = 'title'
+        AND $2 = 'ASC' THEN title
+    END ASC,
+    CASE
+        WHEN $1 = 'title'
+        AND $2 = 'DESC' THEN title
+    END DESC,
+    CASE
+        WHEN $1 = 'start_date'
+        AND $2 = 'ASC' THEN start_date
+    END ASC,
+    CASE
+        WHEN $1 = 'start_date'
+        AND $2 = 'DESC' THEN start_date
+    END DESC,
+    CASE
+        WHEN $1 = 'end_date'
+        AND $2 = 'ASC' THEN end_date
+    END ASC,
+    CASE
+        WHEN $1 = 'end_date'
+        AND $2 = 'DESC' THEN end_date
+    END DESC,
+    CASE
+        WHEN $1 = 'venue'
+        AND $2 = 'ASC' THEN venue
+    END ASC,
+    CASE
+        WHEN $1 = 'venue'
+        AND $2 = 'DESC' THEN venue
+    END DESC,
+    CASE
+        WHEN $1 = 'host'
+        AND $2 = 'ASC' THEN host
+    END ASC,
+    CASE
+        WHEN $1 = 'host'
+        AND $2 = 'DESC' THEN host
+    END DESC
+LIMIT $3
+OFFSET
+    $4;
+
+-- name: ListActivitiesOrderedByCol :many
+SELECT *
+FROM activity_details
+ORDER BY
+    CASE
+        WHEN $1 = 'title'
+        AND $2 = 'ASC' THEN title
+    END ASC,
+    CASE
+        WHEN $1 = 'title'
+        AND $2 = 'DESC' THEN title
+    END DESC,
+    CASE
+        WHEN $1 = 'start_date'
+        AND $2 = 'ASC' THEN start_date
+    END ASC,
+    CASE
+        WHEN $1 = 'start_date'
+        AND $2 = 'DESC' THEN start_date
+    END DESC,
+    CASE
+        WHEN $1 = 'end_date'
+        AND $2 = 'ASC' THEN end_date
+    END ASC,
+    CASE
+        WHEN $1 = 'end_date'
+        AND $2 = 'DESC' THEN end_date
+    END DESC,
+    CASE
+        WHEN $1 = 'venue'
+        AND $2 = 'ASC' THEN venue
+    END ASC,
+    CASE
+        WHEN $1 = 'venue'
+        AND $2 = 'DESC' THEN venue
+    END DESC,
+    CASE
+        WHEN $1 = 'host'
+        AND $2 = 'ASC' THEN host
+    END ASC,
+    CASE
+        WHEN $1 = 'host'
+        AND $2 = 'DESC' THEN host
+    END DESC
+LIMIT $3
+OFFSET
+    $4;
 
 -- name: CountActiveActivities :one
 SELECT COUNT(*) FROM active_activities;
 
--- name: CountAllActivities :one
+-- name: CountActivities :one
 SELECT COUNT(*) FROM activities;
