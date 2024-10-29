@@ -26,4 +26,14 @@
  * @property {CustomEventDetail} detail - Custom detail object for the event.
  */
 
+/**
+ * @typedef {Object} PaginationData
+ *
+ * @property {number} total_items
+ * @property {number} total_pages
+ * @property {number} page
+ * @property {number} limit
+ * @property {Object} data
+ */
+
 export default {};
