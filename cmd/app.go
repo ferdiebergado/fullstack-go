@@ -6,6 +6,7 @@ import (
 	"github.com/ferdiebergado/fullstack-go/internal/config"
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/activity"
+	"github.com/ferdiebergado/fullstack-go/internal/domain/division"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/host"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/venue"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
@@ -24,9 +25,12 @@ func NewApp(database *db.Database) *router.Router {
 	venueService := venue.NewVenueService(database)
 	venueHandler := venue.NewVenueHandler(venueService)
 
+	// Division Service
+	divisionService := division.NewDivisionService(database)
+
 	// Create the Activity Handler.
 	activityService := activity.NewActivityService(database)
-	activityHandler := activity.NewActivityHandler(activityService, venueService, hostService)
+	activityHandler := activity.NewActivityHandler(activityService, venueService, hostService, divisionService)
 
 	// Create the router.
 	router := router.NewRouter()
@@ -50,7 +54,7 @@ func NewApp(database *db.Database) *router.Router {
 
 	// Home page
 	router.Get("/{$}", func(w http.ResponseWriter, r *http.Request) {
-		err := ui.RenderTemplate(w, "index.html", nil)
+		err := ui.RenderHTML(w, "index.html", nil)
 
 		if err != nil {
 			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
