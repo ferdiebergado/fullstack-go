@@ -1,8 +1,8 @@
 @import "./reset.css";
 
 :root {
-	--font-primary: sans-serif;
-	--font-size: 16px;
+	--font-primary: "Inter", sans-serif;
+	--font-size: clamp(1rem, 0.95rem + 0.25vw, 1.25rem);
 	--text-color: #242424;
 
 	--primary-color: dodgerblue;
@@ -11,25 +11,26 @@
 	--success-color: limegreen;
 	--danger-color: crimson;
 
-	--body-background-color: #eee;
+	--body-background-color: #e8e8e8;
 
 	--padding: 15px;
 	--margin: 1em 2em;
 
-	--max-width: 786px;
+	--max-width: 768px;
 }
 
 html {
-	font-size: var(--font-size);
+	font-size: 1rem;
 }
 
 body {
-	width: 90%;
-	max-width: 1200px;
-	margin: 0 auto;
+	width: 100%;
+	max-width: 1024px;
+	margin-inline: auto;
 	background: var(--body-background-color);
-	font-family: var(--font-primary);
 	color: var(--text-color);
+	font-family: var(--font-primary);
+	font-size: var(--font-size);
 }
 
 /* Navbar container */
@@ -90,7 +91,7 @@ body {
 	text-decoration: none;
 	transition: background-color 0.3s;
 	border: 1px solid #ddd;
-	margin: 0 4px;
+	margin-inline: 4px;
 }
 
 .page-info {
@@ -100,10 +101,11 @@ body {
 
 /* Alert */
 .alert {
-	padding: 1em 1em;
-	margin: 1em 1em;
+	padding: 1em;
+	margin: 1em;
 	display: none;
 }
+
 .alert-error {
 	background-color: var(--danger-color);
 	color: white;
@@ -124,9 +126,8 @@ body {
 
 /* Card */
 .card {
-	background-color: white;
-	margin-bottom: 1.5em;
-	padding: var(--padding);
+	padding: 50px 40px 20px 40px;
+	background-color: #ffffff;
 }
 
 .card-header span {
@@ -248,7 +249,7 @@ dialog {
 	overflow: auto; /* Enable scroll if needed */
 	background-color: #fefefe;
 	top: 10rem;
-	margin: 0 auto;
+	margin-inline: auto;
 	padding: 1.5em;
 	border: 1px solid #ccc;
 	width: 80%;
@@ -343,3 +344,17 @@ footer {
 /* End Media Queries */
 
 /* Misc */
+.title {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #212121;
+}
+
+.subtitle {
+	font-size: 0.725rem;
+	max-width: 80%;
+	text-align: center;
+	line-height: 1.1rem;
+	color: #8b8e98;
+}
