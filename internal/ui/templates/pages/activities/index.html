@@ -1,0 +1,22 @@
+{{ block "title" .}}PTMS - Activities{{ end }} {{ block "scripts" . }}
+<script type="module" src="/static/js/components/table.js"></script>
+{{ end }} {{ block "header" .}}Activities{{ end }} {{ block "content" .}}
+
+<div class="card">
+  <div class="card-header clearfix">
+    <p class="title">List of Activities</p>
+    <div class="right">
+      <a class="btn btn-success" href="/activities/create">
+        + Create Activity...
+      </a>
+    </div>
+  </div>
+  <input type="text" id="filterInput" placeholder="Filter table..." />
+  <table
+    id="dynamicTable"
+    data-headers='[{"field": "title", "label": "Title"},{"field": "start_date", "label": "Start Date"},{"field": "end_date", "label": "End Date"},{"field": "venue", "label": "Venue"},{"field": "host", "label": "Host"}]'
+    data-url="/api/activities"
+  ></table>
+  <div class="pagination" id="paginationControls"></div>
+</div>
+{{ end }}
