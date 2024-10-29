@@ -91,7 +91,7 @@ func TestCreateActivityInvalid(t *testing.T) {
 	test.AssertEqual(t, http.StatusBadRequest, rr.Code)
 
 	// Check if the JSON response matches ApiResponse struct
-	var response myhttp.ApiResponse
+	var response myhttp.ApiResponse[[]db.ActiveActivityDetail]
 	err = json.Unmarshal(rr.Body.Bytes(), &response)
 	if err != nil {
 		t.Fatalf("Failed to unmarshal response body: %v", err)
@@ -99,9 +99,8 @@ func TestCreateActivityInvalid(t *testing.T) {
 
 	t.Log("response:", response)
 
-	test.AssertEqual(t, false, response.Success)
-	test.AssertLen(t, response.Errors, 1)
-	test.AssertEqual(t, "title", response.Errors[0].Field)
+	test.AssertLen(t, response.Meta.Errors, 1)
+	test.AssertEqual(t, "title", response.Meta.Errors[0].Field)
 }
 
 func TestGetActivity(t *testing.T) {
