@@ -11,19 +11,20 @@ import (
 )
 
 const (
-	templateDir = "templates"
-	layoutFile  = "base.html"
+	templateDir      = "templates"
+	layoutFile       = "base.html"
+	partialTemplates = "partials/*.html"
 )
 
 //go:embed templates/*
 var templatesFS embed.FS
 
-func RenderTemplate(w http.ResponseWriter, templateFile string, data interface{}) error {
-	layoutPath := filepath.Join(templateDir, layoutFile)
-	templatePath := filepath.Join(templateDir, templateFile)
-	components := filepath.Join(templateDir, "components/*.html")
+func RenderHTML(w http.ResponseWriter, templateFile string, data any) error {
+	layoutTemplate := filepath.Join(templateDir, layoutFile)
+	partialTemplates := filepath.Join(templateDir, partialTemplates)
+	targetTemplate := filepath.Join(templateDir, templateFile)
 
-	templates, err := template.ParseFS(templatesFS, layoutPath, components, templatePath)
+	templates, err := template.ParseFS(templatesFS, layoutTemplate, partialTemplates, targetTemplate)
 
 	if err != nil {
 		return fmt.Errorf("parse html files: %w", err)
@@ -44,7 +45,7 @@ func RenderTemplate(w http.ResponseWriter, templateFile string, data interface{}
 	return nil
 }
 
-func RenderJson[T any](w http.ResponseWriter, r *http.Request, status int, v T) error {
+func RenderJson[T any](w http.ResponseWriter, status int, v T) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
