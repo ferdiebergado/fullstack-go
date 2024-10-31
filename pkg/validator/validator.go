@@ -2,7 +2,6 @@ package validator
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -65,11 +64,11 @@ func (v *Validator[T]) Validate() []ValidationError {
 
 outerLoop:
 	for field, rules := range v.validationRules {
-		log.Print("field, rules: ", field, rules)
+		// log.Print("field, rules: ", field, rules)
 		for _, rule := range strings.Split(rules, "|") {
 			fieldValue, _ := GetValueByJSONTagName(v.params, field)
 
-			log.Println("value:", fieldValue)
+			// log.Println("value:", fieldValue)
 
 			if fieldValue == nil && rule == "required" {
 				v.errors = append(v.errors, ValidationError{Field: field, Message: msgRequired})
@@ -87,7 +86,7 @@ outerLoop:
 
 			strValue := GetStringValue(fieldValue)
 
-			log.Printf("field: %s, value: %s\n", field, strValue)
+			// log.Printf("field: %s, value: %s\n", field, strValue)
 
 			switch rule {
 			case "required":
