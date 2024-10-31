@@ -1,0 +1,1 @@
+DROP VIEW active_activity_details;

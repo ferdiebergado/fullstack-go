@@ -1,16 +1,5 @@
 CREATE VIEW activity_details AS
-SELECT
-    a.id,
-    a.title,
-    a.start_date,
-    a.end_date,
-    v.name venue,
-    r.name region,
-    h.name host,
-    a.metadata,
-    a.created_at,
-    a.updated_at,
-    a.deleted_at
+SELECT a.*, v.name venue, r.name region, h.name host
 FROM
     activities a
     JOIN venues v ON v.id = a.venue_id

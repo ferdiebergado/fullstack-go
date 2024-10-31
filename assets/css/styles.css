@@ -102,6 +102,8 @@ select {
 }
 
 .page-info {
+	display: flex;
+	justify-content: space-between;
 	font-size: 0.9rem;
 	padding: 8px;
 }
@@ -308,8 +310,12 @@ footer {
 /* End Layout */
 
 /* Utilities */
-.right {
+.float-right {
 	float: right;
+}
+
+.right {
+	text-align: right;
 }
 
 .center {

@@ -93,7 +93,7 @@ func (q *Queries) DeleteActivity(ctx context.Context, id int64) error {
 }
 
 const findActiveActivitiesByStartDate = `-- name: FindActiveActivitiesByStartDate :many
-SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM active_activity_details WHERE start_date = $1
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host FROM active_activity_details WHERE start_date = $1
 `
 
 func (q *Queries) FindActiveActivitiesByStartDate(ctx context.Context, startDate Date) ([]ActiveActivityDetail, error) {
@@ -110,13 +110,15 @@ func (q *Queries) FindActiveActivitiesByStartDate(ctx context.Context, startDate
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.Venue,
-			&i.Region,
-			&i.Host,
+			&i.VenueID,
+			&i.HostID,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 		); err != nil {
 			return nil, err
 		}
@@ -132,7 +134,7 @@ func (q *Queries) FindActiveActivitiesByStartDate(ctx context.Context, startDate
 }
 
 const findActiveActivitiesByTitle = `-- name: FindActiveActivitiesByTitle :many
-SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM active_activity_details WHERE title LIKE '%$1%'
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host FROM active_activity_details WHERE title LIKE '%$1%'
 `
 
 func (q *Queries) FindActiveActivitiesByTitle(ctx context.Context) ([]ActiveActivityDetail, error) {
@@ -149,13 +151,15 @@ func (q *Queries) FindActiveActivitiesByTitle(ctx context.Context) ([]ActiveActi
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.Venue,
-			&i.Region,
-			&i.Host,
+			&i.VenueID,
+			&i.HostID,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 		); err != nil {
 			return nil, err
 		}
@@ -181,7 +185,7 @@ func (q *Queries) FindActiveActivity(ctx context.Context, id int64) (int64, erro
 }
 
 const findActiveActivityDetails = `-- name: FindActiveActivityDetails :one
-SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM active_activity_details WHERE id = $1
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host FROM active_activity_details WHERE id = $1
 `
 
 func (q *Queries) FindActiveActivityDetails(ctx context.Context, id int64) (ActiveActivityDetail, error) {
@@ -192,19 +196,21 @@ func (q *Queries) FindActiveActivityDetails(ctx context.Context, id int64) (Acti
 		&i.Title,
 		&i.StartDate,
 		&i.EndDate,
-		&i.Venue,
-		&i.Region,
-		&i.Host,
+		&i.VenueID,
+		&i.HostID,
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Venue,
+		&i.Region,
+		&i.Host,
 	)
 	return i, err
 }
 
 const findActivitiesByStartDate = `-- name: FindActivitiesByStartDate :many
-SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM activity_details WHERE start_date = $1
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host FROM activity_details WHERE start_date = $1
 `
 
 func (q *Queries) FindActivitiesByStartDate(ctx context.Context, startDate Date) ([]ActivityDetail, error) {
@@ -221,13 +227,15 @@ func (q *Queries) FindActivitiesByStartDate(ctx context.Context, startDate Date)
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.Venue,
-			&i.Region,
-			&i.Host,
+			&i.VenueID,
+			&i.HostID,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 		); err != nil {
 			return nil, err
 		}
@@ -243,7 +251,7 @@ func (q *Queries) FindActivitiesByStartDate(ctx context.Context, startDate Date)
 }
 
 const findActivitiesByTitle = `-- name: FindActivitiesByTitle :many
-SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM activity_details WHERE title LIKE '%$1%'
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host FROM activity_details WHERE title LIKE '%$1%'
 `
 
 func (q *Queries) FindActivitiesByTitle(ctx context.Context) ([]ActivityDetail, error) {
@@ -260,13 +268,15 @@ func (q *Queries) FindActivitiesByTitle(ctx context.Context) ([]ActivityDetail, 
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.Venue,
-			&i.Region,
-			&i.Host,
+			&i.VenueID,
+			&i.HostID,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 		); err != nil {
 			return nil, err
 		}
@@ -282,7 +292,7 @@ func (q *Queries) FindActivitiesByTitle(ctx context.Context) ([]ActivityDetail, 
 }
 
 const findActivity = `-- name: FindActivity :one
-SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at FROM activity_details WHERE id = $1
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host FROM activity_details WHERE id = $1
 `
 
 func (q *Queries) FindActivity(ctx context.Context, id int64) (ActivityDetail, error) {
@@ -293,19 +303,21 @@ func (q *Queries) FindActivity(ctx context.Context, id int64) (ActivityDetail, e
 		&i.Title,
 		&i.StartDate,
 		&i.EndDate,
-		&i.Venue,
-		&i.Region,
-		&i.Host,
+		&i.VenueID,
+		&i.HostID,
 		&i.Metadata,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.Venue,
+		&i.Region,
+		&i.Host,
 	)
 	return i, err
 }
 
 const listActiveActivities = `-- name: ListActiveActivities :many
-SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at, COUNT(*) OVER () AS total_items
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host, COUNT(*) OVER () AS total_items
 FROM active_activity_details
 WHERE
     COALESCE($5, '') = ''
@@ -369,13 +381,15 @@ type ListActiveActivitiesRow struct {
 	Title      string          `json:"title"`
 	StartDate  Date            `json:"start_date"`
 	EndDate    Date            `json:"end_date"`
-	Venue      string          `json:"venue"`
-	Region     string          `json:"region"`
-	Host       string          `json:"host"`
+	VenueID    int32           `json:"venue_id"`
+	HostID     int32           `json:"host_id"`
 	Metadata   json.RawMessage `json:"metadata"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
 	DeletedAt  sql.NullTime    `json:"deleted_at"`
+	Venue      string          `json:"venue"`
+	Region     string          `json:"region"`
+	Host       string          `json:"host"`
 	TotalItems int64           `json:"total_items"`
 }
 
@@ -399,13 +413,15 @@ func (q *Queries) ListActiveActivities(ctx context.Context, arg ListActiveActivi
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.Venue,
-			&i.Region,
-			&i.Host,
+			&i.VenueID,
+			&i.HostID,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 			&i.TotalItems,
 		); err != nil {
 			return nil, err
@@ -422,7 +438,7 @@ func (q *Queries) ListActiveActivities(ctx context.Context, arg ListActiveActivi
 }
 
 const listActivities = `-- name: ListActivities :many
-SELECT id, title, start_date, end_date, venue, region, host, metadata, created_at, updated_at, deleted_at, COUNT(*) OVER () AS total_items
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host, COUNT(*) OVER () AS total_items
 FROM activity_details
 WHERE
     COALESCE($5, '') = ''
@@ -486,13 +502,15 @@ type ListActivitiesRow struct {
 	Title      string          `json:"title"`
 	StartDate  Date            `json:"start_date"`
 	EndDate    Date            `json:"end_date"`
-	Venue      string          `json:"venue"`
-	Region     string          `json:"region"`
-	Host       string          `json:"host"`
+	VenueID    int32           `json:"venue_id"`
+	HostID     int32           `json:"host_id"`
 	Metadata   json.RawMessage `json:"metadata"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
 	DeletedAt  sql.NullTime    `json:"deleted_at"`
+	Venue      string          `json:"venue"`
+	Region     string          `json:"region"`
+	Host       string          `json:"host"`
 	TotalItems int64           `json:"total_items"`
 }
 
@@ -516,13 +534,15 @@ func (q *Queries) ListActivities(ctx context.Context, arg ListActivitiesParams) 
 			&i.Title,
 			&i.StartDate,
 			&i.EndDate,
-			&i.Venue,
-			&i.Region,
-			&i.Host,
+			&i.VenueID,
+			&i.HostID,
 			&i.Metadata,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.Venue,
+			&i.Region,
+			&i.Host,
 			&i.TotalItems,
 		); err != nil {
 			return nil, err

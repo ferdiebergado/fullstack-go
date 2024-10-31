@@ -1,6 +1,10 @@
 package http
 
-import "github.com/ferdiebergado/fullstack-go/pkg/validator"
+import (
+	"html/template"
+
+	"github.com/ferdiebergado/fullstack-go/pkg/validator"
+)
 
 type ApiResponse[T any] struct {
 	Meta ResponseMeta `json:"meta"`
@@ -23,4 +27,14 @@ type PaginationMeta struct {
 type PaginatedData[T any] struct {
 	Pagination *PaginationMeta
 	Data       []T
+}
+
+type TableHeader struct {
+	Field string `json:"field"`
+	Label string `json:"label"`
+}
+
+type TableData struct {
+	ApiUrl       string
+	TableHeaders template.JS
 }

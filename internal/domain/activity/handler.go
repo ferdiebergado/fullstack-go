@@ -1,7 +1,10 @@
 package activity
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -62,7 +65,27 @@ func (h *ActivityHandler) ListActiveActivitiesJson(w http.ResponseWriter, r *htt
 }
 
 func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
-	err := ui.RenderHTML(w, "pages/activities/index.html", nil)
+	tableHeaders := []myhttp.TableHeader{
+		{Field: "title", Label: "Title"},
+		{Field: "start_date", Label: "Start Date"},
+		{Field: "end_date", Label: "End Date"},
+		{Field: "venue", Label: "Venue"},
+		{Field: "host", Label: "Host"},
+	}
+
+	jsonData, err := json.Marshal(tableHeaders)
+
+	if err != nil {
+		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to marshal table headers", err)
+		return
+	}
+
+	data := &myhttp.TableData{
+		ApiUrl:       ApiRoute,
+		TableHeaders: template.JS(jsonData),
+	}
+
+	err = ui.RenderHTML(w, "pages/activities/index.html", data)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
@@ -125,12 +148,16 @@ func (h *ActivityHandler) getActivity(w http.ResponseWriter, r *http.Request) *d
 	activity, err := h.activityService.FindActiveActivityDetails(r.Context(), id)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "find active activity", err)
-		return nil
-	}
 
-	if activity == nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "find active activity", err)
+		status := http.StatusInternalServerError
+
+		if errors.Is(err, sql.ErrNoRows) {
+
+			status = http.StatusNotFound
+
+		}
+
+		myhttp.ErrorHandler(w, r, status, "find active activity", err)
 		return nil
 	}
 
@@ -332,7 +359,14 @@ func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request)
 	err = h.activityService.DeleteActivity(r.Context(), id)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "delete activity", err)
+
+		status := http.StatusInternalServerError
+
+		if errors.Is(err, sql.ErrNoRows) {
+			status = http.StatusNotFound
+		}
+
+		myhttp.ErrorHandler(w, r, status, "delete activity", err)
 		return
 	}
 

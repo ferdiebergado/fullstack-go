@@ -5,26 +5,25 @@
 <div class="card">
   <div class="card-header clearfix">
     <p class="title">List of Activities</p>
-    <div class="right">
+    <div class="float-right">
       <a class="btn btn-success" href="/activities/create">
         + Create Activity...
       </a>
     </div>
   </div>
+
+  <!-- Search -->
   <input type="search" id="filterInput" placeholder="Search..." />
 
-  <span class="page-info" id="paginationInfo"></span>
-  <table
-    id="dynamicTable"
-    data-headers='[{"field": "title", "label": "Title"},{"field": "start_date", "label": "Start Date"},{"field": "end_date", "label": "End Date"},{"field": "venue", "label": "Venue"},{"field": "host", "label": "Host"}]'
-    data-url="/api/activities"
-  ></table>
-  <div class="pagination">
-    <div id="paginationControls">
-      <button id="firstButton" type="button">First</button>
-      <button id="prevButton" type="button">Previous</button>
-      <button id="nextButton" type="button">Next</button>
-      <button id="lastButton" type="button">Last</button>
+  <!-- Pagination -->
+  <div class="pagination" id="paginationControls">
+    <div class="flex">
+      <button id="firstButton" type="button" title="First Page">&laquo;</button>
+      <button id="prevButton" type="button" title="Previous Page">
+        &lsaquo;
+      </button>
+      <button id="nextButton" type="button" title="Next Page">&rsaquo;</button>
+      <button id="lastButton" type="button" title="Last Page">&raquo;</button>
     </div>
     <div class="flex">
       <label for="pageJumpInput">Jump to page:</label>
@@ -40,6 +39,20 @@
         <option value="100">100</option>
       </select>
     </div>
+  </div>
+
+  <!-- Dynamic Table -->
+  <table
+    id="dynamicTable"
+    data-headers="{{ .TableHeaders }}"
+    data-url="{{ .ApiUrl }}"
+  >
+    <thead id="dynamicTableHead"></thead>
+    <tbody id="dynamicTableBody"></tbody>
+  </table>
+
+  <div class="page-info">
+    <span id="pageInfo"></span><span id="recordsInfo"></span>
   </div>
 </div>
 {{ end }}

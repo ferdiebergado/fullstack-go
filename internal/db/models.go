@@ -28,13 +28,15 @@ type ActiveActivityDetail struct {
 	Title     string          `json:"title"`
 	StartDate Date            `json:"start_date"`
 	EndDate   Date            `json:"end_date"`
-	Venue     string          `json:"venue"`
-	Region    string          `json:"region"`
-	Host      string          `json:"host"`
+	VenueID   int32           `json:"venue_id"`
+	HostID    int32           `json:"host_id"`
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
 	DeletedAt sql.NullTime    `json:"deleted_at"`
+	Venue     string          `json:"venue"`
+	Region    string          `json:"region"`
+	Host      string          `json:"host"`
 }
 
 type Activity struct {
@@ -55,13 +57,15 @@ type ActivityDetail struct {
 	Title     string          `json:"title"`
 	StartDate Date            `json:"start_date"`
 	EndDate   Date            `json:"end_date"`
-	Venue     string          `json:"venue"`
-	Region    string          `json:"region"`
-	Host      string          `json:"host"`
+	VenueID   int32           `json:"venue_id"`
+	HostID    int32           `json:"host_id"`
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at"`
 	DeletedAt sql.NullTime    `json:"deleted_at"`
+	Venue     string          `json:"venue"`
+	Region    string          `json:"region"`
+	Host      string          `json:"host"`
 }
 
 type Division struct {
