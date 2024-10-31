@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -15,6 +16,8 @@ import (
 	"github.com/ferdiebergado/fullstack-go/pkg/test"
 	router "github.com/ferdiebergado/go-express"
 )
+
+const apiEndpoint = "/api/activities"
 
 var (
 	payload = &db.CreateActivityParams{
@@ -58,7 +61,7 @@ func TestCreateActivity(t *testing.T) {
 	router := setupTestRouter(t)
 	body, _ := json.Marshal(payload)
 
-	req, err := http.NewRequest(http.MethodPost, "/api/activities", bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, apiEndpoint, bytes.NewReader(body))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +80,7 @@ func TestCreateActivityInvalid(t *testing.T) {
 	payload.Title = ""
 	body, _ := json.Marshal(payload)
 
-	req, err := http.NewRequest(http.MethodPost, "/api/activities", bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, apiEndpoint, bytes.NewReader(body))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,9 +112,9 @@ func TestGetActivity(t *testing.T) {
 	router := setupTestRouter(t)
 	activity := createActivity(t)
 
-	id := db.Int64ToString(activity.ID)
+	url := fmt.Sprintf("%s/%d", apiEndpoint, activity.ID)
 
-	req, err := http.NewRequest(http.MethodGet, "/api/activities/"+id, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,9 +143,9 @@ func TestUpdateActivity(t *testing.T) {
 
 	activity := createActivity(t)
 
-	activityId := db.Int64ToString(activity.ID)
+	url := fmt.Sprintf("%s/%d", apiEndpoint, activity.ID)
 
-	req, err := http.NewRequest(http.MethodPut, "/api/activities/"+activityId, bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(body))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -161,9 +164,13 @@ func TestDeleteActivity(t *testing.T) {
 	router := setupTestRouter(t)
 	activity := createActivity(t)
 
-	id := db.Int64ToString(activity.ID)
+	url := fmt.Sprintf("%s/%d", apiEndpoint, activity.ID)
 
-	req, err := http.NewRequest(http.MethodDelete, "/api/activities/"+id, nil)
+	t.Logf("url: %s", url)
+	t.Logf("activity.id: %v", activity.ID)
+
+	req, err := http.NewRequest(http.MethodDelete, url, nil)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,7 +185,7 @@ func TestListActiveActivities(t *testing.T) {
 	t.Parallel()
 	router := setupTestRouter(t)
 
-	req, err := http.NewRequest(http.MethodGet, "/api/activities", nil)
+	req, err := http.NewRequest(http.MethodGet, apiEndpoint, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

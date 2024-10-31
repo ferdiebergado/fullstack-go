@@ -11,7 +11,9 @@ const (
 	ServerWriteTimeout = 30 * time.Second
 	ServerIdleTimeout  = time.Minute
 
-	StaticDir = "static"
+	StaticDir      = "static"
+	ApiPrefix      = "/api"
+	ResourceIdPath = "/{id}"
 )
 
 var (
