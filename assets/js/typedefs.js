@@ -2,10 +2,15 @@
 /**
  * Represents an API response.
  * @typedef {Object} ApiResponse
- * @property {boolean} success - The status of the response
+ * @property {ResponseMeta} meta - The metadata of the response
+ *  @property {Object} data - The data of the response
+ */
+
+/**
+ * @typedef {Object} ResponseMeta
  * @property {string} message - The message
  * @property {ValidationError[]} errors - The object that contains the errors
- * @property {Object} data - The object that contains the data
+ * @property {PaginationMeta} paginationMeta - The object that contains the pagination metadata
  */
 
 /**
@@ -27,13 +32,12 @@
  */
 
 /**
- * @typedef {Object} PaginationData
+ * @typedef {Object} PaginationMeta
  *
  * @property {number} total_items
  * @property {number} total_pages
  * @property {number} page
  * @property {number} limit
- * @property {Object} data
  */
 
 export default {};

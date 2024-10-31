@@ -25,7 +25,7 @@ func NewActivityHandler(as ActivityService, vs venue.VenueService, hs host.HostS
 	return &ActivityHandler{activityService: as, venueService: vs, hostService: hs, divisionService: ds}
 }
 
-func (h *ActivityHandler) getPaginatedData(r *http.Request) (*myhttp.PaginatedData[db.ActiveActivityDetail], error) {
+func (h *ActivityHandler) getPaginatedData(r *http.Request) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error) {
 
 	paginatedData, err := h.activityService.ListActivities(r.Context(), r.URL.Query())
 
@@ -45,7 +45,7 @@ func (h *ActivityHandler) ListActiveActivitiesJson(w http.ResponseWriter, r *htt
 		return
 	}
 
-	response := &myhttp.ApiResponse[[]db.ActiveActivityDetail]{
+	response := &myhttp.ApiResponse[[]db.ListActiveActivitiesRow]{
 		Meta: myhttp.ResponseMeta{
 			Pagination: paginatedData.Pagination,
 		},
@@ -62,14 +62,7 @@ func (h *ActivityHandler) ListActiveActivitiesJson(w http.ResponseWriter, r *htt
 }
 
 func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
-	paginatedData, err := h.getPaginatedData(r)
-
-	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "list activities", err)
-		return
-	}
-
-	err = ui.RenderHTML(w, "pages/activities/index.html", paginatedData.Data)
+	err := ui.RenderHTML(w, "pages/activities/index.html", nil)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)

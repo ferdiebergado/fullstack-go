@@ -1,43 +1,65 @@
 // @ts-check
 'use strict';
 
-/** @type {HTMLTableElement} */
-const table = document.getElementById('dynamicTable');
-const headers = JSON.parse(table?.getAttribute('data-headers'));
-const apiUrl = table?.getAttribute('data-url');
+/**
+ * @typedef {Object} TableHeader
+ * @property {string} field
+ * @property {string} label
+ */
 
-/** @type {HTMLInputElement} */
-const filterInput = document.getElementById('filterInput');
+const table = /** @type {HTMLTableElement | null} */ (
+  document.getElementById('dynamicTable')
+);
+
+/** @type {TableHeader[]} */
+const headers = JSON.parse(table?.getAttribute('data-headers') || '[]');
+
+const apiUrl = table?.getAttribute('data-url') || '';
+
+const filterInput = /** @type {HTMLInputElement | null} */ (
+  document.getElementById('filterInput')
+);
 const paginationControls = document.getElementById('paginationControls');
 
-/** @type {HTMLSelectElement} */
-const rowsPerPageSelect = document.getElementById('rowsPerPage');
+const rowsPerPageSelect = /** @type {HTMLSelectElement | null} */ (
+  document.getElementById('rowsPerPage')
+);
 
-const pageJumpInput = document.getElementById('pageJumpInput');
+const pageJumpInput = /** @type {HTMLInputElement | null} */ (
+  document.getElementById('pageJumpInput')
+);
 const paginationInfo = document.getElementById('paginationInfo');
 
-const firstButton = document.getElementById('firstButton');
-const prevButton = document.getElementById('prevButton');
-const nextButton = document.getElementById('nextButton');
-const lastButton = document.getElementById('lastButton');
+const firstButton = /** @type {HTMLButtonElement | null} */ (
+  document.getElementById('firstButton')
+);
+const prevButton = /** @type {HTMLButtonElement | null} */ (
+  document.getElementById('prevButton')
+);
+const nextButton = /** @type {HTMLButtonElement | null} */ (
+  document.getElementById('nextButton')
+);
+const lastButton = /** @type {HTMLButtonElement | null} */ (
+  document.getElementById('lastButton')
+);
 
 let data = [];
 let currentPage = 1;
 let totalPages = 1;
 let totalItems = 0;
-let rowsPerPage = parseInt(rowsPerPageSelect.value, 10);
+let rowsPerPage = parseInt(rowsPerPageSelect?.value || '10', 10);
 let sortColumn = null;
 let sortDirection = 1;
 
 // Fetch data from API endpoint with pagination
-async function fetchData(page = 1, query = '') {
+async function fetchData(page = 1) {
   try {
     const params = new URLSearchParams({
       page: String(page),
       limit: String(rowsPerPage),
       sortCol: sortColumn,
       sortDir: String(sortDirection),
-      search: encodeURIComponent(query),
+      search: encodeURIComponent(filterInput?.value.toLocaleLowerCase() || ''),
     });
 
     const response = await fetch(`${apiUrl}?${params.toString()}`);
@@ -60,12 +82,6 @@ async function fetchData(page = 1, query = '') {
   }
 }
 
-/**
- * @typedef {Object} TableHeader
- * @property {string} field
- * @property {string} label
- */
-
 // Render table with optimized DOM manipulation
 function renderTable() {
   // Create table headers only once
@@ -75,69 +91,95 @@ function renderTable() {
     headers.forEach(
       /**
        * @param {TableHeader} header
-       * @param {number} index
        */
-      (header, index) => {
+      (header) => {
         const th = document.createElement('th');
         th.textContent = header.label;
         th.addEventListener('click', () => sortTable(header.field));
         headerRow.appendChild(th);
       }
     );
+
     thead.appendChild(headerRow);
-    table.appendChild(thead);
+    table?.appendChild(thead);
   }
 
   // Create table body in a document fragment for optimized rendering
   const tbody = document.createElement('tbody');
-  data.forEach((row) => {
-    const tr = document.createElement('tr');
-    headers.forEach(
-      /** @param {TableHeader} header */ (header) => {
-        const td = document.createElement('td');
-        td.textContent = sanitize(row[header.field]);
-        tr.appendChild(td);
-      }
-    );
-    tbody.appendChild(tr);
-  });
+  if (totalItems > 0) {
+    data.forEach((row) => {
+      const tr = document.createElement('tr');
 
-  // Replace existing tbody to minimize reflows
-  if (table.tBodies[0]) {
-    table.removeChild(table.tBodies[0]);
+      headers.forEach(
+        /** @param {TableHeader} header */ (header) => {
+          const td = document.createElement('td');
+          td.textContent = sanitize(row[header.field]);
+          tr.appendChild(td);
+        }
+      );
+
+      tbody.appendChild(tr);
+
+      replaceTableBody();
+    });
+  } else {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+
+    td.colSpan = headers.length;
+    td.textContent = 'No data.';
+
+    tr.appendChild(td);
+
+    replaceTableBody();
+
+    tbody.appendChild(tr);
   }
-  table.appendChild(tbody);
+
+  table?.appendChild(tbody);
+}
+
+// Replace existing tbody to minimize reflows
+function replaceTableBody() {
+  table?.tBodies[0] && table.removeChild(table.tBodies[0]);
 }
 
 // Render simplified pagination controls
 function updatePagination() {
   if (paginationControls) {
     // First Page Button
-    firstButton.disabled = currentPage === 1;
+    firstButton && (firstButton.disabled = currentPage === 1);
 
     // Previous Page Button
-    prevButton.disabled = currentPage === 1;
+    prevButton && (prevButton.disabled = currentPage === 1);
 
     // Next Page Button
-    nextButton.disabled = currentPage === totalPages;
+    nextButton && (nextButton.disabled = currentPage === totalPages);
 
     // Last Page Button
-    lastButton.disabled = currentPage === totalPages;
+    lastButton && (lastButton.disabled = currentPage === totalPages);
 
     const startRecord = (currentPage - 1) * rowsPerPage + 1;
     const endRecord = Math.min(currentPage * rowsPerPage, totalItems);
-    paginationInfo.textContent = `Page ${currentPage} of ${totalPages} - Showing ${startRecord}-${endRecord} of ${totalItems} records`;
+
+    if (paginationInfo) {
+      if (totalItems > 0)
+        return (paginationInfo.textContent = `Page ${currentPage} of ${totalPages} - Showing ${startRecord}-${endRecord} of ${totalItems} records`);
+
+      return (paginationInfo.textContent = '');
+    }
   }
 }
 
 /** @param {number} page */
 function changePage(page) {
-  fetchData(page, filterInput?.value);
+  fetchData(page);
 }
 
 function updateRowsPerPage() {
-  rowsPerPage = parseInt(rowsPerPageSelect.value, 10);
-  fetchData(1, filterInput.value); // Fetch from the first page with new rows per page setting
+  rowsPerPage = parseInt(rowsPerPageSelect?.value || '10', 10);
+
+  fetchData(); // Fetch from the first page with new rows per page setting
 }
 
 /** @param {string} field */
@@ -147,45 +189,60 @@ function sortTable(field) {
   } else {
     sortDirection = 1;
   }
-  sortColumn = field;
-  // data.sort((a, b) => {
-  //   const header = headers[columnIndex].toLowerCase();
-  //   return (a[header] > b[header] ? 1 : -1) * sortDirection;
-  // });
-  fetchData();
-}
 
-function filterTable() {
-  const query = filterInput.value.toLowerCase();
-  fetchData(1, query); // Start from the first page when filtering
+  sortColumn = field;
+
+  fetchData();
 }
 
 // Sanitize data to prevent XSS attacks
 /** @param {string} text */
 function sanitize(text) {
   const element = document.createElement('div');
+
   element.textContent = text;
+
   return element.innerHTML;
 }
 
+/**
+ *
+ * @param {Function} func
+ * @param {number} delay
+ * @returns
+ */
+function debounce(func, delay) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
 // Attach event listener for filtering
-filterInput.addEventListener('input', filterTable);
-rowsPerPageSelect.addEventListener('change', updateRowsPerPage);
-pageJumpInput.addEventListener('change', () => {
+filterInput?.addEventListener('input', debounce(fetchData, 300));
+
+rowsPerPageSelect?.addEventListener('change', updateRowsPerPage);
+
+pageJumpInput?.addEventListener('change', () => {
   const targetPage = parseInt(pageJumpInput.value, 10);
+
   if (targetPage >= 1 && targetPage <= totalPages) {
     changePage(targetPage);
   } else {
-    pageJumpInput.value = currentPage;
+    if (pageJumpInput) pageJumpInput.value = String(currentPage);
   }
 });
 
-pageJumpInput.max = totalPages;
-pageJumpInput.value = currentPage;
-firstButton.addEventListener('click', () => changePage(1));
-prevButton.addEventListener('click', () => changePage(currentPage - 1));
-nextButton.addEventListener('click', () => changePage(currentPage + 1));
-lastButton.addEventListener('click', () => changePage(totalPages));
+if (pageJumpInput) {
+  pageJumpInput.max = String(totalPages);
+  pageJumpInput.value = String(currentPage);
+}
+
+firstButton?.addEventListener('click', () => changePage(1));
+prevButton?.addEventListener('click', () => changePage(currentPage - 1));
+nextButton?.addEventListener('click', () => changePage(currentPage + 1));
+lastButton?.addEventListener('click', () => changePage(totalPages));
 
 // Initial fetch and render
 fetchData();

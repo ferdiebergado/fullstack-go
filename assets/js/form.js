@@ -40,7 +40,10 @@ export async function submitForm(form, cb) {
     });
 
     /** @type {import('./typedefs').ApiResponse} */
-    const { errors, message, data } = await response.json();
+    const {
+      meta: { message, errors },
+      data,
+    } = await response.json();
 
     if (!response.ok) {
       if (errors) displayFormErrors(form, errors);

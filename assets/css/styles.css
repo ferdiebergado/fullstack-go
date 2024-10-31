@@ -81,7 +81,8 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	font-size: 0.9em;
+	gap: 0.5rem;
+	font-size: 0.9rem;
 }
 
 .pagination button {
@@ -94,9 +95,17 @@ body {
 	margin-inline: 4px;
 }
 
-.page-info {
+.pagination input,
+select {
+	width: fit-content;
 	padding: 8px 16px;
 }
+
+.page-info {
+	font-size: 0.9rem;
+	padding: 8px;
+}
+
 /* End Pagination */
 
 /* Alert */
@@ -180,11 +189,14 @@ td {
 }
 
 .has-error {
-	border: 1px solid var(--danger-color);
+	border: 2px solid var(--danger-color);
+	outline: auto;
+	background-color: #fdd;
 }
 
 label {
 	color: #555;
+	white-space: nowrap;
 }
 
 input,

@@ -11,32 +11,35 @@
       </a>
     </div>
   </div>
-  <input type="text" id="filterInput" placeholder="Filter table..." />
-  <input
-    type="number"
-    id="pageJumpInput"
-    min="1"
-    placeholder="Jump to page..."
-  />
-  <label for="rowsPerPage">Rows per page:</label>
-  <select id="rowsPerPage">
-    <option value="5" selected>5</option>
-    <option value="10">10</option>
-    <option value="30">30</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
-  </select>
-  <span id="paginationInfo"></span>
+  <input type="search" id="filterInput" placeholder="Search..." />
+
+  <span class="page-info" id="paginationInfo"></span>
   <table
     id="dynamicTable"
     data-headers='[{"field": "title", "label": "Title"},{"field": "start_date", "label": "Start Date"},{"field": "end_date", "label": "End Date"},{"field": "venue", "label": "Venue"},{"field": "host", "label": "Host"}]'
     data-url="/api/activities"
   ></table>
-  <div class="pagination" id="paginationControls">
-    <button id="firstButton" type="button">First</button>
-    <button id="prevButton" type="button">Previous</button>
-    <button id="nextButton" type="button">Next</button>
-    <button id="lastButton" type="button">Last</button>
+  <div class="pagination">
+    <div id="paginationControls">
+      <button id="firstButton" type="button">First</button>
+      <button id="prevButton" type="button">Previous</button>
+      <button id="nextButton" type="button">Next</button>
+      <button id="lastButton" type="button">Last</button>
+    </div>
+    <div class="flex">
+      <label for="pageJumpInput">Jump to page:</label>
+      <input type="number" id="pageJumpInput" min="1" />
+    </div>
+    <div class="flex">
+      <label for="rowsPerPage">Rows per page:</label>
+      <select id="rowsPerPage">
+        <option value="5" selected>5</option>
+        <option value="10">10</option>
+        <option value="30">30</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
   </div>
 </div>
 {{ end }}

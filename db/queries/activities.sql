@@ -52,9 +52,12 @@ SELECT * FROM active_activity_details WHERE start_date = $1;
 -- name: FindActivitiesByStartDate :many
 SELECT * FROM activity_details WHERE start_date = $1;
 
--- name: ListActiveActivitiesOrderedByCol :many
-SELECT *
+-- name: ListActiveActivities :many
+SELECT *, COUNT(*) OVER () AS total_items
 FROM active_activity_details
+WHERE
+    COALESCE($5, '') = ''
+    OR title LIKE $5
 ORDER BY
     CASE
         WHEN $1 = 'title'
@@ -100,9 +103,12 @@ LIMIT $3
 OFFSET
     $4;
 
--- name: ListActivitiesOrderedByCol :many
-SELECT *
+-- name: ListActivities :many
+SELECT *, COUNT(*) OVER () AS total_items
 FROM activity_details
+WHERE
+    COALESCE($5, '') = ''
+    OR title LIKE $5
 ORDER BY
     CASE
         WHEN $1 = 'title'

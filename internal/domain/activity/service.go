@@ -17,6 +17,7 @@ const (
 	queryParamLimit   = "limit"
 	queryParamSortCol = "sortCol"
 	queryParamSortDir = "sortDir"
+	queryParamSearch  = "search"
 	recordsPerPage    = 5
 	sortColumn        = "start_date"
 	sortDir           = 1
@@ -24,7 +25,7 @@ const (
 
 type ActivityService interface {
 	CreateActivity(ctx context.Context, req db.CreateActivityParams) (*db.Activity, error)
-	ListActivities(ctx context.Context, urlValues url.Values) (*myhttp.PaginatedData[db.ActiveActivityDetail], error)
+	ListActivities(ctx context.Context, urlValues url.Values) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error)
 	FindActiveActivity(ctx context.Context, id int64) error
 	FindActiveActivityDetails(ctx context.Context, id int64) (*db.ActiveActivityDetail, error)
 	UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error
@@ -103,7 +104,7 @@ func (s *activityService) FindActiveActivityDetails(ctx context.Context, id int6
 }
 
 // ListActivities implements ActivityService.
-func (s *activityService) ListActivities(ctx context.Context, urlValues url.Values) (*myhttp.PaginatedData[db.ActiveActivityDetail], error) {
+func (s *activityService) ListActivities(ctx context.Context, urlValues url.Values) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error) {
 	page := GetPage(urlValues)
 	limit := GetLimit(urlValues)
 	offset := (page - 1) * limit
@@ -111,9 +112,11 @@ func (s *activityService) ListActivities(ctx context.Context, urlValues url.Valu
 	sortCol := GetSortCol(urlValues)
 	sortDir := GetSortDir(urlValues)
 
-	var activities []db.ActiveActivityDetail
-	var totalItems int64
+	search := GetSearch(urlValues)
+
+	var activities []db.ListActiveActivitiesRow
 	var err error
+	var totalItems int64
 
 	order := "ASC"
 
@@ -121,28 +124,27 @@ func (s *activityService) ListActivities(ctx context.Context, urlValues url.Valu
 		order = "DESC"
 	}
 
-	args := db.ListActiveActivitiesOrderedByColParams{
+	args := db.ListActiveActivitiesParams{
 		Limit:   limit,
 		Offset:  offset,
 		Column1: &sortCol,
 		Column2: &order,
+		Column5: &search,
 	}
 
-	activities, err = s.queries.ListActiveActivitiesOrderedByCol(ctx, args)
+	activities, err = s.queries.ListActiveActivities(ctx, args)
 
 	if err != nil {
 		return nil, err
 	}
 
-	totalItems, err = s.queries.CountActivities(ctx)
-
-	if err != nil {
-		return nil, err
+	if len(activities) > 0 {
+		totalItems = activities[0].TotalItems
 	}
 
 	totalPages := (totalItems + limit - 1) / limit
 
-	paginatedData := &myhttp.PaginatedData[db.ActiveActivityDetail]{
+	paginatedData := &myhttp.PaginatedData[db.ListActiveActivitiesRow]{
 		Pagination: &myhttp.PaginationMeta{
 			TotalItems: totalItems,
 			TotalPages: totalPages,
@@ -242,4 +244,15 @@ func GetSortDir(urlValues url.Values) int {
 	}
 
 	return sortDir
+}
+
+func GetSearch(urlValues url.Values) string {
+	// TODO: Validate query params
+	searchText := urlValues.Get(queryParamSearch)
+
+	if searchText == "" {
+		return searchText
+	}
+
+	return "%" + searchText + "%"
 }
