@@ -4,7 +4,7 @@ go 1.22.6
 
 require github.com/jackc/pgx/v5 v5.7.1
 
-require github.com/ferdiebergado/go-express v0.1.6
+require github.com/ferdiebergado/go-express v0.1.9
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
