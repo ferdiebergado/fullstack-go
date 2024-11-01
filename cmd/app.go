@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/ferdiebergado/fullstack-go/internal/config"
@@ -46,11 +47,11 @@ func NewApp(database *db.Database) *router.Router {
 	// Activities routes.
 	activity.AddRoutes(router, *activityHandler)
 
-	// Venues routes.
-	router.Post("/api/venues", venueHandler.SaveVenue)
+	// Venue routes.
+	venue.AddRoutes(router, *venueHandler)
 
 	// Hosts routes.
-	router.Post("/api/hosts", hostHandler.SaveHost)
+	host.AddRoutes(router, *hostHandler)
 
 	// Home page
 	router.Get("/{$}", func(w http.ResponseWriter, r *http.Request) {
@@ -63,10 +64,10 @@ func NewApp(database *db.Database) *router.Router {
 	})
 
 	// Not found handler
-	// router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	status := http.StatusNotFound
-	// 	myhttp.ErrorHandler(w, r, status, http.StatusText(status), errors.New("page not found"))
-	// })
+	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		status := http.StatusNotFound
+		myhttp.ErrorHandler(w, r, status, http.StatusText(status), errors.New("page not found"))
+	})
 
 	return router
 }
