@@ -166,9 +166,6 @@ func TestDeleteActivity(t *testing.T) {
 
 	url := fmt.Sprintf("%s/%d", apiEndpoint, activity.ID)
 
-	t.Logf("url: %s", url)
-	t.Logf("activity.id: %v", activity.ID)
-
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 
 	if err != nil {
