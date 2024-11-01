@@ -1,4 +1,4 @@
-package http
+package request
 
 import (
 	"net/http"
@@ -11,14 +11,16 @@ const (
 	intBase = 10
 	bitSize = 64
 
-	queryParamPage    = "page"
-	queryParamLimit   = "limit"
-	queryParamSortCol = "sortCol"
-	queryParamSortDir = "sortDir"
-	queryParamSearch  = "search"
-	recordsPerPage    = 5
-	sortColumn        = "start_date"
-	sortDir           = 1
+	queryParamPage      = "page"
+	queryParamLimit     = "limit"
+	queryParamSortCol   = "sortCol"
+	queryParamSortDir   = "sortDir"
+	queryParamSearch    = "search"
+	queryParamSearchCol = "searchCol"
+	recordsPerPage      = 5
+	sortColumn          = "start_date"
+	sortDir             = "ASC"
+	searchCol           = "title"
 )
 
 type QueryParams struct {
@@ -27,8 +29,9 @@ type QueryParams struct {
 	Offset    int64
 	Limit     int64
 	SortCol   string
-	SortDir   int
+	SortDir   string
 	Search    string
+	SearchCol string
 }
 
 func NewQueryParams(r *http.Request) *QueryParams {
@@ -42,6 +45,7 @@ func NewQueryParams(r *http.Request) *QueryParams {
 	q.SortCol = q.GetSortCol()
 	q.SortDir = q.GetSortDir()
 	q.Search = q.GetSearch()
+	q.SearchCol = q.GetSearchCol()
 	q.Offset = (q.Page - 1) * q.Limit
 
 	return q
@@ -84,18 +88,14 @@ func (q *QueryParams) GetSortCol() string {
 	return sortCol
 }
 
-func (q *QueryParams) GetSortDir() int {
+func (q *QueryParams) GetSortDir() string {
 	// TODO: Validate query params
 	s := q.urlValues.Get(queryParamSortDir)
 
-	sortDir, err := strconv.Atoi(s)
-
-	if err != nil {
+	if s == "1" {
 		return sortDir
-	}
-
-	if sortDir != 1 && sortDir != -1 {
-		return sortDir
+	} else if s == "-1" {
+		return "DESC"
 	}
 
 	return sortDir
@@ -103,13 +103,18 @@ func (q *QueryParams) GetSortDir() int {
 
 func (q *QueryParams) GetSearch() string {
 	// TODO: Validate query params
-	searchText := q.urlValues.Get(queryParamSearch)
+	return q.urlValues.Get(queryParamSearch)
+}
 
-	if searchText == "" {
-		return searchText
+func (q *QueryParams) GetSearchCol() string {
+	// TODO: Validate query params
+	col := q.urlValues.Get(queryParamSearchCol)
+
+	if col == "" {
+		return searchCol
 	}
 
-	return "%" + searchText + "%"
+	return col
 }
 
 func ParseResourceId(r *http.Request) (int64, error) {

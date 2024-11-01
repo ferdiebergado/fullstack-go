@@ -13,7 +13,8 @@ import (
 	"github.com/ferdiebergado/fullstack-go/internal/domain/host"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/venue"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
-	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/http/request"
+	"github.com/ferdiebergado/fullstack-go/pkg/http/response"
 	"github.com/ferdiebergado/fullstack-go/pkg/validator"
 )
 
@@ -28,9 +29,9 @@ func NewActivityHandler(as ActivityService, vs venue.VenueService, hs host.HostS
 	return &ActivityHandler{activityService: as, venueService: vs, hostService: hs, divisionService: ds}
 }
 
-func (h *ActivityHandler) getPaginatedData(r *http.Request) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error) {
+func (h *ActivityHandler) getPaginatedData(r *http.Request) (*response.PaginatedData[db.ActiveActivityDetailWithCount], error) {
 
-	queryParams := myhttp.NewQueryParams(r)
+	queryParams := request.NewQueryParams(r)
 
 	paginatedData, err := h.activityService.ListActivities(r.Context(), queryParams)
 
@@ -46,28 +47,28 @@ func (h *ActivityHandler) ListActiveActivitiesJson(w http.ResponseWriter, r *htt
 	paginatedData, err := h.getPaginatedData(r)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "list activities", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "list activities", err)
 		return
 	}
 
-	response := &myhttp.ApiResponse[[]db.ListActiveActivitiesRow]{
-		Meta: myhttp.ResponseMeta{
+	res := &response.ApiResponse[[]db.ActiveActivityDetailWithCount]{
+		Meta: response.ResponseMeta{
 			Pagination: paginatedData.Pagination,
 		},
 		Data: paginatedData.Data,
 	}
 
-	err = ui.RenderJson(w, http.StatusOK, response)
+	err = ui.RenderJson(w, http.StatusOK, res)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render json", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render json", err)
 		return
 	}
 
 }
 
 func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Request) {
-	tableHeaders := []myhttp.TableHeader{
+	tableHeaders := []response.TableHeader{
 		{Field: "title", Label: "Title"},
 		{Field: "start_date", Label: "Start Date"},
 		{Field: "end_date", Label: "End Date"},
@@ -78,11 +79,11 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 	jsonData, err := json.Marshal(tableHeaders)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to marshal table headers", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "unable to marshal table headers", err)
 		return
 	}
 
-	data := &myhttp.TableData{
+	data := &response.TableData{
 		ApiUrl:       ApiRoute,
 		TableHeaders: template.JS(jsonData),
 	}
@@ -90,7 +91,7 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 	err = ui.RenderHTML(w, "pages/activities/index.html", data)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
 		return
 	}
 }
@@ -99,21 +100,21 @@ func (h *ActivityHandler) ShowCreateActivityForm(w http.ResponseWriter, r *http.
 	venues, err := h.venueService.GetVenues(r.Context())
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get venues", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "get venues", err)
 		return
 	}
 
 	divisions, err := h.divisionService.GetDivisions(r.Context())
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get regions", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "get regions", err)
 		return
 	}
 
 	hosts, err := h.hostService.GetHosts(r.Context())
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get hosts", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "get hosts", err)
 		return
 	}
 
@@ -130,16 +131,16 @@ func (h *ActivityHandler) ShowCreateActivityForm(w http.ResponseWriter, r *http.
 	err = ui.RenderHTML(w, "pages/activities/create.html", data)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+		response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
 		return
 	}
 }
 
 func (h *ActivityHandler) findActivity(w http.ResponseWriter, r *http.Request) *db.ActiveActivityDetail {
-	id, err := myhttp.ParseResourceId(r)
+	id, err := request.ParseResourceId(r)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
+		response.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return nil
 	}
 
@@ -155,7 +156,7 @@ func (h *ActivityHandler) findActivity(w http.ResponseWriter, r *http.Request) *
 
 		}
 
-		myhttp.ErrorHandler(w, r, status, "find active activity", err)
+		response.ErrorHandler(w, r, status, "find active activity", err)
 		return nil
 	}
 
@@ -169,7 +170,7 @@ func (h *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 	err := ui.RenderJson(w, http.StatusOK, activity)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render json", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render json", err)
 		return
 	}
 }
@@ -180,7 +181,7 @@ func (h *ActivityHandler) ShowActivity(w http.ResponseWriter, r *http.Request) {
 	err := ui.RenderHTML(w, "pages/activities/view.html", activity)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
 		return
 	}
 }
@@ -191,21 +192,21 @@ func (h *ActivityHandler) ShowEditActivityForm(w http.ResponseWriter, r *http.Re
 	divisions, err := h.divisionService.GetDivisions(r.Context())
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get regions", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "get regions", err)
 		return
 	}
 
 	venues, err := h.venueService.GetVenues(r.Context())
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get venues", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "get venues", err)
 		return
 	}
 
 	hosts, err := h.hostService.GetHosts(r.Context())
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusInternalServerError, "get hosts", err)
+		response.ErrorHandler(w, r, http.StatusInternalServerError, "get hosts", err)
 		return
 	}
 
@@ -224,23 +225,23 @@ func (h *ActivityHandler) ShowEditActivityForm(w http.ResponseWriter, r *http.Re
 	err = ui.RenderHTML(w, "pages/activities/edit.html", data)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+		response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
 		return
 	}
 }
 
 func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
-	id, err := myhttp.ParseResourceId(r)
+	id, err := request.ParseResourceId(r)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
+		response.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return
 	}
 
 	data, err := ui.DecodeJson[db.UpdateActivityParams](r)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json body", err)
+		response.ErrorHandler(w, r, http.StatusBadRequest, "decode json body", err)
 		return
 	}
 
@@ -250,43 +251,45 @@ func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request)
 		data.Metadata = json.RawMessage(`{}`) // Set to an empty JSON object if nil
 	}
 
+	data.Title = template.HTMLEscapeString(data.Title)
+
 	err = h.activityService.UpdateActivity(r.Context(), data)
 
 	if err != nil {
 		errorBag, ok := err.(*validator.ValidationErrorBag)
 
 		if !ok {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "update activity", err)
+			response.ErrorHandler(w, r, http.StatusBadRequest, "update activity", err)
 			return
 		}
 
-		response := &myhttp.ApiResponse[any]{
-			Meta: myhttp.ResponseMeta{
+		res := &response.ApiResponse[any]{
+			Meta: response.ResponseMeta{
 				Message: errorBag.Message,
 				Errors:  errorBag.ValidationErrors,
 			},
 		}
 
-		err = ui.RenderJson(w, http.StatusBadRequest, response)
+		err = ui.RenderJson(w, http.StatusBadRequest, res)
 
 		if err != nil {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+			response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
 			return
 		}
 
 		return
 	}
 
-	response := &myhttp.ApiResponse[any]{
-		Meta: myhttp.ResponseMeta{
+	res := &response.ApiResponse[any]{
+		Meta: response.ResponseMeta{
 			Message: "Activity updated.",
 		},
 	}
 
-	err = ui.RenderJson(w, http.StatusOK, response)
+	err = ui.RenderJson(w, http.StatusOK, res)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+		response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
 		return
 	}
 }
@@ -295,7 +298,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 	data, err := ui.DecodeJson[db.CreateActivityParams](r)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
+		response.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
 		return
 	}
 
@@ -303,54 +306,56 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 		data.Metadata = json.RawMessage(`{}`) // Set to an empty JSON object if nil
 	}
 
+	data.Title = template.HTMLEscapeString(data.Title)
+
 	activity, err := h.activityService.CreateActivity(r.Context(), data)
 
 	if err != nil {
 		errorBag, ok := err.(*validator.ValidationErrorBag)
 
 		if !ok {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
+			response.ErrorHandler(w, r, http.StatusBadRequest, "save activity", err)
 			return
 		}
 
-		response := &myhttp.ApiResponse[any]{
-			Meta: myhttp.ResponseMeta{
+		res := &response.ApiResponse[any]{
+			Meta: response.ResponseMeta{
 				Message: errorBag.Message,
 				Errors:  errorBag.ValidationErrors,
 			},
 		}
 
-		err = ui.RenderJson(w, http.StatusBadRequest, response)
+		err = ui.RenderJson(w, http.StatusBadRequest, res)
 
 		if err != nil {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+			response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
 			return
 		}
 
 		return
 	}
 
-	response := &myhttp.ApiResponse[[]db.Activity]{
-		Meta: myhttp.ResponseMeta{
+	res := &response.ApiResponse[[]db.Activity]{
+		Meta: response.ResponseMeta{
 			Message: "Activity created.",
 		},
 		Data: []db.Activity{*activity},
 	}
 
-	err = ui.RenderJson(w, http.StatusCreated, response)
+	err = ui.RenderJson(w, http.StatusCreated, res)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+		response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
 		return
 	}
 }
 
 func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request) {
 
-	id, err := myhttp.ParseResourceId(r)
+	id, err := request.ParseResourceId(r)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
+		response.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
 		return
 	}
 
@@ -367,7 +372,7 @@ func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request)
 			status = http.StatusNotFound
 		}
 
-		myhttp.ErrorHandler(w, r, status, "delete activity", err)
+		response.ErrorHandler(w, r, status, "delete activity", err)
 		return
 	}
 
