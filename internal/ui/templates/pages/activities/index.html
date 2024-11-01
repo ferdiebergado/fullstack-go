@@ -13,7 +13,12 @@
   </div>
 
   <!-- Search -->
-  <input type="search" id="filterInput" placeholder="Search..." />
+  <input
+    type="search"
+    id="filterInput"
+    placeholder="Search..."
+    autocomplete="on"
+  />
 
   <!-- Pagination -->
   <div class="pagination" id="paginationControls">
@@ -27,7 +32,7 @@
     </div>
     <div class="flex">
       <label for="pageJumpInput">Jump to page:</label>
-      <input type="number" id="pageJumpInput" min="1" />
+      <input type="text" id="pageJumpInput" pattern="\d+" />
     </div>
     <div class="flex">
       <label for="rowsPerPage">Rows per page:</label>
