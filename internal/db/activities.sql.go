@@ -292,11 +292,33 @@ func (q *Queries) FindActivitiesByTitle(ctx context.Context) ([]ActivityDetail, 
 }
 
 const findActivity = `-- name: FindActivity :one
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at FROM activities WHERE id = $1
+`
+
+func (q *Queries) FindActivity(ctx context.Context, id int64) (Activity, error) {
+	row := q.db.QueryRowContext(ctx, findActivity, id)
+	var i Activity
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.StartDate,
+		&i.EndDate,
+		&i.VenueID,
+		&i.HostID,
+		&i.Metadata,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const findActivityDetail = `-- name: FindActivityDetail :one
 SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host FROM activity_details WHERE id = $1
 `
 
-func (q *Queries) FindActivity(ctx context.Context, id int64) (ActivityDetail, error) {
-	row := q.db.QueryRowContext(ctx, findActivity, id)
+func (q *Queries) FindActivityDetail(ctx context.Context, id int64) (ActivityDetail, error) {
+	row := q.db.QueryRowContext(ctx, findActivityDetail, id)
 	var i ActivityDetail
 	err := row.Scan(
 		&i.ID,

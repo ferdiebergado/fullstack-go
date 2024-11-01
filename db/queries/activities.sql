@@ -37,8 +37,11 @@ SELECT id FROM active_activities WHERE id = $1;
 -- name: FindActiveActivityDetails :one
 SELECT * FROM active_activity_details WHERE id = $1;
 
--- name: FindActivity :one
+-- name: FindActivityDetail :one
 SELECT * FROM activity_details WHERE id = $1;
+
+-- name: FindActivity :one
+SELECT * FROM activities WHERE id = $1;
 
 -- name: FindActiveActivitiesByTitle :many
 SELECT * FROM active_activity_details WHERE title LIKE '%$1%';
