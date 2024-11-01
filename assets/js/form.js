@@ -1,6 +1,7 @@
 // @ts-check
 import { inputErrorClass } from './config.js';
 import { showNotification } from './components/notification.js';
+import { sanitize } from './sanitize.js';
 
 /**
  * Sends a request and handles form submission.
@@ -24,11 +25,15 @@ export async function submitForm(form, cb) {
   const payload = {};
 
   formData.forEach((value, key) => {
-    // Convert numeric fields manually
-    if (key.endsWith('_id')) {
-      payload[key] = Number(value); // Convert to number
-    } else {
-      payload[key] = value; // Keep as string
+    const input = sanitize(value);
+
+    if (typeof input === 'string') {
+      // Convert numeric fields manually
+      if (key.endsWith('_id')) {
+        payload[key] = Number(input); // Convert to number
+      } else {
+        payload[key] = input; // Keep as string
+      }
     }
   });
 
