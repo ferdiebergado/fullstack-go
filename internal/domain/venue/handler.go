@@ -5,7 +5,7 @@ import (
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
-	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/http/response"
 	"github.com/ferdiebergado/fullstack-go/pkg/validator"
 )
 
@@ -21,7 +21,7 @@ func (h *VenueHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
 	data, err := ui.DecodeJson[db.CreateVenueParams](r)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
+		response.ErrorHandler(w, r, http.StatusBadRequest, "decode json", err)
 		return
 	}
 
@@ -31,38 +31,38 @@ func (h *VenueHandler) SaveVenue(w http.ResponseWriter, r *http.Request) {
 		errorBag, ok := err.(*validator.ValidationErrorBag)
 
 		if !ok {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "save venue", err)
+			response.ErrorHandler(w, r, http.StatusBadRequest, "save venue", err)
 			return
 		}
 
-		response := &myhttp.ApiResponse[any]{
-			Meta: myhttp.ResponseMeta{
+		res := &response.ApiResponse[any]{
+			Meta: response.ResponseMeta{
 				Message: errorBag.Message,
 				Errors:  errorBag.ValidationErrors,
 			},
 		}
 
-		err = ui.RenderJson(w, http.StatusBadRequest, response)
+		err = ui.RenderJson(w, http.StatusBadRequest, res)
 
 		if err != nil {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+			response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
 			return
 		}
 
 		return
 	}
 
-	response := &myhttp.ApiResponse[[]*db.Venue]{
-		Meta: myhttp.ResponseMeta{
+	res := &response.ApiResponse[[]*db.Venue]{
+		Meta: response.ResponseMeta{
 			Message: "Venue created successfully!",
 		},
 		Data: []*db.Venue{venue},
 	}
 
-	err = ui.RenderJson(w, http.StatusCreated, response)
+	err = ui.RenderJson(w, http.StatusCreated, res)
 
 	if err != nil {
-		myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
+		response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render json", err)
 		return
 	}
 }

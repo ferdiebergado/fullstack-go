@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/http/response"
 )
 
 // AssertEqual asserts that two values are equal.
@@ -63,7 +63,7 @@ func AssertValidationError(t *testing.T, actualErrors []string, expectedErrors [
 }
 
 // AssertApiResponse asserts that an ApiResponse struct contains the expected values.
-func AssertApiResponse(t *testing.T, response myhttp.ApiResponse[any], expectedSuccess bool, expectedData interface{}, expectedErrors []string) {
+func AssertApiResponse(t *testing.T, response response.ApiResponse[any], expectedSuccess bool, expectedData interface{}, expectedErrors []string) {
 	AssertEqual(t, expectedData, response.Data, "Data field mismatch")
 	AssertEqual(t, expectedErrors, response.Meta.Errors, "Errors field mismatch")
 }

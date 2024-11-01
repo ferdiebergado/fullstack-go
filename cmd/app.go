@@ -11,7 +11,7 @@ import (
 	"github.com/ferdiebergado/fullstack-go/internal/domain/host"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/venue"
 	"github.com/ferdiebergado/fullstack-go/internal/ui"
-	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/http/response"
 	router "github.com/ferdiebergado/go-express"
 	"github.com/ferdiebergado/go-express/middleware"
 )
@@ -58,7 +58,7 @@ func NewApp(database *db.Database) *router.Router {
 		err := ui.RenderHTML(w, "index.html", nil)
 
 		if err != nil {
-			myhttp.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
+			response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
 			return
 		}
 	})
@@ -66,7 +66,7 @@ func NewApp(database *db.Database) *router.Router {
 	// Not found handler
 	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		status := http.StatusNotFound
-		myhttp.ErrorHandler(w, r, status, http.StatusText(status), errors.New("page not found"))
+		response.ErrorHandler(w, r, status, http.StatusText(status), errors.New("page not found"))
 	})
 
 	return router

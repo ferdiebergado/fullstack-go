@@ -5,15 +5,17 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"slices"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
-	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/http/request"
+	"github.com/ferdiebergado/fullstack-go/pkg/http/response"
 	"github.com/ferdiebergado/fullstack-go/pkg/validator"
 )
 
 type ActivityService interface {
 	CreateActivity(ctx context.Context, req db.CreateActivityParams) (*db.Activity, error)
-	ListActivities(ctx context.Context, params *myhttp.QueryParams) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error)
+	ListActivities(ctx context.Context, params *request.QueryParams) (*response.PaginatedData[db.ActiveActivityDetailWithCount], error)
 	FindActiveActivity(ctx context.Context, id int64) error
 	FindActiveActivityDetails(ctx context.Context, id int64) (*db.ActiveActivityDetail, error)
 	UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error
@@ -28,6 +30,9 @@ type activityService struct {
 
 var (
 	ErrActivityNotFound = errors.New("activity not found")
+	ErrUndefinedColumn  = errors.New("column does not exist")
+
+	fields = []string{"title", "start_date", "end_date", "venue", "host"}
 
 	activityRules = validator.ValidationRules{
 		"title":      "required|min:2|max:300",
@@ -44,7 +49,7 @@ func NewActivityService(database *db.Database) ActivityService {
 
 func (s *activityService) CreateActivity(ctx context.Context, params db.CreateActivityParams) (*db.Activity, error) {
 
-	v := validator.New(params, activityRules)
+	v := validator.NewValidator(params, activityRules)
 	validationErrors := v.Validate()
 
 	if !v.Valid() {
@@ -92,52 +97,43 @@ func (s *activityService) FindActiveActivityDetails(ctx context.Context, id int6
 }
 
 // ListActivities implements ActivityService.
-func (s *activityService) ListActivities(ctx context.Context, params *myhttp.QueryParams) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error) {
-	page := params.Page
-	offset := params.Offset
-	limit := params.Limit
+func (s *activityService) ListActivities(ctx context.Context, params *request.QueryParams) (*response.PaginatedData[db.ActiveActivityDetailWithCount], error) {
 
-	sortCol := params.SortCol
-	sortDir := params.SortDir
+	searchFieldType := db.TextField
 
-	search := params.Search
-
-	var activities []db.ListActiveActivitiesRow
-	var err error
-	var totalItems int64
-
-	order := "ASC"
-
-	if sortDir == -1 {
-		order = "DESC"
+	if !slices.Contains(fields, params.SearchCol) {
+		params.Search = ""
+		params.SearchCol = "title"
 	}
 
-	args := db.ListActiveActivitiesParams{
-		Limit:   limit,
-		Offset:  offset,
-		Column1: &sortCol,
-		Column2: &order,
-		Column5: &search,
+	if params.Search != "" && searchFieldType == db.TextField {
+		params.Search = "%" + params.Search + "%"
 	}
 
-	activities, err = s.queries.ListActiveActivities(ctx, args)
+	if params.SearchCol == "start_date" || params.SearchCol == "end_date" {
+		searchFieldType = db.DateField
+	}
+
+	activities, err := s.queries.ListActiveActivities(ctx, *params, searchFieldType)
 
 	if err != nil {
 		return nil, err
 	}
 
+	var totalItems int64
+
 	if len(activities) > 0 {
 		totalItems = activities[0].TotalItems
 	}
 
-	totalPages := (totalItems + limit - 1) / limit
+	totalPages := (totalItems + params.Limit - 1) / params.Limit
 
-	paginatedData := &myhttp.PaginatedData[db.ListActiveActivitiesRow]{
-		Pagination: &myhttp.PaginationMeta{
+	paginatedData := &response.PaginatedData[db.ActiveActivityDetailWithCount]{
+		Pagination: &response.PaginationMeta{
 			TotalItems: totalItems,
 			TotalPages: totalPages,
-			Page:       page,
-			Limit:      limit,
+			Page:       params.Page,
+			Limit:      params.Limit,
 		},
 		Data: activities,
 	}
@@ -147,7 +143,7 @@ func (s *activityService) ListActivities(ctx context.Context, params *myhttp.Que
 
 // UpdateActivity implements ActivityService.
 func (s *activityService) UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error {
-	v := validator.New(params, activityRules)
+	v := validator.NewValidator(params, activityRules)
 	validationErrors := v.Validate()
 
 	if !v.Valid() {

@@ -1,6 +1,8 @@
 // @ts-check
 'use strict';
 
+import { sanitize } from '../sanitize';
+
 /**
  * @typedef {Object} TableHeader
  * @property {string} field
@@ -14,6 +16,7 @@
  * @property {string} sortColumn
  * @property {number} sortDirection
  * @property {string} search
+ * @property {string} searchCol
  */
 
 const MAX_TEXT_LENGTH = 30;
@@ -39,6 +42,11 @@ const apiUrl = table?.getAttribute('data-url') || '';
 const filterInput = /** @type {HTMLInputElement | null} */ (
   document.getElementById('filterInput')
 );
+
+const filterSelect = /** @type {HTMLSelectElement | null} */ (
+  document.getElementById('filterSelect')
+);
+
 const paginationControls = document.getElementById('paginationControls');
 
 const rowsPerPageSelect = /** @type {HTMLSelectElement | null} */ (
@@ -73,6 +81,7 @@ let rowsPerPage = parseInt(rowsPerPageSelect?.value || '10', 10);
 let sortColumn = null;
 let sortDirection = 1;
 let search = '';
+let searchCol = '';
 
 // Fetch data from API endpoint with pagination
 async function fetchData(page = 1) {
@@ -85,6 +94,7 @@ async function fetchData(page = 1) {
       sortCol: sortColumn,
       sortDir: String(sortDirection),
       search: encodeURIComponent(search),
+      searchCol: filterSelect?.value || '',
     });
 
     const response = await fetch(`${apiUrl}?${params.toString()}`);
@@ -105,6 +115,23 @@ async function fetchData(page = 1) {
     saveState();
   } catch (error) {
     console.error('Fetch error:', error);
+  }
+}
+
+function renderFilterSelect() {
+  const optionFragment = document.createDocumentFragment();
+
+  headers.forEach((header) => {
+    const option = document.createElement('option');
+
+    option.value = header.field;
+    option.textContent = header.label;
+    optionFragment.appendChild(option);
+  });
+
+  if (filterSelect) {
+    filterSelect.innerHTML = '';
+    filterSelect.appendChild(optionFragment);
   }
 }
 
@@ -148,8 +175,11 @@ function renderTableBody() {
         /** @param {TableHeader} header */ (header) => {
           const td = document.createElement('td');
           const fieldValue = sanitize(row[header.field]);
-          td.title = fieldValue;
-          td.textContent = truncateText(fieldValue, MAX_TEXT_LENGTH);
+          if (typeof fieldValue === 'string') {
+            td.style.wordBreak = 'break-all';
+            td.title = fieldValue;
+            td.textContent = truncateText(fieldValue, MAX_TEXT_LENGTH);
+          }
           tr.appendChild(td);
         }
       );
@@ -181,7 +211,7 @@ function renderTableBody() {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
 
-    td.colSpan = headers.length;
+    td.colSpan = headers.length + 1;
     td.textContent = 'No data.';
 
     tr.appendChild(td);
@@ -228,6 +258,7 @@ function updatePagination() {
     pageJumpInput && (pageJumpInput.disabled = true);
     rowsPerPageSelect && (rowsPerPageSelect.disabled = true);
     pageInfo && (pageInfo.textContent = '');
+    recordsInfo && (recordsInfo.textContent = '');
   }
 }
 
@@ -250,6 +281,7 @@ function saveState() {
     search,
     currentPage,
     rowsPerPage,
+    searchCol,
   };
 
   localStorage.setItem('tableState', JSON.stringify(tableState));
@@ -268,6 +300,7 @@ function retrieveState() {
       sortColumn = tableState.sortColumn;
       sortDirection = tableState.sortDirection;
       search = tableState.search;
+      searchCol = tableState.searchCol;
 
       filterInput && (filterInput.value = search);
     }
@@ -301,16 +334,6 @@ function jumpToPage(input) {
     changePage(1);
     input.value = String(1);
   }
-}
-
-// Sanitize data to prevent XSS attacks
-/** @param {string} text */
-function sanitize(text) {
-  const element = document.createElement('div');
-
-  element.textContent = text;
-
-  return element.innerHTML;
 }
 
 /**
@@ -353,7 +376,10 @@ function truncateText(originalText, maxLength) {
 }
 
 // Attach event listener for filtering
-filterInput?.addEventListener('input', debounce(fetchData, 300));
+// filterInput?.addEventListener('input', debounce(fetchData, 300));
+filterInput?.addEventListener('keydown', function (event) {
+  if (event.key === 'Enter') fetchData();
+});
 
 rowsPerPageSelect?.addEventListener('change', updateRowsPerPage);
 
@@ -361,10 +387,7 @@ pageJumpInput?.addEventListener('keydown', function (event) {
   if (event.key === 'Enter') jumpToPage(this);
 });
 
-if (pageJumpInput) {
-  pageJumpInput.max = String(totalPages);
-  pageJumpInput.value = String(currentPage);
-}
+pageJumpInput && (pageJumpInput.value = String(currentPage));
 
 firstButton?.addEventListener('click', () => changePage(1));
 prevButton?.addEventListener('click', () => changePage(currentPage - 1));
@@ -373,5 +396,6 @@ lastButton?.addEventListener('click', () => changePage(totalPages));
 
 // Initial fetch and render
 retrieveState();
+renderFilterSelect();
 renderTableHead();
 fetchData(currentPage);

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
-	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
+	"github.com/ferdiebergado/fullstack-go/pkg/http/response"
 	"github.com/ferdiebergado/fullstack-go/pkg/test"
 	router "github.com/ferdiebergado/go-express"
 )
@@ -94,7 +94,7 @@ func TestCreateActivityInvalid(t *testing.T) {
 	test.AssertEqual(t, http.StatusBadRequest, rr.Code)
 
 	// Check if the JSON response matches ApiResponse struct
-	var response myhttp.ApiResponse[[]db.ActiveActivityDetail]
+	var response response.ApiResponse[[]db.ActiveActivityDetail]
 	err = json.Unmarshal(rr.Body.Bytes(), &response)
 	if err != nil {
 		t.Fatalf("Failed to unmarshal response body: %v", err)
