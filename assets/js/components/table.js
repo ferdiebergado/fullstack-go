@@ -16,6 +16,9 @@
  * @property {string} search
  */
 
+const MAX_TEXT_LENGTH = 30;
+const TABLE_ROW_HEIGHT = '6rem';
+
 const table = /** @type {HTMLTableElement | null} */ (
   document.getElementById('dynamicTable')
 );
@@ -116,6 +119,8 @@ function renderTableHead() {
       (header) => {
         const th = document.createElement('th');
         th.textContent = header.label;
+        th.title = 'Click to sort';
+        th.style.cursor = 'pointer';
         th.addEventListener('click', () => sortTable(header.field));
         headerRow.appendChild(th);
       }
@@ -137,11 +142,14 @@ function renderTableBody() {
   if (totalItems > 0) {
     data.forEach((row) => {
       const tr = document.createElement('tr');
+      tr.style.height = TABLE_ROW_HEIGHT;
 
       headers.forEach(
         /** @param {TableHeader} header */ (header) => {
           const td = document.createElement('td');
-          td.textContent = sanitize(row[header.field]);
+          const fieldValue = sanitize(row[header.field]);
+          td.title = fieldValue;
+          td.textContent = truncateText(fieldValue, MAX_TEXT_LENGTH);
           tr.appendChild(td);
         }
       );
@@ -279,6 +287,22 @@ function sortTable(field) {
   fetchData();
 }
 
+/** @param {HTMLInputElement} input  */
+function jumpToPage(input) {
+  const targetPage = parseInt(input.value, 10);
+
+  if (
+    targetPage >= 1 &&
+    targetPage <= totalPages &&
+    targetPage !== currentPage
+  ) {
+    changePage(targetPage);
+  } else if (targetPage < 1) {
+    changePage(1);
+    input.value = String(1);
+  }
+}
+
 // Sanitize data to prevent XSS attacks
 /** @param {string} text */
 function sanitize(text) {
@@ -290,16 +314,42 @@ function sanitize(text) {
 }
 
 /**
+ * Creates a debounced function that delays invoking the provided function
+ * until after a specified delay in milliseconds has elapsed since the last
+ * time the debounced function was invoked.
  *
- * @param {Function} func
- * @param {number} delay
+ * @param {Function} func - The function to debounce.
+ * @param {number} delay - The number of milliseconds to delay.
+ * @returns {...*} A new debounced function that takes the same parameters as `func`.
  */
 function debounce(func, delay) {
-  let timeout;
+  let timeout; // Holds the timeout ID
+
+  /**
+   * The inner function that will be called after the delay.
+   *
+   * @param {...*} args - The arguments to pass to the original function.
+   */
   return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), delay);
+    // The returned function accepts any arguments
+    clearTimeout(timeout); // Clear the previous timeout
+    timeout = setTimeout(() => func.apply(this, args), delay); // Set a new timeout
   };
+}
+
+/**
+ *
+ * @param {string} originalText
+ * @param {number} maxLength
+ *
+ * @returns {string}
+ */
+function truncateText(originalText, maxLength) {
+  if (originalText.length > maxLength) {
+    return originalText.substring(0, maxLength) + '...';
+  }
+
+  return originalText;
 }
 
 // Attach event listener for filtering
@@ -307,14 +357,8 @@ filterInput?.addEventListener('input', debounce(fetchData, 300));
 
 rowsPerPageSelect?.addEventListener('change', updateRowsPerPage);
 
-pageJumpInput?.addEventListener('change', () => {
-  const targetPage = parseInt(pageJumpInput.value, 10);
-
-  if (targetPage >= 1 && targetPage <= totalPages) {
-    changePage(targetPage);
-  } else {
-    if (pageJumpInput) pageJumpInput.value = String(currentPage);
-  }
+pageJumpInput?.addEventListener('keydown', function (event) {
+  if (event.key === 'Enter') jumpToPage(this);
 });
 
 if (pageJumpInput) {
