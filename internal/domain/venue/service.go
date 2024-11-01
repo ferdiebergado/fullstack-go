@@ -29,7 +29,7 @@ func NewVenueService(database *db.Database) VenueService {
 
 // CreateVenue implements VenueService.
 func (s *venueService) CreateVenue(ctx context.Context, params db.CreateVenueParams) (*db.Venue, error) {
-	v := validator.New(params, validationRules)
+	v := validator.NewValidator(params, validationRules)
 	validationErrors := v.Validate()
 
 	if !v.Valid() {

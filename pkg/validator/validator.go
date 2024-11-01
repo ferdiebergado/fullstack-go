@@ -48,7 +48,7 @@ type Validator[T any] struct {
 	errors          []ValidationError
 }
 
-func New[T any](params T, validationRules ValidationRules) *Validator[T] {
+func NewValidator[T any](params T, validationRules ValidationRules) *Validator[T] {
 	return &Validator[T]{
 		params:          params,
 		validationRules: validationRules,
