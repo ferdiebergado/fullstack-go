@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"html/template"
+	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	"github.com/ferdiebergado/fullstack-go/internal/domain/division"
@@ -30,7 +30,9 @@ func NewActivityHandler(as ActivityService, vs venue.VenueService, hs host.HostS
 
 func (h *ActivityHandler) getPaginatedData(r *http.Request) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error) {
 
-	paginatedData, err := h.activityService.ListActivities(r.Context(), r.URL.Query())
+	queryParams := myhttp.NewQueryParams(r)
+
+	paginatedData, err := h.activityService.ListActivities(r.Context(), queryParams)
 
 	if err != nil {
 		return nil, err
@@ -133,12 +135,8 @@ func (h *ActivityHandler) ShowCreateActivityForm(w http.ResponseWriter, r *http.
 	}
 }
 
-func (h *ActivityHandler) ParseId(idStr string) (int64, error) {
-	return strconv.ParseInt(idStr, 10, 64)
-}
-
-func (h *ActivityHandler) getActivity(w http.ResponseWriter, r *http.Request) *db.ActiveActivityDetail {
-	id, err := h.ParseId(r.PathValue("id"))
+func (h *ActivityHandler) findActivity(w http.ResponseWriter, r *http.Request) *db.ActiveActivityDetail {
+	id, err := myhttp.ParseResourceId(r)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
@@ -166,7 +164,7 @@ func (h *ActivityHandler) getActivity(w http.ResponseWriter, r *http.Request) *d
 
 func (h *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 
-	activity := h.getActivity(w, r)
+	activity := h.findActivity(w, r)
 
 	err := ui.RenderJson(w, http.StatusOK, activity)
 
@@ -177,7 +175,7 @@ func (h *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ActivityHandler) ShowActivity(w http.ResponseWriter, r *http.Request) {
-	activity := h.getActivity(w, r)
+	activity := h.findActivity(w, r)
 
 	err := ui.RenderHTML(w, "pages/activities/view.html", activity)
 
@@ -188,7 +186,7 @@ func (h *ActivityHandler) ShowActivity(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ActivityHandler) ShowEditActivityForm(w http.ResponseWriter, r *http.Request) {
-	activity := h.getActivity(w, r)
+	activity := h.findActivity(w, r)
 
 	divisions, err := h.divisionService.GetDivisions(r.Context())
 
@@ -232,7 +230,7 @@ func (h *ActivityHandler) ShowEditActivityForm(w http.ResponseWriter, r *http.Re
 }
 
 func (h *ActivityHandler) UpdateActivity(w http.ResponseWriter, r *http.Request) {
-	id, err := h.ParseId(r.PathValue("id"))
+	id, err := myhttp.ParseResourceId(r)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
@@ -349,7 +347,7 @@ func (h *ActivityHandler) SaveActivity(w http.ResponseWriter, r *http.Request) {
 
 func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request) {
 
-	id, err := h.ParseId(r.PathValue("id"))
+	id, err := myhttp.ParseResourceId(r)
 
 	if err != nil {
 		myhttp.ErrorHandler(w, r, http.StatusNotFound, "parse id", err)
@@ -359,6 +357,9 @@ func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request)
 	err = h.activityService.DeleteActivity(r.Context(), id)
 
 	if err != nil {
+
+		// DEBUG:
+		log.Println("error in delete activity at activity service")
 
 		status := http.StatusInternalServerError
 

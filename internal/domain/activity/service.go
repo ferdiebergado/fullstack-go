@@ -4,28 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"net/url"
-	"strconv"
+	"log"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
 	myhttp "github.com/ferdiebergado/fullstack-go/pkg/http"
 	"github.com/ferdiebergado/fullstack-go/pkg/validator"
 )
 
-const (
-	queryParamPage    = "page"
-	queryParamLimit   = "limit"
-	queryParamSortCol = "sortCol"
-	queryParamSortDir = "sortDir"
-	queryParamSearch  = "search"
-	recordsPerPage    = 5
-	sortColumn        = "start_date"
-	sortDir           = 1
-)
-
 type ActivityService interface {
 	CreateActivity(ctx context.Context, req db.CreateActivityParams) (*db.Activity, error)
-	ListActivities(ctx context.Context, urlValues url.Values) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error)
+	ListActivities(ctx context.Context, params *myhttp.QueryParams) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error)
 	FindActiveActivity(ctx context.Context, id int64) error
 	FindActiveActivityDetails(ctx context.Context, id int64) (*db.ActiveActivityDetail, error)
 	UpdateActivity(ctx context.Context, params db.UpdateActivityParams) error
@@ -104,15 +92,15 @@ func (s *activityService) FindActiveActivityDetails(ctx context.Context, id int6
 }
 
 // ListActivities implements ActivityService.
-func (s *activityService) ListActivities(ctx context.Context, urlValues url.Values) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error) {
-	page := GetPage(urlValues)
-	limit := GetLimit(urlValues)
-	offset := (page - 1) * limit
+func (s *activityService) ListActivities(ctx context.Context, params *myhttp.QueryParams) (*myhttp.PaginatedData[db.ListActiveActivitiesRow], error) {
+	page := params.Page
+	offset := params.Offset
+	limit := params.Limit
 
-	sortCol := GetSortCol(urlValues)
-	sortDir := GetSortDir(urlValues)
+	sortCol := params.SortCol
+	sortDir := params.SortDir
 
-	search := GetSearch(urlValues)
+	search := params.Search
 
 	var activities []db.ListActiveActivitiesRow
 	var err error
@@ -178,9 +166,11 @@ func (s *activityService) UpdateActivity(ctx context.Context, params db.UpdateAc
 // DeleteActivity implements ActivityService.
 func (s *activityService) DeleteActivity(ctx context.Context, id int64) error {
 
-	_, err := s.queries.FindActivity(ctx, id)
+	_, err := s.queries.FindActiveActivity(ctx, id)
 
 	if err != nil {
+		// DEBUG:
+		log.Println("error on findactivity at deleteactivity service")
 		return err
 	}
 
@@ -190,69 +180,4 @@ func (s *activityService) DeleteActivity(ctx context.Context, id int64) error {
 // CountActiveActivities implements ActivityService.
 func (s *activityService) CountActiveActivities(ctx context.Context) (int64, error) {
 	return s.queries.CountActiveActivities(ctx)
-}
-
-func GetPage(urlValues url.Values) int64 {
-	// TODO: Validate query params
-	s := urlValues.Get(queryParamPage)
-
-	page, err := strconv.ParseInt(s, 0, 64)
-
-	if err != nil || page < 1 {
-		return 1
-	}
-
-	return page
-}
-
-func GetLimit(urlValues url.Values) int64 {
-	// TODO: Validate query params
-	s := urlValues.Get(queryParamLimit)
-
-	limit, err := strconv.ParseInt(s, 0, 64)
-
-	if err != nil || limit < 1 {
-		return recordsPerPage
-	}
-
-	return limit
-}
-
-func GetSortCol(urlValues url.Values) string {
-	// TODO: Validate query params
-	sortCol := urlValues.Get(queryParamSortCol)
-
-	if sortCol == "" {
-		return sortColumn
-	}
-
-	return sortCol
-}
-
-func GetSortDir(urlValues url.Values) int {
-	// TODO: Validate query params
-	s := urlValues.Get(queryParamSortDir)
-
-	sortDir, err := strconv.Atoi(s)
-
-	if err != nil {
-		return sortDir
-	}
-
-	if sortDir != 1 && sortDir != -1 {
-		return sortDir
-	}
-
-	return sortDir
-}
-
-func GetSearch(urlValues url.Values) string {
-	// TODO: Validate query params
-	searchText := urlValues.Get(queryParamSearch)
-
-	if searchText == "" {
-		return searchText
-	}
-
-	return "%" + searchText + "%"
 }
