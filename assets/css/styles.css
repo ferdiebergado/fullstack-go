@@ -96,10 +96,19 @@ body {
 	margin-inline: 4px;
 }
 
+.pagination button:disabled {
+	color: silver;
+}
+
 .pagination input,
 select {
-	width: fit-content;
+	width: 6rem;
 	padding: 8px 16px;
+}
+
+.pagination input:invalid {
+	border: 2px solid red;
+	background-color: #fdd;
 }
 
 .page-info {
@@ -169,10 +178,6 @@ td {
 	text-align: left;
 	vertical-align: top;
 	border-bottom: 1px solid #ccc;
-}
-
-#data-table th {
-	cursor: pointer;
 }
 
 .responsive-table {
@@ -334,6 +339,7 @@ footer {
 	align-items: center;
 	gap: 1em;
 }
+
 /* End Utilities */
 
 /* Media Queries */
