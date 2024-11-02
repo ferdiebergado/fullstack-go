@@ -1,10 +1,13 @@
 // @ts-check
+'use strict';
+
 import { inputErrorClass } from './config.js';
 import { showNotification } from './components/notification.js';
 import { sanitize } from './sanitize.js';
 
 /**
  * Sends a request and handles form submission.
+ *
  * @param {HTMLFormElement} form
  * @param {Function} cb
  */
@@ -12,10 +15,11 @@ export async function submitForm(form, cb) {
   clearFormErrors(form);
 
   const formData = new FormData(form);
-  const actionUrl = form.getAttribute('action');
+  const actionUrl = form.getAttribute('action') || '';
 
-  /** @type {HTMLInputElement|null} */
-  const methodInput = form.querySelector('input[name="_method"]');
+  const methodInput = /** @type {HTMLInputElement|null} */ (
+    form.querySelector('input[name="_method"]')
+  );
 
   let method = 'POST';
 
@@ -57,7 +61,8 @@ export async function submitForm(form, cb) {
     } else {
       showNotification(message, 'success');
 
-      if (method !== 'PUT') form.reset();
+      method !== 'PUT' && form.reset();
+
       cb(data);
     }
   } catch (error) {
@@ -66,9 +71,10 @@ export async function submitForm(form, cb) {
 }
 
 /**
+ * Adds error styles to form inputs.
  *
  * @param {HTMLFormElement} form
- * @param {import("./typedefs").ValidationError[]} errors
+ * @param {import('./typedefs').ValidationError[]} errors
  */
 function displayFormErrors(form, errors) {
   errors.forEach(({ field, error }) => {
@@ -76,19 +82,20 @@ function displayFormErrors(form, errors) {
     if (input) {
       const helpText = input.nextElementSibling;
       input.classList.add(inputErrorClass);
-      if (helpText) helpText.textContent = error;
+      helpText && (helpText.textContent = error);
     }
   });
 }
 
 /**
  * Removes the error styles from the form inputs.
+ *
  * @param {HTMLFormElement} form
  */
 function clearFormErrors(form) {
   form.querySelectorAll('.' + inputErrorClass).forEach((input) => {
     input.classList.remove(inputErrorClass);
     const nextEl = input.nextElementSibling;
-    if (nextEl) nextEl.textContent = '';
+    nextEl && (nextEl.textContent = '');
   });
 }

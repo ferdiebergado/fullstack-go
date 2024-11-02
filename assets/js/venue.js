@@ -1,29 +1,44 @@
 // @ts-check
+'use strict';
+
+/**
+ * @typedef {Object} Venue
+ * @property {number} id
+ * @property {string} name
+ * @property {number} division_id
+ */
+
+/**
+ * @typedef {Venue[]} Venues
+ */
 
 import { mountDialogForSelect } from './components/dialog.js';
 import { submitForm } from './form.js';
 import { updateSelect } from './components/select.js';
 
-/** @type {HTMLFormElement} */
-const createVenueForm = document.getElementById('create-venue-form');
-
-/** @type {HTMLSelectElement} */
-const venueSelect = document.getElementById('venue_id');
+const createVenueForm = /** @type {HTMLFormElement} */ (
+  document.getElementById('create-venue-form')
+);
+const venueSelect = /** @type {HTMLSelectElement|null} */ (
+  document.getElementById('venue_id')
+);
+const venueDialog = mountDialogForSelect('create-venue-dialog', venueSelect);
 
 export function handleVenueForm() {
   createVenueForm?.addEventListener('submit', function (event) {
     event.preventDefault();
 
-    submitForm(this, (data) => {
-      venueSelect?.dispatchEvent(
-        new CustomEvent('VenueCreated', { detail: data })
-      );
-      venueDialog.close();
-    });
+    submitForm(
+      this,
+      /** @param {Venues} data */ (data) => {
+        venueSelect?.dispatchEvent(
+          new CustomEvent('VenueCreated', { detail: data[0] })
+        );
+        venueDialog.close();
+      }
+    );
   });
 }
-
-const venueDialog = mountDialogForSelect('create-venue-dialog', venueSelect);
 
 export function watchVenue() {
   venueSelect?.addEventListener(

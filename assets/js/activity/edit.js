@@ -1,9 +1,11 @@
 // @ts-check
+'use strict';
 
 import { submitForm } from '../form';
 
-/** @type {HTMLFormElement} */
-const editActivityForm = document.getElementById('edit-activity-form');
+const editActivityForm = /** @type {HTMLFormElement|null} */ (
+  document.getElementById('edit-activity-form')
+);
 
 editActivityForm?.addEventListener('submit', function (event) {
   event.preventDefault();

@@ -1,8 +1,6 @@
 // @ts-check
 'use strict';
 
-import { sanitize } from '../sanitize';
-
 /**
  * @typedef {Object} TableHeader
  * @property {string} field
@@ -18,6 +16,8 @@ import { sanitize } from '../sanitize';
  * @property {string} search
  * @property {string} searchCol
  */
+
+import { sanitize } from '../sanitize';
 
 const MAX_TEXT_LENGTH = 30;
 const TABLE_ROW_HEIGHT = '6rem';
@@ -101,6 +101,7 @@ async function fetchData(page = 1) {
 
     if (!response.ok) throw new Error('Failed to fetch data');
 
+    /** @type {import('../typedefs').ApiResponse} */
     const jsonData = await response.json();
 
     // Process the response with pagination
@@ -337,30 +338,6 @@ function jumpToPage(input) {
 }
 
 /**
- * Creates a debounced function that delays invoking the provided function
- * until after a specified delay in milliseconds has elapsed since the last
- * time the debounced function was invoked.
- *
- * @param {Function} func - The function to debounce.
- * @param {number} delay - The number of milliseconds to delay.
- * @returns {...*} A new debounced function that takes the same parameters as `func`.
- */
-function debounce(func, delay) {
-  let timeout; // Holds the timeout ID
-
-  /**
-   * The inner function that will be called after the delay.
-   *
-   * @param {...*} args - The arguments to pass to the original function.
-   */
-  return function (...args) {
-    // The returned function accepts any arguments
-    clearTimeout(timeout); // Clear the previous timeout
-    timeout = setTimeout(() => func.apply(this, args), delay); // Set a new timeout
-  };
-}
-
-/**
  *
  * @param {string} originalText
  * @param {number} maxLength
@@ -378,7 +355,11 @@ function truncateText(originalText, maxLength) {
 // Attach event listener for filtering
 // filterInput?.addEventListener('input', debounce(fetchData, 300));
 filterInput?.addEventListener('keydown', function (event) {
-  if (event.key === 'Enter') fetchData();
+  event.key === 'Enter' && fetchData();
+});
+
+filterInput?.addEventListener('input', function () {
+  this.value === '' && fetchData();
 });
 
 rowsPerPageSelect?.addEventListener('change', updateRowsPerPage);
