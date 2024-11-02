@@ -1,16 +1,19 @@
 // @ts-check
+'use strict';
+
 import { errorBgClass, successBgClass } from '../config.js';
+
+const notification = document.getElementById('notification');
+const header = document.getElementById('notification-header');
+const body = document.getElementById('notification-message');
 
 /**
  * Displays a notification on success or error.
+ *
  * @param {string} message
  * @param {string} type
  */
 export function showNotification(message, type) {
-  const notification = document.getElementById('notification');
-  const header = document.getElementById('notification-header');
-  const body = document.getElementById('notification-message');
-
   if (notification && header && body) {
     if (type === 'success') {
       header.textContent = 'Action Completed';
