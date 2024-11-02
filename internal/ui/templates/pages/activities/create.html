@@ -1,8 +1,12 @@
-{{ block "title" .}}PTMS - New Activity{{ end }} {{ block "header"
-.}}Activities{{ end }} {{ block "scripts" . }}
-<script type="module" src="/static/js/activity/create.js"></script>
-{{ end }} {{ block "content" .}}
+{{ block "title" . }}PTMS - New Activity{{ end }}
 
+{{ block "header" . }}Activities{{ end }} 
+
+{{ block "scripts" . }}
+<script type="module" src="/static/js/activity/create.js"></script>
+{{ end }} 
+
+{{ block "content" . }}
 <div class="card">
   <div class="card-header">
     <h3>New Activity</h3>
