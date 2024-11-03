@@ -15,52 +15,41 @@
  * @property {number} sortDirection
  * @property {string} search
  * @property {string} searchCol
+ * @property {string} jumpPage
  */
 
 import { sanitize } from '../sanitize';
-import { truncateText } from '../utils';
+import { highlightText, truncateText } from '../utils';
 
 const MAX_TEXT_LENGTH = 30;
 const TABLE_ROW_HEIGHT = '6rem';
+const STATE_KEY = 'tableState';
+const ROWS_PER_PAGE = 5;
 
+// Elements retrieval
 const table = /** @type {HTMLTableElement | null} */ (
   document.getElementById('dynamicTable')
 );
-
 const tableHead = /** @type {HTMLTableCellElement | null} */ (
   document.getElementById('dynamicTableHead')
 );
-
 const tableBody = /** @type {HTMLTableCellElement | null} */ (
   document.getElementById('dynamicTableBody')
 );
-
-/** @type {TableHeader[]} */
-const headers = JSON.parse(table?.dataset.headers || '[]');
-
-const apiUrl = table?.dataset.url || '';
-
 const filterInput = /** @type {HTMLInputElement | null} */ (
   document.getElementById('filterInput')
 );
-
 const filterSelect = /** @type {HTMLSelectElement | null} */ (
   document.getElementById('filterSelect')
 );
-
-const paginationControls = document.getElementById('paginationControls');
-
 const rowsPerPageSelect = /** @type {HTMLSelectElement | null} */ (
   document.getElementById('rowsPerPage')
 );
-
 const pageJumpInput = /** @type {HTMLInputElement | null} */ (
   document.getElementById('pageJumpInput')
 );
-
 const pageInfo = document.getElementById('pageInfo');
 const recordsInfo = document.getElementById('recordsInfo');
-
 const firstButton = /** @type {HTMLButtonElement | null} */ (
   document.getElementById('firstButton')
 );
@@ -76,7 +65,6 @@ const lastButton = /** @type {HTMLButtonElement | null} */ (
 const refreshButton = /** @type {HTMLButtonElement | null} */ (
   document.getElementById('refreshButton')
 );
-
 const resetButton = /** @type {HTMLButtonElement | null} */ (
   document.getElementById('resetButton')
 );
@@ -85,16 +73,27 @@ let data = [];
 let currentPage = 1;
 let totalPages = 1;
 let totalItems = 1;
-let rowsPerPage = Number(rowsPerPageSelect?.value);
+let rowsPerPage = getRowsPerPage();
 let sortColumn = '';
 let sortDirection = 1;
 let search = '';
-let searchCol = '';
+let searchColumn = '';
+
+// Fetch headers from data attributes
+const headers = JSON.parse(table?.dataset.headers || '[]');
+const apiUrl = table?.dataset.url || '';
+
+function getRowsPerPage() {
+  return Number(rowsPerPageSelect?.value) || ROWS_PER_PAGE;
+}
 
 // Fetch data from API endpoint with pagination
 async function fetchData(page = 1) {
   try {
     search = filterInput?.value.toLocaleLowerCase() || '';
+    searchColumn = filterSelect?.value || '';
+    rowsPerPage = getRowsPerPage();
+    currentPage = page;
 
     const params = new URLSearchParams({
       page: String(page),
@@ -102,7 +101,7 @@ async function fetchData(page = 1) {
       sortCol: sortColumn,
       sortDir: String(sortDirection),
       search: encodeURIComponent(search),
-      searchCol: filterSelect?.value || '',
+      searchCol: searchColumn,
     });
 
     const response = await fetch(`${apiUrl}?${params.toString()}`);
@@ -111,8 +110,6 @@ async function fetchData(page = 1) {
 
     /** @type {import('../typedefs').ApiResponse} */
     const jsonData = await response.json();
-
-    // Process the response with pagination
     data = jsonData.data || [];
     const pagination = jsonData.meta.pagination;
     currentPage = pagination.page;
@@ -128,158 +125,178 @@ async function fetchData(page = 1) {
 }
 
 function renderFilterSelect() {
-  const optionFragment = document.createDocumentFragment();
-
-  headers.forEach((header) => {
-    const option = document.createElement('option');
-
-    option.value = header.field;
-    option.textContent = header.label;
-    optionFragment.appendChild(option);
-  });
+  console.log(searchColumn);
 
   if (filterSelect) {
-    filterSelect.innerHTML = '';
-    filterSelect.appendChild(optionFragment);
+    filterSelect.innerHTML = headers
+      .map(
+        /** @param {TableHeader} header */
+        (header) =>
+          `<option value="${header.field}" ${
+            searchColumn === header.field ? 'selected' : ''
+          }>${header.label}</option>`
+      )
+      .join('');
   }
 }
 
 function renderTableHead() {
   if (tableHead) {
     const headerRow = document.createElement('tr');
+    headers.forEach(({ field, label }) => {
+      const th = document.createElement('th');
+      th.textContent = label;
+      th.title = 'Click to sort';
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', () => sortTable(field));
+      headerRow.appendChild(th);
+    });
 
-    headers.forEach(
-      /**
-       * @param {TableHeader} header
-       */
-      (header) => {
-        const th = document.createElement('th');
-        th.textContent = header.label;
-        th.title = 'Click to sort';
-        th.style.cursor = 'pointer';
-        th.addEventListener('click', () => sortTable(header.field));
-        headerRow.appendChild(th);
-      }
-    );
-
-    const th = document.createElement('th');
-    th.textContent = 'Actions';
-    headerRow.appendChild(th);
-
+    const actionsHeader = document.createElement('th');
+    actionsHeader.textContent = 'Actions';
+    headerRow.appendChild(actionsHeader);
     tableHead.appendChild(headerRow);
   }
 }
 
 // Render table with optimized DOM manipulation
 function renderTableBody() {
-  // Create table body in a document fragment for optimized rendering
   const bodyFragment = document.createDocumentFragment();
-
   if (totalItems > 0) {
     data.forEach((row) => {
       const tr = document.createElement('tr');
       tr.style.height = TABLE_ROW_HEIGHT;
 
-      headers.forEach(
-        /** @param {TableHeader} header */ (header) => {
-          const td = document.createElement('td');
-          const fieldValue = sanitize(row[header.field]);
-          if (typeof fieldValue === 'string') {
-            td.style.wordBreak = 'break-all';
-            td.title = fieldValue;
-            td.textContent = truncateText(fieldValue, MAX_TEXT_LENGTH);
-          }
-          tr.appendChild(td);
+      headers.forEach(({ field }) => {
+        const td = document.createElement('td');
+        const fieldValue = sanitize(row[field]);
+
+        if (typeof fieldValue === 'string') {
+          td.style.wordBreak = 'break-all';
+          td.title = fieldValue;
+          const truncatedText = truncateText(fieldValue, MAX_TEXT_LENGTH);
+          td.innerHTML =
+            field === searchColumn
+              ? highlightText(truncatedText, filterInput?.value || '')
+              : truncatedText;
         }
-      );
 
-      const prefix = '/api';
+        tr.appendChild(td);
+      });
 
-      const htmlEndpoint = apiUrl.startsWith('/api')
-        ? apiUrl.replace(prefix, '')
-        : apiUrl;
-
-      const actionCell = document.createElement('td');
-      const infoLink = document.createElement('a');
-      infoLink.href = `${htmlEndpoint}/${row.id}`;
-      infoLink.textContent = 'Info';
-      infoLink.classList.add('btn', 'btn-small', 'btn-primary');
-      actionCell.appendChild(infoLink);
-
-      const editLink = document.createElement('a');
-      editLink.href = `${htmlEndpoint}/${row.id}/edit`;
-      editLink.text = 'Edit';
-      editLink.classList.add('btn', 'btn-small', 'btn-secondary');
-      actionCell.appendChild(editLink);
-
+      const actionCell = createActionCell(row.id);
       tr.appendChild(actionCell);
-
       bodyFragment.appendChild(tr);
     });
   } else {
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
-
-    td.colSpan = headers.length + 1;
-    td.textContent = 'No data.';
-
-    tr.appendChild(td);
-
-    bodyFragment.appendChild(tr);
+    const noDataRow = document.createElement('tr');
+    const noDataCell = document.createElement('td');
+    noDataCell.colSpan = headers.length + 1;
+    noDataCell.textContent = 'No data.';
+    noDataRow.appendChild(noDataCell);
+    bodyFragment.appendChild(noDataRow);
   }
 
   if (tableBody) {
-    tableBody.innerHTML = '';
+    tableBody.innerHTML = ''; // Clear existing content
     tableBody.appendChild(bodyFragment);
   }
+}
+
+function createActionCell(rowId) {
+  const prefix = '/api';
+  const htmlEndpoint = apiUrl.startsWith('/api')
+    ? apiUrl.replace(prefix, '')
+    : apiUrl;
+  const actionCell = document.createElement('td');
+  const infoLink = createLink(
+    `Info`,
+    `${htmlEndpoint}/${rowId}`,
+    'btn btn-small btn-primary'
+  );
+  const editLink = createLink(
+    `Edit`,
+    `${htmlEndpoint}/${rowId}/edit`,
+    'btn btn-small btn-secondary'
+  );
+
+  actionCell.appendChild(infoLink);
+  actionCell.appendChild(editLink);
+  return actionCell;
+}
+
+function createLink(text, href, className) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.className = className;
+  return link;
 }
 
 // Render simplified pagination controls
 function updatePagination() {
   if (totalItems > 0) {
-    if (paginationControls) {
-      // First Page Button
-      firstButton && (firstButton.disabled = currentPage === 1);
+    setButtonState(firstButton, currentPage === 1);
+    setButtonState(prevButton, currentPage === 1);
+    setButtonState(nextButton, currentPage === totalPages);
+    setButtonState(lastButton, currentPage === totalPages);
 
-      // Previous Page Button
-      prevButton && (prevButton.disabled = currentPage === 1);
+    pageJumpInput.disabled = false;
+    rowsPerPageSelect.disabled = false;
 
-      // Next Page Button
-      nextButton && (nextButton.disabled = currentPage === totalPages);
-
-      // Last Page Button
-      lastButton && (lastButton.disabled = currentPage === totalPages);
-    }
-    pageJumpInput && (pageJumpInput.disabled = false);
-    rowsPerPageSelect && (rowsPerPageSelect.disabled = false);
-
-    pageInfo && (pageInfo.textContent = `Page ${currentPage} of ${totalPages}`);
-
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
     const startRecord = (currentPage - 1) * rowsPerPage + 1;
     const endRecord = Math.min(currentPage * rowsPerPage, totalItems);
-    recordsInfo &&
-      (recordsInfo.textContent = `Record ${startRecord}-${endRecord} of ${totalItems} records`);
+    recordsInfo.textContent = `Record ${startRecord}-${endRecord} of ${totalItems} records`;
   } else {
-    firstButton && (firstButton.disabled = true);
-    prevButton && (prevButton.disabled = true);
-    nextButton && (nextButton.disabled = true);
-    lastButton && (lastButton.disabled = true);
-    pageJumpInput && (pageJumpInput.disabled = true);
-    rowsPerPageSelect && (rowsPerPageSelect.disabled = true);
-    pageInfo && (pageInfo.textContent = '');
-    recordsInfo && (recordsInfo.textContent = '');
+    setButtonState(firstButton, true);
+    setButtonState(prevButton, true);
+    setButtonState(nextButton, true);
+    setButtonState(lastButton, true);
+    pageJumpInput.disabled = true;
+    rowsPerPageSelect.disabled = true;
+    pageInfo.textContent = '';
+    recordsInfo.textContent = '';
   }
+}
+
+/**
+ *
+ * @param {HTMLButtonElement} button
+ * @param {boolean} isDisabled
+ */
+function setButtonState(button, isDisabled) {
+  button && (button.disabled = isDisabled);
 }
 
 /** @param {number} page */
 function changePage(page) {
-  fetchData(page);
+  if (page >= 1 && page <= totalPages) {
+    fetchData(page);
+  }
 }
 
 function updateRowsPerPage() {
-  rowsPerPage = parseInt(rowsPerPageSelect?.value || '10', 10);
-
+  rowsPerPage = Number(rowsPerPageSelect?.value);
   fetchData(); // Fetch from the first page with new rows per page setting
+}
+
+/** @param {string} field */
+function sortTable(field) {
+  sortDirection = sortColumn === field ? -sortDirection : 1;
+  sortColumn = field;
+  fetchData();
+}
+
+/** @param {HTMLInputElement} input  */
+function jumpToPage(input) {
+  const targetPage = Number(input.value);
+  if (targetPage >= 1 && targetPage <= totalPages) {
+    changePage(targetPage);
+  } else {
+    changePage(Math.max(targetPage, 1));
+    input.value = '1';
+  }
 }
 
 function saveState() {
@@ -290,96 +307,66 @@ function saveState() {
     search,
     currentPage,
     rowsPerPage,
-    searchCol,
+    searchCol: searchColumn,
+    jumpPage: pageJumpInput?.value || '1',
   };
 
-  localStorage.setItem('tableState', JSON.stringify(tableState));
+  console.log('Saved state:', tableState);
+
+  localStorage.setItem(STATE_KEY, JSON.stringify(tableState));
 }
 
 function retrieveState() {
-  const savedState = localStorage.getItem('tableState');
+  const savedState = localStorage.getItem(STATE_KEY);
 
   if (savedState) {
     /** @type {TableState} */
     const tableState = JSON.parse(savedState);
 
-    if (tableState) {
-      currentPage = tableState.currentPage;
-      rowsPerPage = tableState.rowsPerPage;
-      sortColumn = tableState.sortColumn;
-      sortDirection = tableState.sortDirection;
-      search = tableState.search;
-      searchCol = tableState.searchCol;
+    console.log('Retrieved state:', tableState);
 
-      filterInput && (filterInput.value = search);
-    }
+    currentPage = tableState.currentPage || 1;
+    rowsPerPageSelect.value =
+      String(tableState.rowsPerPage) || String(getRowsPerPage());
+    sortColumn = tableState.sortColumn || '';
+    sortDirection = tableState.sortDirection || 1;
+    filterInput.value = tableState.search;
+    filterSelect.value = tableState.searchCol;
+    searchColumn = tableState.searchCol;
+    search = tableState.search;
+    pageJumpInput.value = tableState.jumpPage;
+
+    console.log(filterSelect?.value);
   }
 }
 
-/** @param {string} field */
-function sortTable(field) {
-  if (sortColumn === field) {
-    sortDirection *= -1;
-  } else {
-    sortDirection = 1;
-  }
-
-  sortColumn = field;
-
-  fetchData();
-}
-
-/** @param {HTMLInputElement} input  */
-function jumpToPage(input) {
-  const targetPage = parseInt(input.value, 10);
-
-  if (
-    targetPage >= 1 &&
-    targetPage <= totalPages &&
-    targetPage !== currentPage
-  ) {
-    changePage(targetPage);
-  } else if (targetPage < 1) {
-    changePage(1);
-    input.value = String(1);
-  }
-}
-
-// Attach event listener for filtering
-// filterInput?.addEventListener('input', debounce(fetchData, 300));
-filterInput?.addEventListener('keydown', function (event) {
-  event.key === 'Enter' && fetchData();
-});
-
-filterInput?.addEventListener('input', function () {
-  this.value === '' && fetchData();
-});
-
+// Event listeners
+filterInput?.addEventListener(
+  'keypress',
+  (e) => e.key === 'Enter' && fetchData()
+);
+filterSelect?.addEventListener(
+  'change',
+  (e) => (searchColumn = e.target?.value)
+);
 rowsPerPageSelect?.addEventListener('change', updateRowsPerPage);
-
-pageJumpInput?.addEventListener('keydown', function (event) {
-  if (event.key === 'Enter') jumpToPage(this);
+pageJumpInput?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') jumpToPage(e.target);
 });
-
-pageJumpInput && (pageJumpInput.value = String(currentPage));
-
 firstButton?.addEventListener('click', () => changePage(1));
 prevButton?.addEventListener('click', () => changePage(currentPage - 1));
 nextButton?.addEventListener('click', () => changePage(currentPage + 1));
 lastButton?.addEventListener('click', () => changePage(totalPages));
 refreshButton?.addEventListener('click', () => fetchData(currentPage));
 resetButton?.addEventListener('click', () => {
-  currentPage = 1;
-  rowsPerPage = 5;
-  sortColumn = 'start_date';
-  sortDirection = 1;
-  filterInput && (filterInput.value = '');
-  filterSelect && (filterSelect.options[0].selected = true);
-  pageJumpInput && (pageJumpInput.value = String(1));
+  filterInput.value = '';
+  filterSelect.options[0].selected = true;
+  pageJumpInput.value = '1';
+  rowsPerPageSelect.value = ROWS_PER_PAGE;
   fetchData();
 });
 
-// Initial fetch and render
+// Initial render and state retrieval
 retrieveState();
 renderFilterSelect();
 renderTableHead();
