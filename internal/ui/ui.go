@@ -86,10 +86,7 @@ func DecodeJson[T any](r *http.Request) (T, error) {
 
 	defer r.Body.Close()
 
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&v)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
 		return v, err
 	}
 
