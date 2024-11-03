@@ -18,8 +18,7 @@
  * @property {string} jumpPage
  */
 
-import { sanitize } from '../sanitize';
-import { highlightText, truncateText } from '../utils';
+import { highlightText, truncateText, sanitize } from '../utils';
 
 const MAX_TEXT_LENGTH = 30;
 const TABLE_ROW_HEIGHT = '6rem';
@@ -142,7 +141,9 @@ function renderFilterSelect() {
 
 function renderTableHead() {
   if (tableHead) {
+    const headerFragment = document.createDocumentFragment();
     const headerRow = document.createElement('tr');
+
     headers.forEach(({ field, label }) => {
       const th = document.createElement('th');
       th.textContent = label;
@@ -155,7 +156,9 @@ function renderTableHead() {
     const actionsHeader = document.createElement('th');
     actionsHeader.textContent = 'Actions';
     headerRow.appendChild(actionsHeader);
-    tableHead.appendChild(headerRow);
+    headerFragment.appendChild(headerRow);
+
+    tableHead.appendChild(headerFragment);
   }
 }
 
