@@ -1,9 +1,0 @@
-.pagination {
-	display: flex;
-	justify-content: space-between;
-}
-
-.pagination input[type="number"] {
-	padding: 0.5rem;
-	width: fit-content;
-}

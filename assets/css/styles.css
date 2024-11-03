@@ -1,22 +1,24 @@
 @import "./reset.css";
+@import "./colors.css";
 
 :root {
-	--font-primary: "Inter", sans-serif;
+	--font-primary: sans-serif;
 	--font-size: clamp(1rem, 0.95rem + 0.25vw, 1.25rem);
 	--text-color: #242424;
 
-	--primary-color: dodgerblue;
+	--primary-color: var(--honolulu-blue);
 	--secondary-color: lightslategray;
 	--tertiary-color: silver;
 	--success-color: limegreen;
 	--danger-color: crimson;
 
-	--body-background-color: #e8e8e8;
+	--body-background-color: var(--mint-cream);
 
 	--padding: 15px;
 	--margin: 1em 2em;
 
 	--max-width: 768px;
+	--border-radius: 0.375rem;
 }
 
 html {
@@ -40,7 +42,7 @@ body {
 	justify-content: space-between;
 	align-items: center;
 	padding: 20px 2em;
-	background-color: #333;
+	background-color: #536878;
 	color: white;
 }
 
@@ -64,7 +66,7 @@ body {
 .navbar-links a {
 	text-decoration: none;
 	color: white;
-	font-weight: bold;
+	font-weight: 300;
 	padding: 10px;
 }
 
@@ -74,68 +76,43 @@ body {
 
 .navbar-links a.active {
 	background-color: var(--secondary-color);
+	padding-inline: 20px;
 }
 /* End Navbar */
 
-/* Pagination */
-.pagination {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.5rem;
-	font-size: 0.9rem;
-}
-
-.pagination button {
-	color: black;
-	float: left;
-	padding: 8px 16px;
-	text-decoration: none;
-	transition: background-color 0.3s;
-	border: 1px solid #ddd;
-	margin-inline: 4px;
-}
-
-.pagination button:disabled {
-	color: silver;
-}
-
-.pagination input,
-select {
-	width: 6rem;
-	padding: 8px 16px;
-}
-
-.pagination input:invalid {
-	border: 2px solid red;
-	background-color: #fdd;
-}
-
-.page-info {
-	display: flex;
-	justify-content: space-between;
-	font-size: 0.9rem;
-	padding: 8px;
-}
-
-/* End Pagination */
-
 /* Alert */
 .alert {
-	padding: 1em;
-	margin: 1em;
+	background-color: var(--baby-powder);
+	padding: 1rem 2rem;
+	margin-top: 2rem;
+	width: 100%;
+	max-width: 300px;
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	border-radius: var(--border-radius);
 	display: none;
 }
 
-.alert-error {
-	background-color: var(--danger-color);
-	color: white;
+.alert #notification-header {
+	font-size: 1.25rem;
+	font-weight: 700;
+	width: 100%;
+	white-space: nowrap;
 }
 
-.alert-success {
-	background-color: var(--success-color);
-	color: white;
+.alert #notification-message {
+	font-size: 1rem;
+	width: 100%;
+	color: #555;
 }
+
+.alert-error #notification-header {
+	color: var(--danger-color);
+}
+
+.alert-success #notification-header {
+	color: #269b24;
+}
+
 /* End Alert */
 
 /* Page Header */
@@ -147,8 +124,11 @@ select {
 
 /* Card */
 .card {
-	padding: 50px 40px 20px 40px;
-	background-color: #ffffff;
+	padding: 2rem;
+	background-color: var(--baby-powder);
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	border-radius: var(--border-radius);
 }
 
 .card-header span {
@@ -185,6 +165,49 @@ td {
 }
 /* End Table */
 
+/* Pagination */
+.pagination {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	font-size: 0.9rem;
+}
+
+.pagination button {
+	color: black;
+	float: left;
+	padding: 8px 16px;
+	text-decoration: none;
+	transition: background-color 0.3s;
+	border: 1px solid #ddd;
+	margin-inline: 4px;
+}
+
+.pagination button:disabled {
+	color: silver;
+}
+
+.pagination input,
+.pagination select {
+	width: 6rem;
+	padding: 8px 16px;
+}
+
+.pagination input:invalid {
+	border: 2px solid var(--danger-color);
+	background-color: #fdd;
+}
+
+.page-info {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.9rem;
+	padding: 8px;
+}
+
+/* End Pagination */
+
 /* Forms */
 .form-group {
 	margin: 0.5em 0;
@@ -192,7 +215,7 @@ td {
 
 .form-error {
 	color: var(--danger-color);
-	font-size: small;
+	font-size: 0.9rem;
 	margin: 0;
 }
 
@@ -217,6 +240,7 @@ textarea {
 	margin-bottom: 6px; /* Bottom margin */
 	outline: 0 !important;
 	font-size: 16px;
+	border-radius: var(--border-radius);
 }
 
 textarea {
@@ -244,7 +268,7 @@ textarea:focus {
 }
 
 .btn-primary {
-	background-color: dodgerblue;
+	background-color: var(--primary-color);
 }
 
 .btn-secondary {
@@ -259,6 +283,11 @@ textarea:focus {
 	padding: 0.3em 1em !important;
 	margin: 0.2em 0.3em !important;
 	font-size: small;
+}
+
+.btn-close {
+	float: right;
+	cursor: pointer;
 }
 /* End Button */
 
