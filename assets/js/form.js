@@ -99,3 +99,51 @@ function clearFormErrors(form) {
     nextEl && (nextEl.textContent = '');
   });
 }
+
+/**
+ *
+ * @param {HTMLFormElement} form
+ * @returns
+ */
+export function getFormData(form) {
+  const formData = {};
+
+  Array.from(form.elements).forEach((element) => {
+    if (!element.name) return; // Skip elements without a name attribute
+
+    if (element.type === 'checkbox') {
+      formData[element.name] = element.checked;
+    } else if (element.type === 'radio') {
+      if (element.checked) {
+        formData[element.name] = element.value;
+      }
+    } else {
+      formData[element.name] = element.value;
+    }
+  });
+
+  return formData;
+}
+
+/**
+ *
+ * @param {FormData} formData
+ * @returns
+ */
+export function formDataToObject(formData) {
+  const obj = {};
+  for (const [key, value] of formData.entries()) {
+    obj[key] = value;
+  }
+  return obj;
+}
+
+/**
+ *
+ * @param {Object} obj1
+ * @param {Object} obj2
+ * @returns {boolean}
+ */
+export function deepEqual(obj1, obj2) {
+  return JSON.stringify(obj1) === JSON.stringify(obj2);
+}
