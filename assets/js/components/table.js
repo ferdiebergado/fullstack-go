@@ -375,6 +375,7 @@ resetButton?.addEventListener('click', () => {
   sortDirection = 1;
   filterInput && (filterInput.value = '');
   filterSelect && (filterSelect.options[0].selected = true);
+  pageJumpInput && (pageJumpInput.value = String(1));
   fetchData();
 });
 
