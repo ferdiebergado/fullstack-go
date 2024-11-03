@@ -2,7 +2,10 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"slices"
+	"time"
 
 	"github.com/ferdiebergado/fullstack-go/pkg/http/request"
 )
@@ -17,31 +20,54 @@ type ActiveActivityDetailWithCount struct {
 const (
 	TextField FieldType = iota + 1
 	DateField
+
+	sqlSelect = `-- name: ListActiveActivities :many
+SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host, COUNT(*) OVER () AS total_items
+FROM active_activity_details `
+	sqlWhereStr  = "WHERE %s ILIKE $1 "
+	sqlWhereDate = "WHERE %s = $1 "
+	sqlOrder     = "ORDER BY %s %s "
 )
 
-const sqlSelect = `-- name: ListActiveActivities :many
-SELECT id, title, start_date, end_date, venue_id, host_id, metadata, created_at, updated_at, deleted_at, venue, region, host, COUNT(*) OVER () AS total_items
-FROM active_activity_details WHERE COALESCE($1, '') = '' `
-const sqlOrder = "ORDER BY %s %s LIMIT $2 OFFSET $3"
-const listActiveActivities = sqlSelect + "OR %s ILIKE $1 " + sqlOrder
-const listActiveActivitiesByDate = sqlSelect + "OR %s = '%s'::date " + sqlOrder
+func (q *Queries) ListActiveActivities(ctx context.Context, args request.QueryParams, searchFieldType FieldType) ([]ActiveActivityDetailWithCount, error) {
 
-func (q *Queries) ListActiveActivities(ctx context.Context, arg request.QueryParams, searchFieldType FieldType) ([]ActiveActivityDetailWithCount, error) {
+	var rows *sql.Rows
+	var err error
+	var search any = args.Search
+	var queryParams []any = []any{args.Limit, args.Offset}
 
-	query := fmt.Sprintf(listActiveActivities, arg.SearchCol, arg.SortCol, arg.SortDir)
+	sqlStr := sqlSelect + sqlOrder + "LIMIT $1 OFFSET $2"
 
-	if searchFieldType == DateField {
-		query = fmt.Sprintf(listActiveActivitiesByDate, arg.SearchCol, arg.Search, arg.SortCol, arg.SortDir)
+	query := fmt.Sprintf(sqlStr, args.SortCol, args.SortDir)
+
+	if search != "" {
+		var sqlWhere string
+
+		if searchFieldType == TextField {
+			sqlWhere = sqlWhereStr
+			search = fmt.Sprintf("%%%s%%", search)
+
+		} else if searchFieldType == DateField {
+			sqlWhere = sqlWhereDate
+
+			search, err = time.Parse(time.DateOnly, search.(string))
+
+			if err != nil {
+				return nil, fmt.Errorf("time parse search: %w", err)
+			}
+		}
+
+		sqlStr = sqlSelect + sqlWhere + sqlOrder + "LIMIT $2 OFFSET $3"
+		query = fmt.Sprintf(sqlStr, args.SearchCol, args.SortCol, args.SortDir)
+		queryParams = slices.Insert(queryParams, 0, search)
 	}
 
-	rows, err := q.db.QueryContext(ctx, query,
-		arg.Search,
-		arg.Limit,
-		arg.Offset,
+	rows, err = q.db.QueryContext(ctx, query,
+		queryParams...,
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query listactivities: %w", err)
 	}
 
 	defer rows.Close()
@@ -70,11 +96,14 @@ func (q *Queries) ListActiveActivities(ctx context.Context, arg request.QueryPar
 		}
 		items = append(items, i)
 	}
+
 	if err := rows.Close(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("rows close: %w", err)
 	}
+
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("rows scan: %w", err)
 	}
+
 	return items, nil
 }

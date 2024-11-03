@@ -103,11 +103,6 @@ func (s *activityService) ListActivities(ctx context.Context, params *request.Qu
 
 	if !slices.Contains(fields, params.SearchCol) {
 		params.Search = ""
-		params.SearchCol = "title"
-	}
-
-	if params.Search != "" && searchFieldType == db.TextField {
-		params.Search = "%" + params.Search + "%"
 	}
 
 	if params.SearchCol == "start_date" || params.SearchCol == "end_date" {
@@ -147,7 +142,7 @@ func (s *activityService) UpdateActivity(ctx context.Context, params db.UpdateAc
 	validationErrors := v.Validate()
 
 	if !v.Valid() {
-		return &validator.ValidationErrorBag{Message: "Invalid activity", ValidationErrors: validationErrors}
+		return &validator.ValidationErrorBag{Message: "Invalid activity.", ValidationErrors: validationErrors}
 	}
 
 	_, err := s.queries.FindActivity(ctx, params.ID)
