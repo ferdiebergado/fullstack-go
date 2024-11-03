@@ -11,7 +11,7 @@
   <div class="card-header">
     <h3>New Activity</h3>
   </div>
-
+  
   <!-- Form -->
   <form id="create-activity-form" action="/api/activities" method="post">
     <!-- TITLE -->
@@ -35,7 +35,7 @@
       <!-- START DATE -->
       <div class="col">
         <div class="form-group">
-          <label for="start_date">Start Date <small>(Required)</small></label>
+          <label for="start_date">Start Date</label>
           <input type="date" name="start_date" id="start_date" required />
           <span class="form-error"></span>
         </div>
@@ -45,7 +45,7 @@
       <!-- END DATE -->
       <div class="col">
         <div class="form-group">
-          <label for="end_date">End Date <small>(Required)</small></label>
+          <label for="end_date">End Date</label>
           <input type="date" name="end_date" id="end_date" required />
           <span class="form-error"></span>
         </div>
@@ -58,9 +58,7 @@
       <div class="col">
         <div class="form-group">
           <label for="venue_id"
-            >Venue (Name of Venue, City/Province)
-            <small>(Required)</small></label
-          >
+            >Venue (Name of Venue, City/Province)</label>
           <select name="venue_id" id="venue_id">
             <option value="" selected>Select a venue...</option>
             <option value="add">Add a new venue...</option>
@@ -77,7 +75,7 @@
       <!-- HOST -->
       <div class="col">
         <div class="form-group">
-          <label for="host_id">Host <small>(Required)</small></label>
+          <label for="host_id">Host</label>
           <select name="host_id" id="host_id">
             <option value="" selected>Select a host...</option>
             <option value="add">Add a new host...</option>
