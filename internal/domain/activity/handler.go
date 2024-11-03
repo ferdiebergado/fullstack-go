@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -76,16 +77,16 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 		{Field: "host", Label: "Host"},
 	}
 
-	jsonData, err := json.Marshal(tableHeaders)
+	headers, err := json.Marshal(tableHeaders)
 
 	if err != nil {
 		response.ErrorHandler(w, r, http.StatusInternalServerError, "unable to marshal table headers", err)
 		return
 	}
 
-	data := &response.TableData{
-		ApiUrl:       ApiRoute,
-		TableHeaders: template.JS(jsonData),
+	data := &response.DataTableHTMLAttrs{
+		Url:     fmt.Sprintf(`data-url="%s"`, ApiRoute),
+		Headers: fmt.Sprintf(`data-headers='%s'`, string(headers)),
 	}
 
 	err = ui.RenderHTML(w, "pages/activities/index.html", data)

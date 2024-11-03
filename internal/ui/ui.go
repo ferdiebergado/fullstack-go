@@ -24,7 +24,28 @@ func RenderHTML(w http.ResponseWriter, templateFile string, data any) error {
 	partialTemplates := filepath.Join(templateDir, partialTemplates)
 	targetTemplate := filepath.Join(templateDir, templateFile)
 
-	templates, err := template.ParseFS(templatesFS, layoutTemplate, partialTemplates, targetTemplate)
+	funcMap := template.FuncMap{
+		"attr": func(s string) template.HTMLAttr {
+			return template.HTMLAttr(s)
+		},
+		"safe": func(s string) template.HTML {
+			return template.HTML(s)
+		},
+		"url": func(s string) template.URL {
+			return template.URL(s)
+		},
+		"js": func(s string) template.JS {
+			return template.JS(s)
+		},
+		"jsstr": func(s string) template.JSStr {
+			return template.JSStr(s)
+		},
+		"css": func(s string) template.CSS {
+			return template.CSS(s)
+		},
+	}
+
+	templates, err := template.New("template").Funcs(funcMap).ParseFS(templatesFS, layoutTemplate, partialTemplates, targetTemplate)
 
 	if err != nil {
 		return fmt.Errorf("parse html files: %w", err)
