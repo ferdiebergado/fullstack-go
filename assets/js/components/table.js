@@ -148,7 +148,7 @@ function renderTableHead() {
       th.textContent = label;
       th.title = 'Click to sort';
       th.style.cursor = 'pointer';
-      th.addEventListener('click', () => sortTable(field));
+      th.addEventListener('click', () => sortTable(th, field));
       headerRow.appendChild(th);
     });
 
@@ -281,10 +281,21 @@ function updateRowsPerPage() {
   fetchData(); // Fetch from the first page with new rows per page setting
 }
 
-/** @param {string} field */
-function sortTable(field) {
+/**
+ * @param {HTMLTableCellElement} th
+ *  @param {string} field */
+function sortTable(th, field) {
   sortDirection = sortColumn === field ? -sortDirection : 1;
   sortColumn = field;
+  const sortOrder = th.dataset.sort === 'asc' ? 'desc' : 'asc';
+
+  // Reset other headers' sort attribute
+  Array.from(table?.querySelectorAll('th')).forEach((header) => {
+    header.dataset.sort = 'none';
+  });
+
+  // Set the selected header's sort attribute
+  th.dataset.sort = sortOrder;
   fetchData();
 }
 

@@ -160,6 +160,22 @@ td {
 	border-bottom: 1px solid #ccc;
 }
 
+th[data-sort="asc"]::after {
+	content: "▲"; /* Up arrow for ascending */
+	margin-left: 5px;
+	float: right;
+}
+
+th[data-sort="desc"]::after {
+	content: "▼"; /* Down arrow for descending */
+	margin-left: 5px;
+	float: right;
+}
+
+th[data-sort="none"]::after {
+	content: ""; /* No indicator when not sorted */
+}
+
 .responsive-table {
 	overflow-x: auto;
 }
@@ -265,6 +281,7 @@ textarea:focus {
 	display: inline-block; /* Add this */
 	border: 0 !important;
 	outline: 0 !important;
+	font-weight: 600;
 }
 
 .btn-primary {
