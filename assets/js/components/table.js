@@ -18,6 +18,7 @@
  */
 
 import { sanitize } from '../sanitize';
+import { truncateText } from '../utils';
 
 const MAX_TEXT_LENGTH = 30;
 const TABLE_ROW_HEIGHT = '6rem';
@@ -35,9 +36,9 @@ const tableBody = /** @type {HTMLTableCellElement | null} */ (
 );
 
 /** @type {TableHeader[]} */
-const headers = JSON.parse(table?.getAttribute('data-headers') || '[]');
+const headers = JSON.parse(table?.dataset.headers || '[]');
 
-const apiUrl = table?.getAttribute('data-url') || '';
+const apiUrl = table?.dataset.url || '';
 
 const filterInput = /** @type {HTMLInputElement | null} */ (
   document.getElementById('filterInput')
@@ -72,13 +73,20 @@ const nextButton = /** @type {HTMLButtonElement | null} */ (
 const lastButton = /** @type {HTMLButtonElement | null} */ (
   document.getElementById('lastButton')
 );
+const refreshButton = /** @type {HTMLButtonElement | null} */ (
+  document.getElementById('refreshButton')
+);
+
+const resetButton = /** @type {HTMLButtonElement | null} */ (
+  document.getElementById('resetButton')
+);
 
 let data = [];
 let currentPage = 1;
 let totalPages = 1;
-let totalItems = 0;
-let rowsPerPage = parseInt(rowsPerPageSelect?.value || '10', 10);
-let sortColumn = null;
+let totalItems = 1;
+let rowsPerPage = Number(rowsPerPageSelect?.value);
+let sortColumn = '';
 let sortDirection = 1;
 let search = '';
 let searchCol = '';
@@ -337,21 +345,6 @@ function jumpToPage(input) {
   }
 }
 
-/**
- *
- * @param {string} originalText
- * @param {number} maxLength
- *
- * @returns {string}
- */
-function truncateText(originalText, maxLength) {
-  if (originalText.length > maxLength) {
-    return originalText.substring(0, maxLength) + '...';
-  }
-
-  return originalText;
-}
-
 // Attach event listener for filtering
 // filterInput?.addEventListener('input', debounce(fetchData, 300));
 filterInput?.addEventListener('keydown', function (event) {
@@ -374,6 +367,16 @@ firstButton?.addEventListener('click', () => changePage(1));
 prevButton?.addEventListener('click', () => changePage(currentPage - 1));
 nextButton?.addEventListener('click', () => changePage(currentPage + 1));
 lastButton?.addEventListener('click', () => changePage(totalPages));
+refreshButton?.addEventListener('click', () => fetchData(currentPage));
+resetButton?.addEventListener('click', () => {
+  currentPage = 1;
+  rowsPerPage = 5;
+  sortColumn = 'start_date';
+  sortDirection = 1;
+  filterInput && (filterInput.value = '');
+  filterSelect && (filterSelect.options[0].selected = true);
+  fetchData();
+});
 
 // Initial fetch and render
 retrieveState();
