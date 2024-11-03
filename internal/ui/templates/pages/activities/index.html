@@ -1,7 +1,5 @@
-{{ block "title" .}}PTMS - Activities{{ end }} {{ block "scripts" . }}
-<script type="module" src="/static/js/components/table.js"></script>
-{{ end }} {{ block "header" .}}Activities{{ end }} {{ block "content" .}}
-
+{{ block "title" .}}PTMS - Activities{{ end }} {{ block "header" .}}Activities{{
+end }} {{ block "content" .}}
 <div class="card">
   <div class="card-header clearfix">
     <p class="title">List of Activities</p>
@@ -12,57 +10,6 @@
     </div>
   </div>
 
-  <div class="flex">
-    <!-- Search -->
-    <input
-      type="search"
-      id="filterInput"
-      placeholder="Search..."
-      autocomplete="on"
-      autofocus
-    />
-
-    <select id="filterSelect" style="width: fit-content"></select>
-  </div>
-
-  <!-- Pagination -->
-  <div class="pagination" id="paginationControls">
-    <div class="flex">
-      <button id="firstButton" type="button" title="First Page">&laquo;</button>
-      <button id="prevButton" type="button" title="Previous Page">
-        &lsaquo;
-      </button>
-      <button id="nextButton" type="button" title="Next Page">&rsaquo;</button>
-      <button id="lastButton" type="button" title="Last Page">&raquo;</button>
-    </div>
-    <div class="flex">
-      <label for="pageJumpInput">Jump to page:</label>
-      <input type="text" id="pageJumpInput" pattern="\d+" />
-    </div>
-    <div class="flex">
-      <label for="rowsPerPage">Rows per page:</label>
-      <select id="rowsPerPage">
-        <option value="5" selected>5</option>
-        <option value="10">10</option>
-        <option value="30">30</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Dynamic Table -->
-  <table
-    id="dynamicTable"
-    data-headers="{{ .TableHeaders }}"
-    data-url="{{ .ApiUrl }}"
-  >
-    <thead id="dynamicTableHead"></thead>
-    <tbody id="dynamicTableBody"></tbody>
-  </table>
-
-  <div class="page-info">
-    <span id="pageInfo"></span><span id="recordsInfo"></span>
-  </div>
+  {{ template "datatable" . }}
 </div>
 {{ end }}
