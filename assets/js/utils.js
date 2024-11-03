@@ -39,3 +39,23 @@ export function truncateText(originalText, maxLength) {
 
   return originalText;
 }
+
+/**
+ * Highlight text from a given text.
+ *
+ * @param {string} text
+ * @param {string} searchTerm
+ * @returns {string}
+ */
+export function highlightText(text, searchTerm) {
+  if (!searchTerm) return text;
+
+  // Escape special characters in the text to highlight
+  const escapedText = searchTerm.replace(/[-\/\\^$.*+?()[\]{}|]/g, '\\$&');
+  // Create a case-insensitive regular expression
+  const regex = new RegExp(`(${escapedText})`, 'gi');
+  // Replace matches with highlighted span
+  const highlightedText = text.replace(regex, '<mark>$1</mark>');
+
+  return highlightedText;
+}
