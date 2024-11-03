@@ -6,12 +6,16 @@
   <input
     type="search"
     id="filterInput"
-    placeholder="Search..."
+    placeholder="Type the Search item then press Enter. "
     autocomplete="on"
     autofocus
   />
 
-  <select id="filterSelect" style="width: fit-content"></select>
+  <select
+    id="filterSelect"
+    style="width: fit-content"
+    title="Field to search"
+  ></select>
 </div>
 
 <!-- Pagination -->
@@ -23,8 +27,12 @@
     </button>
     <button id="nextButton" type="button" title="Next Page">&rsaquo;</button>
     <button id="lastButton" type="button" title="Last Page">&raquo;</button>
-    <button id="refreshButton" type="button">Refresh</button>
-    <button id="resetButton" type="button">Reset</button>
+    <button id="refreshButton" type="button" title="Update table data">
+      Refresh
+    </button>
+    <button id="resetButton" type="button" title="Reset to defaults">
+      Reset
+    </button>
   </div>
   <div class="flex">
     <label for="pageJumpInput">Jump to page:</label>
