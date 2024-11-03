@@ -24,3 +24,18 @@ export function debounce(func, delay) {
     timeout = setTimeout(() => func.apply(this, args), delay); // Set a new timeout
   };
 }
+
+/**
+ *
+ * @param {string} originalText
+ * @param {number} maxLength
+ *
+ * @returns {string}
+ */
+export function truncateText(originalText, maxLength) {
+  if (originalText.length > maxLength) {
+    return originalText.substring(0, maxLength) + '...';
+  }
+
+  return originalText;
+}
