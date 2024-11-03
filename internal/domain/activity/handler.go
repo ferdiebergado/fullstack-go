@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 
 	"github.com/ferdiebergado/fullstack-go/internal/db"
@@ -25,6 +24,8 @@ type ActivityHandler struct {
 	hostService     host.HostService
 	divisionService division.DivisionService
 }
+
+const pagesPath = "pages/activities/"
 
 func NewActivityHandler(as ActivityService, vs venue.VenueService, hs host.HostService, ds division.DivisionService) *ActivityHandler {
 	return &ActivityHandler{activityService: as, venueService: vs, hostService: hs, divisionService: ds}
@@ -89,7 +90,7 @@ func (h *ActivityHandler) ListActiveActivities(w http.ResponseWriter, r *http.Re
 		Headers: fmt.Sprintf(`data-headers='%s'`, string(headers)),
 	}
 
-	err = ui.RenderHTML(w, "pages/activities/index.html", data)
+	err = ui.RenderHTML(w, pagesPath+"index.html", data)
 
 	if err != nil {
 		response.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
@@ -129,7 +130,7 @@ func (h *ActivityHandler) ShowCreateActivityForm(w http.ResponseWriter, r *http.
 		Hosts:     hosts,
 	}
 
-	err = ui.RenderHTML(w, "pages/activities/create.html", data)
+	err = ui.RenderHTML(w, pagesPath+"create.html", data)
 
 	if err != nil {
 		response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
@@ -179,7 +180,7 @@ func (h *ActivityHandler) GetActivity(w http.ResponseWriter, r *http.Request) {
 func (h *ActivityHandler) ShowActivity(w http.ResponseWriter, r *http.Request) {
 	activity := h.findActivity(w, r)
 
-	err := ui.RenderHTML(w, "pages/activities/view.html", activity)
+	err := ui.RenderHTML(w, pagesPath+"view.html", activity)
 
 	if err != nil {
 		response.ErrorHandler(w, r, http.StatusInternalServerError, "unable to render template", err)
@@ -223,7 +224,7 @@ func (h *ActivityHandler) ShowEditActivityForm(w http.ResponseWriter, r *http.Re
 		Hosts:     hosts,
 	}
 
-	err = ui.RenderHTML(w, "pages/activities/edit.html", data)
+	err = ui.RenderHTML(w, pagesPath+"edit.html", data)
 
 	if err != nil {
 		response.ErrorHandler(w, r, http.StatusBadRequest, "unable to render template", err)
@@ -363,9 +364,6 @@ func (h *ActivityHandler) DeleteActivity(w http.ResponseWriter, r *http.Request)
 	err = h.activityService.DeleteActivity(r.Context(), id)
 
 	if err != nil {
-
-		// DEBUG:
-		log.Println("error in delete activity at activity service")
 
 		status := http.StatusInternalServerError
 
