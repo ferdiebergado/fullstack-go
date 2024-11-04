@@ -8,6 +8,12 @@ vars:
   CONTAINER_IMAGE: postgres:16-alpine3.20
   DSN: postgres://$DB_USER:$DB_PASS@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable
   MIGRATIONS_DIR: db/migrations
+  SEED_PARAMS:
+    [
+      "activities (title,start_date,end_date,venue_id,host_id) FROM '/root/activities.csv'",
+      "venues (name,division_id) FROM '/root/venues.csv'",
+      "hosts (name) FROM '/root/hosts.csv'",
+    ]
 
 tasks:
   postgres:
@@ -28,25 +34,23 @@ tasks:
   seed:
     cmd:
       for:
-        [
-          "activities (title,start_date,end_date,venue_id,host_id) FROM '/root/activities.csv'",
-          "venues (name,division_id) FROM '/root/venues.csv'",
-          "hosts (name) FROM '/root/hosts.csv'",
-        ]
+        var: SEED_PARAM
       cmd: $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "\copy {{.ITEM}} DELIMITER ',' CSV HEADER"
-
   generate:
     aliases: ["gen"]
     cmd: export DSN="{{.DSN}}"; sqlc -f db/sqlc.yaml generate
     requires:
       vars: [DSN]
-  setup_test:
+  test:setup:
     vars:
       DB_NAME: test
       DSN: postgres://$DB_USER:$DB_PASS@$DB_HOST:$DB_PORT/{{.DB_NAME}}?sslmode=disable
     cmds:
       - $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -w -c "CREATE DATABASE {{.DB_NAME}};"
       - migrate -database {{.DSN}} -path {{.MIGRATIONS_DIR}} up
+      - for:
+          var: SEED_PARAMS
+        cmd: $CONTAINER exec -it {{.CONTAINER_NAME}} psql -U $DB_USER -d {{.DB_NAME}} -w -c "\copy {{.ITEM}} DELIMITER ',' CSV HEADER"
   test:
     env:
       APP_ENV: test
