@@ -318,8 +318,11 @@ function resetTableSort() {
 }
 
 /**
+ *
  * @param {HTMLTableCellElement} th
- *  @param {string} field */
+ * @param {string} field
+ *
+ * */
 function sortTable(th, field) {
   sortDirection = sortColumn === field ? -sortDirection : 1;
   sortColumn = field;
@@ -409,6 +412,7 @@ resetButton?.addEventListener('click', () => {
   rowsPerPageSelect && (rowsPerPageSelect.value = String(ROWS_PER_PAGE));
   resetTableSort();
   sortDirection = 1;
+  sortColumn = '';
   fetchData();
 });
 
