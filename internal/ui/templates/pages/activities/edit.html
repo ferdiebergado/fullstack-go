@@ -1,16 +1,12 @@
-{{ block "title" . }}PTMS - Edit Activity{{ end }} 
-
-{{ block "header" . }}Activities{{ end }} 
-
-{{ block "scripts" . }}
+{{ block "title" . }}PTMS - Edit Activity{{ end }} {{ block "header" .
+}}Activities{{ end }} {{ block "scripts" . }}
 <script type="module" src="/static/js/activity/edit.js"></script>
-{{ end }} 
-
-{{ block "content" . }}
+{{ end }} {{ block "content" . }}
 
 <div class="card">
   <div class="card-header">
     <h3>Edit Activity</h3>
+    <p class="title">ID: {{ .Activity.ID }}</p>
   </div>
 
   <form
@@ -19,10 +15,6 @@
     method="post"
   >
     <input type="hidden" name="_method" value="PUT" />
-
-    <div class="form-group">
-      <p>ID: {{ .Activity.ID }}</p>
-    </div>
 
     <div class="form-group">
       <label for="title">Title</label>
@@ -60,9 +52,7 @@
       <!-- VENUE -->
       <div class="col">
         <div class="form-group">
-          <label for="venue"
-            >Venue (Name of Hotel, City/Province)</label
-          >
+          <label for="venue">Venue (Name of Hotel, City/Province)</label>
           {{ $venue_id := .Activity.VenueID }}
           <select name="venue_id" id="venue_id" required>
             <option disabled selected>Select a venue...</option>
