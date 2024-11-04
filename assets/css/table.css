@@ -6,6 +6,7 @@ table {
 	margin-bottom: 1.5em;
 	font-size: 0.9em;
 	table-layout: fixed;
+	min-width: 600px;
 }
 
 th {
@@ -39,5 +40,7 @@ th[data-sort="none"]::after {
 
 .responsive-table {
 	overflow-x: auto;
+	position: relative;
+	display: inline-block;
 }
 /* End Table */

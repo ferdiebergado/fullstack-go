@@ -3,7 +3,9 @@
 <style>
   table {
     table-layout: auto;
+    min-width: 250px;
   }
+
   td {
     border: none;
     font-size: medium;
@@ -25,44 +27,46 @@
     <h3>Activity Details</h3>
   </div>
 
-  <table>
-    <tr>
-      <td>ID</td>
-      <td>{{ .ID }}</td>
-    </tr>
-    <tr>
-      <td>Title</td>
-      <td>{{ .Title }}</td>
-    </tr>
-    <tr>
-      <td>Start Date</td>
-      <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
-    </tr>
-    <tr>
-      <td>End Date</td>
-      <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
-    </tr>
-    <tr>
-      <td>Venue</td>
-      <td>{{ .Venue }}</td>
-    </tr>
-    <tr>
-      <td>Region</td>
-      <td>{{ .Region }}</td>
-    </tr>
-    <tr>
-      <td>Host</td>
-      <td>{{ .Host }}</td>
-    </tr>
-    <tr>
-      <td>Date Created</td>
-      <td>{{ .CreatedAt.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</td>
-    </tr>
-    <tr>
-      <td>Last Updated</td>
-      <td>{{ .UpdatedAt.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</td>
-    </tr>
-  </table>
+  <div class="responsive-table">
+    <table>
+      <tr>
+        <td>ID</td>
+        <td>{{ .ID }}</td>
+      </tr>
+      <tr>
+        <td>Title</td>
+        <td>{{ .Title }}</td>
+      </tr>
+      <tr>
+        <td>Start Date</td>
+        <td>{{ .StartDate.Time.Format "2006-01-02" }}</td>
+      </tr>
+      <tr>
+        <td>End Date</td>
+        <td>{{ .EndDate.Time.Format "2006-01-02" }}</td>
+      </tr>
+      <tr>
+        <td>Venue</td>
+        <td>{{ .Venue }}</td>
+      </tr>
+      <tr>
+        <td>Region</td>
+        <td>{{ .Region }}</td>
+      </tr>
+      <tr>
+        <td>Host</td>
+        <td>{{ .Host }}</td>
+      </tr>
+      <tr>
+        <td>Date Created</td>
+        <td>{{ .CreatedAt.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</td>
+      </tr>
+      <tr>
+        <td>Last Updated</td>
+        <td>{{ .UpdatedAt.Format "Mon, 02 Jan 2006 15:04:05 MST" }}</td>
+      </tr>
+    </table>
+  </div>
 
   <a class="btn btn-secondary" href="/activities">Back</a>
 </div>
