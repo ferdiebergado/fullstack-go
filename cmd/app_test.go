@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -194,4 +195,170 @@ func TestListActiveActivities(t *testing.T) {
 
 	test.AssertEqual(t, http.StatusOK, rr.Code)
 	test.AssertContains(t, rr.Header().Get("Content-Type"), "application/json")
+}
+
+func TestListActivityWithPageAndOffset(t *testing.T) {
+	t.Parallel()
+
+	router := setupTestRouter(t)
+
+	page := 1
+	limit := 5
+
+	// Create query parameters
+	params := url.Values{}
+	params.Add("page", fmt.Sprintf("%d", page))
+	params.Add("limit", fmt.Sprintf("%d", limit))
+
+	// Build the complete URL with the parameters
+	urlWithParams := fmt.Sprintf("%s?%s", apiEndpoint, params.Encode())
+
+	req, err := http.NewRequest(http.MethodGet, urlWithParams, nil)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	var apiResponse response.ApiResponse[[]db.ActiveActivityDetail]
+
+	err = json.NewDecoder(rr.Body).Decode(&apiResponse)
+
+	if err != nil {
+		t.Fatal("unable to decode json")
+	}
+
+	data := apiResponse.Data
+	pagination := apiResponse.Meta.Pagination
+
+	dataLength := len(data)
+
+	test.AssertEqual(t, http.StatusOK, rr.Code)
+
+	if dataLength != limit {
+		t.Errorf("Expected %d, but got %d", limit, dataLength)
+	}
+
+	if pagination.Page != int64(page) {
+		t.Errorf("Expected %d, but got %d", page, pagination.Page)
+	}
+
+	if pagination.Limit != int64(limit) {
+		t.Errorf("Expected %d, but got %d", limit, pagination.Limit)
+	}
+
+}
+
+func TestListActivityWithSort(t *testing.T) {
+	t.Parallel()
+
+	router := setupTestRouter(t)
+
+	page := 1
+	limit := 5
+	sortCol := "venue"
+	sortDir := "1"
+
+	// Create query parameters
+	params := url.Values{}
+	params.Add("page", fmt.Sprintf("%d", page))
+	params.Add("limit", fmt.Sprintf("%d", limit))
+	params.Add("sortCol", sortCol)
+	params.Add("sortDir", sortDir)
+
+	// Build the complete URL with the parameters
+	urlWithParams := fmt.Sprintf("%s?%s", apiEndpoint, params.Encode())
+
+	req, err := http.NewRequest(http.MethodGet, urlWithParams, nil)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	var apiResponse response.ApiResponse[[]db.ActiveActivityDetail]
+
+	err = json.NewDecoder(rr.Body).Decode(&apiResponse)
+
+	if err != nil {
+		t.Fatal("unable to decode json")
+	}
+
+	test.AssertEqual(t, http.StatusOK, rr.Code)
+
+	data := apiResponse.Data
+	firstActivity := data[0]
+
+	expectedTitle := "Donec dapibus."
+	actualTitle := firstActivity.Title
+
+	expectedHost := "Wolff-Witting"
+	actualHost := firstActivity.Host
+
+	if actualTitle != expectedTitle {
+		t.Errorf("Expected %s, but got %s", expectedTitle, actualTitle)
+	}
+
+	if actualHost != expectedHost {
+		t.Errorf("Expected %s, but got %s", expectedHost, actualHost)
+	}
+
+}
+
+func TestListActivityWithSearch(t *testing.T) {
+	t.Parallel()
+
+	router := setupTestRouter(t)
+
+	search := "mauris"
+	searchCol := "title"
+
+	// Create query parameters
+	params := url.Values{}
+	params.Add("search", search)
+	params.Add("searchCol", searchCol)
+
+	// Build the complete URL with the parameters
+	urlWithParams := fmt.Sprintf("%s?%s", apiEndpoint, params.Encode())
+
+	req, err := http.NewRequest(http.MethodGet, urlWithParams, nil)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	var apiResponse response.ApiResponse[[]db.ActiveActivityDetail]
+
+	err = json.NewDecoder(rr.Body).Decode(&apiResponse)
+
+	if err != nil {
+		t.Fatal("unable to decode json")
+	}
+
+	test.AssertEqual(t, http.StatusOK, rr.Code)
+
+	data := apiResponse.Data
+	firstActivity := data[0]
+
+	expectedTitle := "Aliquam non mauris."
+	actualTitle := firstActivity.Title
+
+	expectedHost := "Aufderhar Group"
+	actualHost := firstActivity.Host
+
+	if actualTitle != expectedTitle {
+		t.Errorf("Expected %s, but got %s", expectedTitle, actualTitle)
+	}
+
+	if actualHost != expectedHost {
+		t.Errorf("Expected %s, but got %s", expectedHost, actualHost)
+	}
+
 }
