@@ -1,0 +1,13 @@
+/* Layout */
+.row {
+	display: flex;
+	gap: 1em;
+	margin-bottom: 2em;
+}
+
+.col {
+	flex: 1;
+	width: clamp(50%, 100vw - 16px, 100%);
+}
+
+/* End Layout */

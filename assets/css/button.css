@@ -1,0 +1,36 @@
+/* Button */
+.btn {
+	color: white;
+	padding: 8px 16px;
+	text-decoration: none;
+	margin: 12px 6px;
+	cursor: pointer;
+	display: inline-block; /* Add this */
+	border: 0 !important;
+	outline: 0 !important;
+	font-weight: 600;
+}
+
+.btn-primary {
+	background-color: var(--primary-color);
+}
+
+.btn-secondary {
+	background-color: var(--secondary-color);
+}
+
+.btn-success {
+	background-color: var(--success-color);
+}
+
+.btn-small {
+	padding: 0.3em 1em !important;
+	margin: 0.2em 0.3em !important;
+	font-size: small;
+}
+
+.btn-close {
+	float: right;
+	cursor: pointer;
+}
+/* End Button */

@@ -1,0 +1,43 @@
+/* Table */
+table {
+	border-collapse: collapse;
+	width: 100%;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+	font-size: 0.9em;
+	table-layout: fixed;
+}
+
+th {
+	background-color: lightslategray;
+	color: whitesmoke;
+}
+
+th,
+td {
+	padding: 10px;
+	text-align: left;
+	vertical-align: top;
+	border-bottom: 1px solid #ccc;
+}
+
+th[data-sort="asc"]::after {
+	content: "▲"; /* Up arrow for ascending */
+	margin-left: 5px;
+	float: right;
+}
+
+th[data-sort="desc"]::after {
+	content: "▼"; /* Down arrow for descending */
+	margin-left: 5px;
+	float: right;
+}
+
+th[data-sort="none"]::after {
+	content: ""; /* No indicator when not sorted */
+}
+
+.responsive-table {
+	overflow-x: auto;
+}
+/* End Table */

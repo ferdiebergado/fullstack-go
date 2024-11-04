@@ -1,0 +1,46 @@
+/* Forms */
+.form-group {
+	margin: 0.5em 0;
+}
+
+.form-error {
+	color: var(--danger-color);
+	font-size: 0.9rem;
+	margin: 0;
+}
+
+.has-error {
+	border: 2px solid var(--danger-color);
+	outline: auto;
+	background-color: #fdd;
+}
+
+label {
+	color: #555;
+	white-space: nowrap;
+}
+
+input,
+select,
+textarea {
+	width: 100%; /* Full width */
+	padding: 12px; /* Some padding */
+	border: 1px solid #ccc; /* Gray border */
+	margin-top: 6px; /* Add a top margin */
+	margin-bottom: 6px; /* Bottom margin */
+	outline: 0 !important;
+	font-size: 16px;
+	border-radius: var(--border-radius);
+}
+
+textarea {
+	resize: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+	border: 1px solid deepskyblue;
+	outline: none;
+}
+/* End Input */

@@ -1,0 +1,15 @@
+/* Card */
+.card {
+	padding: 2rem;
+	background-color: var(--baby-powder);
+	box-shadow: var(--box-shadow);
+	border-radius: var(--border-radius);
+	margin-inline: 5rem;
+	width: fit-content;
+}
+
+.card-header span {
+	margin-bottom: 1em;
+	font-weight: bold;
+}
+/* End Card */

@@ -1,0 +1,30 @@
+/* Modal */
+dialog {
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: #fefefe;
+	top: 10rem;
+	margin-inline: auto;
+	padding: 1.5em;
+	border: 1px solid #ccc;
+	width: 80%;
+	max-width: 350px;
+	box-shadow: var(--box-shadow);
+	border-radius: var(--border-radius);
+}
+
+.close {
+	color: #aaaaaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+	color: #000;
+	text-decoration: none;
+	cursor: pointer;
+}
+/* End Modal */

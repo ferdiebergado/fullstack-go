@@ -1,0 +1,45 @@
+/* Navbar container */
+.navbar {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 20px 2em;
+	background-color: #536878;
+	color: white;
+}
+
+/* Brand logo on the left */
+.navbar-brand img {
+	height: 40px;
+}
+
+/* Links aligned to the right */
+.navbar-links {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0;
+	padding: 0;
+}
+
+.navbar-links li {
+	margin-left: 20px;
+}
+
+.navbar-links a {
+	text-decoration: none;
+	color: white;
+	font-weight: 300;
+	padding: 10px;
+}
+
+.navbar-links a:hover {
+	color: #ddd;
+}
+
+.navbar-links a.active {
+	background-color: var(--secondary-color);
+	padding-inline: 20px;
+}
+/* End Navbar */

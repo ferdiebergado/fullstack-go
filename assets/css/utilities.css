@@ -1,0 +1,35 @@
+/* Utilities */
+.fit-content {
+	width: fit-content;
+}
+
+.rounded {
+	border-radius: var(--border-radius);
+}
+
+.float-right {
+	float: right;
+}
+
+.right {
+	text-align: right;
+}
+
+.center {
+	text-align: center;
+}
+
+.clearfix::after {
+	content: "";
+	clear: both;
+	display: table;
+}
+
+.flex {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1em;
+}
+
+/* End Utilities */
