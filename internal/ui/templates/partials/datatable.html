@@ -55,10 +55,17 @@
 </div>
 
 <!-- Dynamic Table -->
-<table id="dynamicTable" {{ .Headers | attr }} {{ .Url | attr }}>
-  <thead id="dynamicTableHead"></thead>
-  <tbody id="dynamicTableBody"></tbody>
-</table>
+<div class="responsive-table">
+  <table id="dynamicTable" {{ .Headers | attr }} {{ .Url | attr }}>
+    <thead id="dynamicTableHead"></thead>
+    <tbody id="dynamicTableBody"></tbody>
+  </table>
+
+  <!-- Spinner Overlay -->
+  <!-- <div class="spinner-overlay hidden">
+    <div class="spinner"></div>
+  </div> -->
+</div>
 
 <div id="spinner" class="loading">
   <div class="spinner"></div>

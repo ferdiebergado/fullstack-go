@@ -100,8 +100,10 @@ function renderSpinner(show) {
     if (show) {
       spinnerContainer.style.display = 'flex'; // Show spinner
       tableBody && (tableBody.innerHTML = ''); // Clear existing content in the table body
+      // document.querySelector('.spinner-overlay')?.classList.remove('hidden');
     } else {
       spinnerContainer.style.display = 'none'; // Hide spinner
+      // document.querySelector('.spinner-overlay')?.classList.add('hidden');
     }
   }
 }
