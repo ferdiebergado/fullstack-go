@@ -2,20 +2,24 @@
 <script type="module" src="/static/js/components/table.js"></script>
 {{ end }} {{ define "datatable" }}
 <div class="flex">
-  <!-- Search -->
-  <input
-    type="search"
-    id="filterInput"
-    placeholder="Type the Search item then press Enter. "
-    autocomplete="on"
-    autofocus
-  />
+  <div class="col">
+    <!-- Search -->
+    <input
+      type="search"
+      id="filterInput"
+      placeholder="Type the Search item then press Enter. "
+      autocomplete="on"
+      autofocus
+    />
+  </div>
 
-  <select
-    id="filterSelect"
-    style="width: fit-content"
-    title="Field to search"
-  ></select>
+  <div>
+    <select
+      id="filterSelect"
+      class="fit-content"
+      title="Field to search"
+    ></select>
+  </div>
 </div>
 
 <!-- Pagination -->
@@ -56,7 +60,14 @@
   <tbody id="dynamicTableBody"></tbody>
 </table>
 
+<div id="spinner" class="loading">
+  <div class="spinner"></div>
+  <!-- Spinner here -->
+  Fetching data...
+</div>
+
 <div class="page-info">
   <span id="pageInfo"></span><span id="recordsInfo"></span>
 </div>
+
 {{ end }}

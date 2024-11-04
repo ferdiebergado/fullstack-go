@@ -52,6 +52,7 @@ const recordsInfo = document.getElementById('recordsInfo');
 const firstButton = /** @type {HTMLButtonElement | null} */ (
   document.getElementById('firstButton')
 );
+
 const prevButton = /** @type {HTMLButtonElement | null} */ (
   document.getElementById('prevButton')
 );
@@ -77,6 +78,7 @@ let sortColumn = '';
 let sortDirection = 1;
 let search = '';
 let searchColumn = '';
+let isLoading = false;
 
 // Fetch headers from data attributes
 const headers = JSON.parse(table?.dataset.headers || '[]');
@@ -86,9 +88,29 @@ function getRowsPerPage() {
   return Number(rowsPerPageSelect?.value) || ROWS_PER_PAGE;
 }
 
+/**
+ * Show/hide the spinner.
+ *
+ * @param {boolean} show
+ */
+function renderSpinner(show) {
+  const spinnerContainer = document.getElementById('spinner');
+
+  if (spinnerContainer) {
+    if (show) {
+      spinnerContainer.style.display = 'flex'; // Show spinner
+      tableBody && (tableBody.innerHTML = ''); // Clear existing content in the table body
+    } else {
+      spinnerContainer.style.display = 'none'; // Hide spinner
+    }
+  }
+}
+
 // Fetch data from API endpoint with pagination
 async function fetchData(page = 1) {
   try {
+    isLoading = true;
+    renderSpinner(true);
     search = filterInput?.value.toLocaleLowerCase() || '';
     searchColumn = filterSelect?.value || '';
     rowsPerPage = getRowsPerPage();
@@ -120,12 +142,13 @@ async function fetchData(page = 1) {
     saveState();
   } catch (error) {
     console.error('Fetch error:', error);
+  } finally {
+    isLoading = false;
+    renderSpinner(false);
   }
 }
 
 function renderFilterSelect() {
-  console.log(searchColumn);
-
   if (filterSelect) {
     filterSelect.innerHTML = headers
       .map(
@@ -244,22 +267,25 @@ function updatePagination() {
     setButtonState(nextButton, currentPage === totalPages);
     setButtonState(lastButton, currentPage === totalPages);
 
-    pageJumpInput.disabled = false;
-    rowsPerPageSelect.disabled = false;
+    pageJumpInput && (pageJumpInput.disabled = false);
+    rowsPerPageSelect && (rowsPerPageSelect.disabled = false);
+    pageInfo && (pageInfo.textContent = `Page ${currentPage} of ${totalPages}`);
 
-    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
     const startRecord = (currentPage - 1) * rowsPerPage + 1;
     const endRecord = Math.min(currentPage * rowsPerPage, totalItems);
-    recordsInfo.textContent = `Record ${startRecord}-${endRecord} of ${totalItems} records`;
+
+    recordsInfo &&
+      (recordsInfo.textContent = `Record ${startRecord}-${endRecord} of ${totalItems} records`);
   } else {
     setButtonState(firstButton, true);
     setButtonState(prevButton, true);
     setButtonState(nextButton, true);
     setButtonState(lastButton, true);
-    pageJumpInput.disabled = true;
-    rowsPerPageSelect.disabled = true;
-    pageInfo.textContent = '';
-    recordsInfo.textContent = '';
+
+    pageJumpInput && (pageJumpInput.disabled = true);
+    rowsPerPageSelect && (rowsPerPageSelect.disabled = true);
+    pageInfo && (pageInfo.textContent = '');
+    recordsInfo && (recordsInfo.textContent = '');
   }
 }
 
@@ -284,6 +310,13 @@ function updateRowsPerPage() {
   fetchData(); // Fetch from the first page with new rows per page setting
 }
 
+function resetTableSort() {
+  // Reset other headers' sort attribute
+  Array.from(table?.querySelectorAll('th') || []).forEach((header) => {
+    header.dataset.sort = 'none';
+  });
+}
+
 /**
  * @param {HTMLTableCellElement} th
  *  @param {string} field */
@@ -292,10 +325,7 @@ function sortTable(th, field) {
   sortColumn = field;
   const sortOrder = th.dataset.sort === 'asc' ? 'desc' : 'asc';
 
-  // Reset other headers' sort attribute
-  Array.from(table?.querySelectorAll('th')).forEach((header) => {
-    header.dataset.sort = 'none';
-  });
+  resetTableSort();
 
   // Set the selected header's sort attribute
   th.dataset.sort = sortOrder;
@@ -340,17 +370,17 @@ function retrieveState() {
     console.log('Retrieved state:', tableState);
 
     currentPage = tableState.currentPage || 1;
-    rowsPerPageSelect.value =
-      String(tableState.rowsPerPage) || String(getRowsPerPage());
+
+    rowsPerPageSelect &&
+      (rowsPerPageSelect.value =
+        String(tableState.rowsPerPage) || String(getRowsPerPage()));
     sortColumn = tableState.sortColumn || '';
     sortDirection = tableState.sortDirection || 1;
-    filterInput.value = tableState.search;
-    filterSelect.value = tableState.searchCol;
+    filterInput && (filterInput.value = tableState.search);
+    filterSelect && (filterSelect.value = tableState.searchCol);
     searchColumn = tableState.searchCol;
     search = tableState.search;
-    pageJumpInput.value = tableState.jumpPage;
-
-    console.log(filterSelect?.value);
+    pageJumpInput && (pageJumpInput.value = tableState.jumpPage);
   }
 }
 
@@ -373,10 +403,12 @@ nextButton?.addEventListener('click', () => changePage(currentPage + 1));
 lastButton?.addEventListener('click', () => changePage(totalPages));
 refreshButton?.addEventListener('click', () => fetchData(currentPage));
 resetButton?.addEventListener('click', () => {
-  filterInput.value = '';
-  filterSelect.options[0].selected = true;
-  pageJumpInput.value = '1';
-  rowsPerPageSelect.value = ROWS_PER_PAGE;
+  filterInput && (filterInput.value = '');
+  filterSelect && (filterSelect.options[0].selected = true);
+  pageJumpInput && (pageJumpInput.value = '1');
+  rowsPerPageSelect && (rowsPerPageSelect.value = String(ROWS_PER_PAGE));
+  resetTableSort();
+  sortDirection = 1;
   fetchData();
 });
 
