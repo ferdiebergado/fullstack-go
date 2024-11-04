@@ -3,7 +3,7 @@
 
 import { inputErrorClass } from './config.js';
 import { showNotification } from './components/notification.js';
-import { sanitize } from './sanitize.js';
+import { sanitize } from './utils.js';
 
 /**
  * Sends a request and handles form submission.
