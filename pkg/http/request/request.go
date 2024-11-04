@@ -17,10 +17,10 @@ const (
 	queryParamSortDir   = "sortDir"
 	queryParamSearch    = "search"
 	queryParamSearchCol = "searchCol"
-	recordsPerPage      = 5
-	sortColumn          = "start_date"
-	sortDir             = "ASC"
-	searchCol           = "title"
+
+	recordsPerPage = 5
+	sortColumn     = "updated_at"
+	sortDir        = "DESC"
 )
 
 type QueryParams struct {
@@ -93,7 +93,7 @@ func (q *QueryParams) GetSortDir() string {
 	s := q.urlValues.Get(queryParamSortDir)
 
 	if s == "1" {
-		return sortDir
+		return "ASC"
 	} else if s == "-1" {
 		return "DESC"
 	}
@@ -108,13 +108,7 @@ func (q *QueryParams) GetSearch() string {
 
 func (q *QueryParams) GetSearchCol() string {
 	// TODO: Validate query params
-	col := q.urlValues.Get(queryParamSearchCol)
-
-	if col == "" {
-		return searchCol
-	}
-
-	return col
+	return q.urlValues.Get(queryParamSearchCol)
 }
 
 func ParseResourceId(r *http.Request) (int64, error) {
