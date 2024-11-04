@@ -1,17 +1,21 @@
 {{ block "title" . }}PTMS - View Activity{{ end }} {{ block "header" .
 }}Activities{{ end }} {{ block "styles" . }}
 <style>
+  table {
+    table-layout: auto;
+  }
   td {
     border: none;
     font-size: medium;
   }
 
   td:first-child {
-    width: 20%;
+    width: fit-content;
   }
 
   td:nth-child(2) {
     font-weight: bold;
+    width: fit-content;
   }
 </style>
 {{ end }} {{ block "content" . }}
